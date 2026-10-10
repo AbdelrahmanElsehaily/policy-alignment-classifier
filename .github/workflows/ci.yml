@@ -36,7 +36,7 @@ jobs:
         run: uv run mypy
 
       - name: Tests
-        run: uv run pytest --cov=pac --cov-report=term-missing
+        run: uv run pytest --cov=pac --cov-report=term-missing --cov-fail-under=90
 
   web:
     name: Frontend (types, tests, build)
