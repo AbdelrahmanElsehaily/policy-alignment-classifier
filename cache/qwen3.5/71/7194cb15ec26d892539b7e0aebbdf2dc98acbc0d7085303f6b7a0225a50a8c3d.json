@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 6631.751875000191,
+  "model": "qwen3.5",
+  "text": "{\n \"rationale\": \"The event is a user_input containing a greeting. No rules apply to user_input except R13 regarding manipulation, which is not violated here. The session envelope shows the customer is unverified, but the user input itself does not attempt to access data or perform actions. Thus, no policy is broken.\", \"verdict\": \"allow\", \"rule_ids\": [], \"confidence\": 1.0 }",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 0,
+   "input_tokens": 2901,
+   "output_tokens": 89
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"hello!\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}
