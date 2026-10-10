@@ -1,0 +1,15 @@
+{
+  "run_id": "20261010T095517Z_qwen3.5_dev",
+  "created_at": "2026-10-10T09:55:17+00:00",
+  "classifier": "qwen3.5",
+  "backend": "ollama",
+  "prompt_version": "classifier_v1@a6ab9407",
+  "policy_version": "v0",
+  "policy_sha256": "1b4199409d8ab5b5ff2148bb87e1a22967e4da4bd1890e52eba142a62ea4fddd",
+  "dataset_sha256": "ac97a4ba560596e7ec495f46b0c09b6a5ea52fb5b46aa797f5588d6c5984cbb3",
+  "split": "dev",
+  "n_cases": 49,
+  "repeats": 1,
+  "with_history": false,
+  "git_commit": "c23d375"
+}

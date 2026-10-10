@@ -30,7 +30,7 @@ class Settings(BaseSettings):
     ollama_host: str = "http://localhost:11434"
 
     policy_path: Path = REPO_ROOT / "policy" / "policy_v0.md"
-    prompt_path: Path = REPO_ROOT / "prompts" / "classifier_v1.md"
+    prompt_path: Path = REPO_ROOT / "prompts" / "classifier_v2.md"
     cases_path: Path = REPO_ROOT / "data" / "cases.jsonl"
     cache_dir: Path = REPO_ROOT / "cache"
     results_dir: Path = REPO_ROOT / "results"
