@@ -183,9 +183,18 @@ export interface ConversationSetup {
   suggestions: Suggestion[];
 }
 
+/** What the inline guardrail did with an event (src/pac/guardrail/domain/enforcement.py). */
+export type Gate = "pass" | "block" | "hold";
+
+export interface HistoryEntry {
+  event: TraceEvent;
+  gate: Gate;
+  by_guardrail: boolean;
+}
+
 export interface TurnRequest {
   session: Session;
-  history: TraceEvent[];
+  history: HistoryEntry[];
   message: string;
   guardrail_sees_history: boolean;
 }
@@ -193,7 +202,8 @@ export interface TurnRequest {
 export type Engine = "llm" | "baseline";
 
 export type TurnUpdate =
-  | { type: "event"; index: number; event: TraceEvent }
+  | { type: "event"; index: number; event: TraceEvent; by_guardrail: boolean }
   | { type: "verdict"; index: number; engine: Engine; classification: Classification }
+  | { type: "gate"; index: number; gate: Gate }
   | { type: "stopped"; reason: string }
   | { type: "done" };

@@ -2,11 +2,28 @@
 
 ## Where the guardrail sits
 
-The guardrail is a **man in the middle**. It observes the events passing between an agent and its users
-and tools, and returns a verdict for each one (`allow`, `violation`, or `policy_silent`, which means
-escalate to a human). It does **not** control the agent: it can't change the agent's prompts, tools, tool
-schemas or platform flows, and it can't add data to the agent's tool calls. Everything it knows comes
-from what passes through it. Two consequences shape the design:
+The guardrail is a **man in the middle**, sitting **inline** on the traffic between an agent, its users
+and its tools. Every event passes through it and **waits for its verdict**
+([`enforcement.py`](../src/pac/guardrail/domain/enforcement.py)):
+
+| Verdict | What the guardrail does |
+|---|---|
+| `allow` | Passes the event on |
+| `violation` | **Blocks** it |
+| `policy_silent` | **Holds** it for a human. The classifier's own failures fail closed to this. |
+
+A stopped event is replaced by the guardrail's own stand-in, so both sides can carry on. A blocked tool
+call never runs, and the agent gets an error it can react to, for example by escalating. A blocked tool
+result never reaches the agent. A blocked customer message or reply is replaced by a notice to the
+customer.
+
+It does **not** control the agent: it can't change the agent's prompts, tools, tool schemas or platform
+flows, and it can't add data to the agent's tool calls. It can only pass, block or hold what goes past.
+Everything it knows comes from what passes through it. Three consequences shape the design:
+
+- **Latency is on the critical path.** Every judged event waits, so the guardrail's latency is added to
+  the agent's, event after event. That is why deterministic checks should settle what they can before
+  the LLM is called ([`WRITEUP.md`](WRITEUP.md) §6).
 
 - **Missing facts must be recovered from the stream, not requested from the agent.** A refund call doesn't
   carry the order's total or delivery date, but the `lookup_order` response that preceded it passed
@@ -48,8 +65,9 @@ from what passes through it. Two consequences shape the design:
   beside. `domain/back_office.py` is the systems behind Lark's eight tools, in memory and seeded with the
   eval set's world. They don't enforce the policy, because catching that is the guardrail's job.
   `application/agent.py` is Lark played by an LLM through the guardrail's `LLMBackend` port, one JSON
-  action per call. `application/conversation.py` runs a turn: each event goes to every observer (the LLM
-  classifier and the regex baseline) concurrently, and the agent carries on regardless. It uses the
+  action per call. `application/conversation.py` runs a turn with the LLM classifier inline: each event
+  waits for its verdict and is passed, blocked or held. The regex baseline judges alongside for
+  comparison and never gates. It uses the
   guardrail's domain model and LLM port, never the classifier, and is independent of `evaluation`. The
   composition root wires the two together. It doesn't appear in the diagram above, because nothing in
   the eval depends on it.

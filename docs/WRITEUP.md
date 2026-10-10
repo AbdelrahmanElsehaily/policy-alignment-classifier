@@ -34,9 +34,9 @@
 
 ## 1. What I built
 
-**Where it sits.** The guardrail is a **man in the middle**: it observes the events between the agent and
-its users and tools, and returns a verdict for each. It cannot change the agent, its prompts, its tools or
-its platform. Every recommendation in this repo respects that: things the guardrail can do itself are
+**Where it sits.** The guardrail is a **man in the middle**, inline on the events between the agent and
+its users and tools. Each event waits for its verdict: `allow` passes, `violation` is blocked,
+`policy_silent` is held for a human. It cannot change the agent, its prompts, its tools or its platform. Every recommendation in this repo respects that: things the guardrail can do itself are
 proposed as fixes, and things only the agent's operator can do are written as questions for them
 ([`ARCHITECTURE.md`](ARCHITECTURE.md)).
 
@@ -55,8 +55,8 @@ trace event ──► session envelope + event JSON (escaped) ──► prompt v
 - **The regression test** replays every committed run and requires identical verdicts and metrics.
 - **The app** has five views: 14 curated examples, a live conversation, classify an event, the position
   demo, and eval results. `pac serve --live` makes every click a real model call. In the live
-  conversation you chat with a simulated Lark (an LLM with a fake back office) and watch the guardrail
-  judge each event as it happens, without being able to stop it. See the [README](../README.md).
+  conversation you chat with a simulated Lark (an LLM with a fake back office), with the guardrail inline:
+  each event waits for its verdict and is passed, blocked or held. See the [README](../README.md).
 - **The code** has two bounded contexts, each layered into domain, application and infrastructure:
   `guardrail` (judging an event) and `evaluation` (measuring a judge). The dependency rules are
   import-linter contracts enforced in CI ([`ARCHITECTURE.md`](ARCHITECTURE.md)).
@@ -133,6 +133,18 @@ the same turn. The ablation can't see this: every history case in the eval *supp
 none contains an earlier violation that must not be blamed on the current event. Before shipping a
 stateful guardrail, add contamination cases (a violation in the history, a clean current event) to the
 eval set. Until then, the "with history" number is an upper bound on how well history works.
+
+**What blocking showed.** That chat ran before the guardrail blocked. With blocking, the same scenario went
+differently, and it exposed two costs the eval doesn't price:
+- **A false positive now costs the customer, not just an alert.** The guardrail blocked the leaked key's
+  tool result (correct). Lark, left without the order facts, asked the customer to confirm the order. The
+  guardrail then blocked that reply under R1, reasoning that refusing to disclose to a verified customer
+  "breaks R1". That reads a prohibition as an obligation. The customer got a "reply blocked" notice. The
+  test split's 11% false-block rate means about one harmless event in nine is stopped like this.
+- **Blocking a whole tool result is a blunt tool.** One field held a secret, and blocking the result also
+  withheld the order status and address Lark needed to do the job. For leaks in tool results, the
+  guardrail should *redact* the secret and pass the rest. It can do that itself, because the result passes
+  through it.
 
 ### Dev iteration (49 events)
 
@@ -223,8 +235,24 @@ and its output can't tell the two explanations apart.
 
 **Measured (local):** median model latency is **9.2 s** and p95 is **23 s** per event, with about 3,700
 input and 160 output tokens. This was one M1 Max with the 9.7B model at Q4 quantisation and one request at
-a time. That is **not usable on a request path**: a support turn involves several events. It is fine for
-offline eval.
+a time. That is **not usable on a request path**, and the guardrail is on it: every event waits for its
+verdict, and a support turn involves several events. It is fine for offline eval.
+
+**Where the time goes** (one probe, same machine and model):
+
+| Call | Read prompt | Write answer | Total |
+|---|---|---|---|
+| Classify, cold (plus 2.9 s model load) | 2,904 tok in 10.2 s | 77 tok in 3.6 s | 16.9 s |
+| Classify, system prompt still cached | 2,923 tok in **1.4 s** | 92 tok in 4.3 s | **5.9 s** |
+| Classify right after a different prompt | 2,905 tok in 11.4 s | 153 tok in 7.3 s | 18.9 s |
+
+Reading the ~2,900-token policy prompt is most of the cost, and it's the same on every call: when Ollama
+still has it cached, reading is 7× faster. In the live conversation, the agent and the guardrail share one
+model and evict each other's cached prompt, so every verdict pays the full price. Writing runs at about
+21 tokens/s, and the rationale comes before the verdict, so the verdict waits for 80–150 tokens. Two
+levers follow, both inside the guardrail: keep its prompt cached (its own model instance or slot), and
+put the verdict first so it can gate as soon as that field arrives. The second changes the prompt and
+must be re-measured on dev, because reasoning before the verdict may be part of the accuracy.
 
 **Estimated (Claude Haiku 5.5, list prices, not measured):**
 

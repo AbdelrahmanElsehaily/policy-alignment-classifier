@@ -6,8 +6,8 @@ to Larkspur, each tied to the corner case it comes from
 
 Each amendment is marked by what it needs:
 - **wording**: a policy edit.
-- **guardrail**: an engineering change *we* can make inside the guardrail, which sits in the middle and
-  observes events (see [`ARCHITECTURE.md`](../docs/ARCHITECTURE.md)).
+- **guardrail**: an engineering change *we* can make inside the guardrail, which sits inline and passes,
+  blocks or holds each event (see [`ARCHITECTURE.md`](../docs/ARCHITECTURE.md)).
 - **operator**: a change only Larkspur, who runs the agent, can make. We can ask for it but can't ship it.
 - **decision**: Larkspur has to choose; I give a default.
 

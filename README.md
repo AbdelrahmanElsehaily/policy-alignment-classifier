@@ -53,14 +53,16 @@ settling a case the single event can't decide. **Run all** goes through them one
 marked "live" or "recorded".
 
 **Live conversation** lets you chat with Lark yourself. Lark is a simulated agent (an LLM with a fake
-back office seeded with the eval set's customers and orders), and the guardrail judges every event as it
-happens: your message, each tool call, each tool result and each reply. The guardrail only observes, so a
-flagged tool call still runs. Pick the session (unverified, or verified as Ana or Ben) and start from one
+back office seeded with the eval set's customers and orders), and the guardrail sits inline: your message,
+each tool call, each tool result and each reply waits for its verdict. `allow` passes, `violation` is
+**blocked**, and `policy_silent` is **held** for a human. A stopped event is replaced by the guardrail's
+stand-in: an error Lark can react to, or a notice for you. A blocked refund never reaches the back
+office. The regex baseline is shown alongside and never blocks. Pick the session (unverified, or verified as Ana or Ben) and start from one
 of the ten scenarios, which each aim at a rule or a documented corner case, or type freely. Toggle
 whether the guardrail sees the conversation so far.
 
-On one local model, the agent and the guardrail share the GPU, so verdicts trail the events by tens of
-seconds. Set `PAC_AGENT_MODEL` to let a different model play Lark (same backend), or use MiniMax for both.
+On one local model, the agent and the guardrail share the GPU and evict each other's cached prompt, so
+each event waits 20–40 s for its verdict. Set `PAC_AGENT_MODEL` to let a different model play Lark (same backend), or use MiniMax for both.
 
 ## Evaluate
 

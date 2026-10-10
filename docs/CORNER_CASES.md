@@ -14,8 +14,8 @@ Case ids refer to [`data/build_cases.py`](../data/build_cases.py). How the class
 [`WRITEUP.md`](WRITEUP.md).
 
 **Constraint on every "ship meanwhile":** the guardrail is a man in the middle
-([`ARCHITECTURE.md`](ARCHITECTURE.md)). It observes events and returns a verdict, but it cannot change the
-agent, its tools or its platform. So every interim fix below is something the guardrail can do *by itself*.
+([`ARCHITECTURE.md`](ARCHITECTURE.md)). It sits inline and can pass, block or hold each event, but it
+cannot change the agent, its tools or its platform. So every interim fix below is something the guardrail can do *by itself*.
 Changes only the agent's operator can make are listed as questions for Larkspur, never as things to ship.
 
 ---

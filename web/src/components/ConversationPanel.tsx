@@ -1,19 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 
 import { api } from "../api";
-import { applyUpdate, type Row } from "../conversation";
+import { applyUpdate, type Row, speaker, toHistory } from "../conversation";
 import { ms } from "../format";
-import type { ConversationSetup, Session, Suggestion, TraceEvent } from "../types";
+import type { ConversationSetup, Gate, Session, Suggestion, TraceEvent } from "../types";
 import { VerdictBadge } from "./VerdictCard";
 
 const UNVERIFIED: Session = { verified: false, verified_customer_id: null, email_on_file: null };
 
-const SPEAKER: Record<TraceEvent["kind"], string> = {
-  user_input: "Customer",
-  tool_call: "Lark → tool",
-  tool_response: "Tool result",
-  model_output: "Lark",
-};
 
 function EventBody({ event }: { event: TraceEvent }) {
   if (event.kind === "tool_call") {
@@ -27,7 +21,14 @@ function EventBody({ event }: { event: TraceEvent }) {
   return <p className="said">{event.content}</p>;
 }
 
+const GATE_LABEL: Record<Gate, string> = {
+  pass: "passed",
+  block: "blocked",
+  hold: "held for human review",
+};
+
 function Verdicts({ row }: { row: Row }) {
+  if (row.byGuardrail) return <span className="small">stand-in, not judged</span>;
   const llm = row.verdicts.llm;
   const baseline = row.verdicts.baseline;
   return (
@@ -44,8 +45,9 @@ function Verdicts({ row }: { row: Row }) {
           </p>
         </details>
       ) : (
-        <span className="small pending">guardrail judging…</span>
+        <span className="small pending">guardrail judging… (event waits)</span>
       )}
+      {row.gate && <span className={`gate gate-${row.gate}`}>{GATE_LABEL[row.gate]}</span>}
       {baseline && (
         <div className="small">
           regex <VerdictBadge verdict={baseline.decision.verdict} /> {baseline.decision.rule_ids.join(", ")}
@@ -88,7 +90,7 @@ export function ConversationPanel() {
     setNotice(null);
     setError(null);
     setDraft("");
-    const body = { session, history: rows.map((r) => r.event), message, guardrail_sees_history: seesHistory };
+    const body = { session, history: toHistory(rows), message, guardrail_sees_history: seesHistory };
     try {
       await api.turn(
         body,
@@ -130,14 +132,17 @@ export function ConversationPanel() {
     );
   }
 
-  const flagged = rows.filter((r) => r.verdicts.llm?.decision.verdict === "violation").length;
-  const silent = rows.filter((r) => r.verdicts.llm?.decision.verdict === "policy_silent").length;
+  const blocked = rows.filter((r) => r.gate === "block").length;
+  const held = rows.filter((r) => r.gate === "hold").length;
+  const judged = rows.filter((r) => !r.byGuardrail).length;
   return (
     <section>
       <p className="hint">
         Chat with Lark as a customer. Lark is a simulated agent ({setup?.agent_model ?? "…"}) with a fake back office.
-        The guardrail sits in the middle: it judges every event as it happens but <b>cannot stop Lark</b>, so a flagged
-        tool call still runs.
+        The guardrail sits <b>inline</b>: it can't change Lark, but every event waits for its verdict. Violations are{" "}
+        <b>blocked</b>, policy-silent events are <b>held</b> for a human, and a stopped event is replaced by the
+        guardrail's stand-in (an error for Lark, or a notice for the customer). The regex baseline is shown for
+        comparison and never blocks.
       </p>
       <div className="row compact">
         <label className="inline">
@@ -177,9 +182,9 @@ export function ConversationPanel() {
           row ? (
             <div
               key={i}
-              className={`turn-row kind-${row.event.kind} verdict-${row.verdicts.llm?.decision.verdict ?? "pending"}`}
+              className={`turn-row kind-${row.event.kind} ${row.byGuardrail ? "stand-in" : `gate-row-${row.gate ?? "pending"}`}`}
             >
-              <div className="speaker small">{SPEAKER[row.event.kind]}</div>
+              <div className="speaker small">{speaker(row)}</div>
               <div className="body">
                 <EventBody event={row.event} />
               </div>
@@ -191,7 +196,7 @@ export function ConversationPanel() {
       </div>
       {rows.length > 0 && (
         <p className="small">
-          {rows.length} events · {flagged} flagged as violations · {silent} policy silent (routed to human review)
+          {judged} events judged · {blocked} blocked · {held} held for human review
         </p>
       )}
       {notice && <p className="error">{notice}</p>}
