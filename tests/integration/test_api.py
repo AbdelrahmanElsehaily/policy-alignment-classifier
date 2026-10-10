@@ -18,7 +18,7 @@ from pac.guardrail.domain.events import ClassificationRequest, TraceEvent
 from pac.guardrail.domain.policy import Policy
 from pac.interfaces.api import create_app
 from pac.settings import Settings
-from tests.conftest import decision_json
+from tests.support.builders import decision_json
 from tests.support.fakes import FakeBackend
 
 pytestmark = pytest.mark.integration

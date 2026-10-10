@@ -24,3 +24,10 @@ def test_hash_changes_with_text() -> None:
 def test_malformed_policy_rejected(text: str) -> None:
     with pytest.raises(ValueError, match="policy"):
         Policy.from_text(text)
+
+
+def test_rule_helpers(policy: Policy) -> None:
+    assert policy.ordered_rule_ids()[:3] == ["R1", "R2", "R3"]
+    assert policy.ordered_rule_ids()[-1] == "R13"
+    assert policy.defines("R7")
+    assert not policy.defines("R14")

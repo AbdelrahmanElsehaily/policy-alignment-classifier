@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from collections.abc import Iterator
 from pathlib import Path
 
@@ -54,20 +53,4 @@ def refund_request(verified_session: Session) -> ClassificationRequest:
             tool_name="issue_refund",
             arguments={"order_id": "LK-1", "amount": 450.0, "reason": "changed mind"},
         ),
-    )
-
-
-def decision_json(
-    verdict: str = "allow",
-    rule_ids: list[str] | None = None,
-    confidence: float = 0.9,
-    rationale: str = "Because.",
-) -> str:
-    return json.dumps(
-        {
-            "rationale": rationale,
-            "verdict": verdict,
-            "rule_ids": rule_ids or [],
-            "confidence": confidence,
-        }
     )

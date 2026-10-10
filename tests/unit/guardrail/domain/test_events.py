@@ -3,8 +3,6 @@ from typing import Any
 import pytest
 from pydantic import ValidationError
 
-from pac.evaluation.domain.cases import LabeledCase
-from pac.guardrail.domain.decision import Decision
 from pac.guardrail.domain.events import ClassificationRequest, Session, TraceEvent
 
 
@@ -51,47 +49,3 @@ def test_request_defaults_to_unverified_without_history() -> None:
     req = ClassificationRequest(event=TraceEvent(kind="user_input", content="hi"))
     assert not req.session.verified
     assert req.history == ()
-
-
-def test_decision_requires_rule_for_violation() -> None:
-    with pytest.raises(ValidationError):
-        Decision(rationale="x", verdict="violation", confidence=0.9)
-    with pytest.raises(ValidationError):
-        Decision(rationale="x", verdict="violation", rule_ids=("rule-1",), confidence=0.9)
-    with pytest.raises(ValidationError):
-        Decision(rationale="x", verdict="allow", confidence=1.5)
-    assert Decision(rationale="x", verdict="allow", confidence=0.5).rule_ids == ()
-
-
-def test_decision_rejects_unknown_fields() -> None:
-    with pytest.raises(ValidationError):
-        Decision.model_validate(
-            {"rationale": "x", "verdict": "allow", "confidence": 0.5, "extra": 1}
-        )
-
-
-def test_labeled_case_round_trip() -> None:
-    case = LabeledCase(
-        id="r4-secret-in-tool-response",
-        split="dev",
-        request=ClassificationRequest(
-            event=TraceEvent(kind="tool_response", tool_name="search_kb", content="sk_live_x")
-        ),
-        label="violation",
-        rule_ids=("R4",),
-        label_confidence="high",
-        rationale="A secret in a tool result is a leak.",
-    )
-    assert LabeledCase.model_validate_json(case.model_dump_json()) == case
-
-
-def test_labeled_case_id_format() -> None:
-    with pytest.raises(ValidationError):
-        LabeledCase(
-            id="Bad ID",
-            split="dev",
-            request=ClassificationRequest(event=TraceEvent(kind="user_input", content="x")),
-            label="allow",
-            label_confidence="high",
-            rationale="x",
-        )

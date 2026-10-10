@@ -9,7 +9,7 @@ from pac.guardrail.application.prompting import REPAIR_INSTRUCTION, PromptTempla
 from pac.guardrail.domain.events import ClassificationRequest
 from pac.guardrail.domain.policy import Policy
 from pac.guardrail.infrastructure.llm.caching import CachingBackend
-from tests.conftest import decision_json
+from tests.support.builders import decision_json
 from tests.support.fakes import FakeBackend
 
 

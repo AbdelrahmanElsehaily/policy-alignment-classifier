@@ -16,7 +16,7 @@ from pac.guardrail.application.prompting import (
 from pac.guardrail.domain.decision import Decision
 from pac.guardrail.domain.events import ClassificationRequest, TraceEvent
 from pac.guardrail.domain.policy import Policy
-from tests.conftest import decision_json
+from tests.support.builders import decision_json
 
 
 def test_system_prompt_embeds_policy_and_schema(prompt: PromptTemplate, policy: Policy) -> None:
