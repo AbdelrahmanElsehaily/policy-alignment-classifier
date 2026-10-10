@@ -44,6 +44,15 @@ from what passes through it. Two consequences shape the design:
 - **`evaluation`** is a supporting domain: measuring a guardrail on labelled cases. It is a downstream
   consumer that uses only the guardrail's *domain model* (events, verdicts, the `EventClassifier`
   contract, `Policy`), never its application or infrastructure.
+- **`simulation`** is a supporting domain for the live demo: a stand-in for the agent the guardrail sits
+  beside. `domain/back_office.py` is the systems behind Lark's eight tools, in memory and seeded with the
+  eval set's world. They don't enforce the policy, because catching that is the guardrail's job.
+  `application/agent.py` is Lark played by an LLM through the guardrail's `LLMBackend` port, one JSON
+  action per call. `application/conversation.py` runs a turn: each event goes to every observer (the LLM
+  classifier and the regex baseline) concurrently, and the agent carries on regardless. It uses the
+  guardrail's domain model and LLM port, never the classifier, and is independent of `evaluation`. The
+  composition root wires the two together. It doesn't appear in the diagram above, because nothing in
+  the eval depends on it.
 
 ## Layers within each context
 
@@ -56,7 +65,9 @@ from what passes through it. Two consequences shape the design:
 | `interfaces` | CLI and HTTP API: parse input, call bootstrap and use cases, format output | Everything below it |
 
 **Enforced, not aspirational.** These rules are import-linter contracts in `pyproject.toml`, run by
-`uv run lint-imports` and in CI. Domain and application code may not import `anthropic`, `httpx`,
+`uv run lint-imports` and in CI. `evaluation` and `simulation` are independent siblings, and
+`simulation` may not import the guardrail's classifier, prompting or infrastructure. Domain and
+application code may not import `anthropic`, `httpx`,
 `fastapi`, `typer`, `uvicorn` or `pac.settings`.
 
 ## Key seams

@@ -53,8 +53,10 @@ trace event ──► session envelope + event JSON (escaped) ──► prompt v
 - **The eval harness** reports a 95% Wilson interval on every proportion, a bootstrap interval for
   macro-F1, breakdowns by kind, label confidence and tag, calibration, latency, tokens and cost.
 - **The regression test** replays every committed run and requires identical verdicts and metrics.
-- **The app** has four views: 14 curated examples, classify an event, the position demo, and eval
-  results. `pac serve --live` makes every click a real model call. See the [README](../README.md).
+- **The app** has five views: 14 curated examples, a live conversation, classify an event, the position
+  demo, and eval results. `pac serve --live` makes every click a real model call. In the live
+  conversation you chat with a simulated Lark (an LLM with a fake back office) and watch the guardrail
+  judge each event as it happens, without being able to stop it. See the [README](../README.md).
 - **The code** has two bounded contexts, each layered into domain, application and infrastructure:
   `guardrail` (judging an event) and `evaluation` (measuring a judge). The dependency rules are
   import-linter contracts enforced in CI ([`ARCHITECTURE.md`](ARCHITECTURE.md)).
@@ -120,6 +122,17 @@ first ablation run looked like a regression (70%) because it was scored against 
 caught that and fixed the scoring, not the model. History settles the structural cases. It doesn't help
 the genuine corner cases, which stay undecided (1/11 silent recall). With n = 7, "7/7 vs 5/7" is a
 direction, not a measurement.
+
+**What the live conversation showed that the ablation can't.** In the first live chat (an address
+change on `LK-50402`, whose order notes hold a live key), the guardrail correctly flagged the
+`lookup_order` result under R4. Two events later, it flagged the harmless `update_shipping_address`
+result under R4 too. Its rationale cites "a secret in the notes field" that this event doesn't have. The
+9.7B model attributed something in the *history* to the event under judgement. The same history let it
+confirm the order was `processing` before allowing the address change, so context helped and hurt in
+the same turn. The ablation can't see this: every history case in the eval *supplies* a missing fact, and
+none contains an earlier violation that must not be blamed on the current event. Before shipping a
+stateful guardrail, add contamination cases (a violation in the history, a clean current event) to the
+eval set. Until then, the "with history" number is an upper bound on how well history works.
 
 ### Dev iteration (49 events)
 

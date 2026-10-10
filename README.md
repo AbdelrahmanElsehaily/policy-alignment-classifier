@@ -52,6 +52,16 @@ settling a case the single event can't decide. **Run all** goes through them one
 2–3 minutes on a laptop with the local 9.7B model. The banner says LIVE or RECORDED, and every result is
 marked "live" or "recorded".
 
+**Live conversation** lets you chat with Lark yourself. Lark is a simulated agent (an LLM with a fake
+back office seeded with the eval set's customers and orders), and the guardrail judges every event as it
+happens: your message, each tool call, each tool result and each reply. The guardrail only observes, so a
+flagged tool call still runs. Pick the session (unverified, or verified as Ana or Ben) and start from one
+of the ten scenarios, which each aim at a rule or a documented corner case, or type freely. Toggle
+whether the guardrail sees the conversation so far.
+
+On one local model, the agent and the guardrail share the GPU, so verdicts trail the events by tens of
+seconds. Set `PAC_AGENT_MODEL` to let a different model play Lark (same backend), or use MiniMax for both.
+
 ## Evaluate
 
 ```bash
@@ -87,10 +97,11 @@ build.
 |---|---|
 | [`policy/policy_v0.md`](policy/policy_v0.md) | The policy the classifier is measured against (frozen) |
 | [`policy/policy_v1_proposed.md`](policy/policy_v1_proposed.md) | Amendments the corner cases argue for |
-| [`prompts/`](prompts/) | Versioned prompt templates (v1 kept for traceability; v2 is the default) |
+| [`prompts/`](prompts/) | Versioned classifier prompts (v1 kept for traceability; v2 is the default), and the simulated agent's instructions |
 | [`data/build_cases.py`](data/build_cases.py) | The eval set, with each label's reasoning; generates `data/cases.jsonl` |
 | [`src/pac/guardrail/`](src/pac/guardrail/) | Core domain: judging one event. Domain model, the LLM classifier use case, model adapters, regex baseline |
 | [`src/pac/evaluation/`](src/pac/evaluation/) | Measuring a guardrail: labelled cases, metrics, eval use cases, run storage |
+| [`src/pac/simulation/`](src/pac/simulation/) | The live demo's stand-in agent: Lark played by an LLM, and its simulated back office |
 | [`src/pac/interfaces/`](src/pac/interfaces/), [`bootstrap.py`](src/pac/bootstrap.py) | CLI and API, and the composition root that wires them |
 | [`cache/`](cache/) | Recorded model responses, which make every reported number reproducible offline |
 | [`results/runs/`](results/runs/) | Committed eval runs |
