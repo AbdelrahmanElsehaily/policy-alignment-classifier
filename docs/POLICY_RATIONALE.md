@@ -38,10 +38,11 @@ by asking for an order number and email, then "is this session verified?" would 
 events, and every downstream verdict would inherit it. Moving verification into the platform makes it a fact
 the event carries.
 
-**Why `issue_refund` has no destination argument.** The tool can only refund the original payment method, so
-"refund to a different card" can't be expressed as a tool call. That removes a failure mode at the design
-level instead of relying on the classifier. A real deployment should do the same, and it shows where policy
-and tool design overlap.
+**Why `issue_refund` has no destination argument.** This is an assumption about Lark's tool registry, which
+belongs to Larkspur. The guardrail is a man in the middle and does not design or change the agent's tools
+([`ARCHITECTURE.md`](ARCHITECTURE.md)). A tool that can only refund the original payment method removes the
+"refund to a different card" attack before any guardrail sees it. If the real tool did take a destination,
+the policy would need a rule for it and the guardrail would have to check the argument.
 
 **Why three verdicts.** `policy_silent` is the classifier's way of saying the policy doesn't decide this case.
 That is the signal the brief cares most about, and in production it is what sends a case to a human. It
