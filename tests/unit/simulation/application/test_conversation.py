@@ -1,4 +1,4 @@
-"""A turn streams every event with every observer's verdict, and never blocks the agent."""
+"""A guarded turn: every event waits for the gatekeeper, and stopped events never move on."""
 
 from __future__ import annotations
 
@@ -8,171 +8,236 @@ from collections.abc import Callable, Mapping, Sequence
 
 from pac.guardrail.application.ports import LLMRequest
 from pac.guardrail.domain.classification import Classification
-from pac.guardrail.domain.decision import Decision
+from pac.guardrail.domain.decision import Decision, Verdict
 from pac.guardrail.domain.events import ClassificationRequest, Session, TraceEvent
 from pac.simulation.application.agent import SimulatedAgent
 from pac.simulation.application.conversation import (
+    Entry,
+    EventGated,
     EventJudged,
     EventOccurred,
-    ObservedConversation,
+    GuardedConversation,
     TurnFinished,
     TurnStopped,
     TurnUpdate,
+    agent_view,
+    executed_calls,
+    guardrail_view,
 )
 from pac.simulation.domain.back_office import BackOffice
 from tests.support.fakes import FakeBackend
 
 ANA = Session(verified=True, verified_customer_id="C-1001", email_on_file="ana.ruiz@mail.example")
+REFUND = {
+    "action": "tool_call",
+    "tool_name": "issue_refund",
+    "arguments": {"order_id": "LK-50211", "amount": 129.99, "reason": "defect"},
+}
+REPLY = {"action": "reply", "content": "Done."}
 
 
-class RecordingClassifier:
-    """Flags every tool call, allows everything else, and remembers what it was asked."""
+class ScriptedGuard:
+    """Gives a fixed verdict per event kind (allow otherwise) and remembers what it was asked."""
 
-    def __init__(self, name: str = "fake-guard", *, fail: bool = False) -> None:
-        self._name = name
+    def __init__(
+        self, verdicts: Mapping[str, Verdict] | None = None, *, fail: bool = False
+    ) -> None:
+        self._verdicts = dict(verdicts or {})
         self._fail = fail
         self.requests: list[ClassificationRequest] = []
 
     @property
     def name(self) -> str:
-        return self._name
+        return "scripted-guard"
 
     async def classify(self, request: ClassificationRequest) -> Classification:
         self.requests.append(request)
         await asyncio.sleep(0)
         if self._fail:
             raise RuntimeError("guard crashed")
-        flagged = request.event.kind == "tool_call"
+        verdict = self._verdicts.get(request.event.kind, "allow")
         decision = Decision(
             rationale="test",
-            verdict="violation" if flagged else "allow",
-            rule_ids=("R5",) if flagged else (),
+            verdict=verdict,
+            rule_ids=("R5",) if verdict == "violation" else (),
             confidence=0.9,
         )
         return Classification(
             decision=decision,
-            model=self._name,
+            model=self.name,
             prompt_version="t",
             policy_version="v0",
             latency_ms=1.0,
         )
 
 
-def _scripted(*actions: Mapping[str, object]) -> SimulatedAgent:
+def _scripted(*actions: Mapping[str, object]) -> tuple[SimulatedAgent, FakeBackend]:
     answers = iter(json.dumps(a) for a in actions)
     responder: Callable[[LLMRequest], str] = lambda _: next(answers)  # noqa: E731
-    return SimulatedAgent(FakeBackend(responder), "You are Lark.")
+    backend = FakeBackend(responder)
+    return SimulatedAgent(backend, "You are Lark."), backend
 
 
-async def _collect(
-    conversation: ObservedConversation,
-    history: Sequence[TraceEvent] = (),
+async def _run(
+    conversation: GuardedConversation,
+    history: Sequence[Entry] = (),
     message: str = "Refund LK-50211 please",
     *,
-    see_history: bool = True,
+    office: BackOffice | None = None,
+    sees_history: bool = True,
 ) -> list[TurnUpdate]:
+    office = office or BackOffice.seeded()
+    office.replay(executed_calls(history))
+    stream = conversation.turn(office, ANA, history, message, guardrail_sees_history=sees_history)
+    return [u async for u in stream]
+
+
+def _occurred(updates: list[TurnUpdate]) -> list[EventOccurred]:
+    return [u for u in updates if isinstance(u, EventOccurred)]
+
+
+def _gates(updates: list[TurnUpdate]) -> dict[int, str]:
+    return {u.index: u.gate for u in updates if isinstance(u, EventGated)}
+
+
+def _refunded(office: BackOffice, order_id: str) -> float:
+    lookup = TraceEvent(
+        kind="tool_call", tool_name="lookup_order", arguments={"order_id": order_id}
+    )
+    content = office.execute(lookup).content
+    assert content is not None
+    refunded: float = json.loads(content)["refunded"]
+    return refunded
+
+
+async def test_allowed_events_pass_in_order_each_gated_before_the_next() -> None:
+    agent, _ = _scripted(REFUND, REPLY)
     office = BackOffice.seeded()
-    office.replay(history)
-    return [
-        u
-        async for u in conversation.turn(
-            office, ANA, history, message, observers_see_history=see_history
-        )
-    ]
+    updates = await _run(GuardedConversation(agent, ScriptedGuard()), office=office)
 
-
-def _events(updates: list[TurnUpdate]) -> list[TraceEvent]:
-    return [u.event for u in updates if isinstance(u, EventOccurred)]
-
-
-async def test_a_flagged_tool_call_still_runs_and_every_event_is_judged() -> None:
-    agent = _scripted(
-        {
-            "action": "tool_call",
-            "tool_name": "issue_refund",
-            "arguments": {"order_id": "LK-50211", "amount": 129.99, "reason": "defect"},
-        },
-        {"action": "reply", "content": "Done, refunded."},
-    )
-    guard = RecordingClassifier()
-    updates = await _collect(ObservedConversation(agent, [("llm", guard)]))
-
-    kinds = [e.kind for e in _events(updates)]
+    kinds = [u.event.kind for u in _occurred(updates)]
     assert kinds == ["user_input", "tool_call", "tool_response", "model_output"]
-    # The guardrail flagged the refund, and the refund happened anyway: it only observes.
-    refund = _events(updates)[2]
-    assert refund.content is not None
-    assert json.loads(refund.content)["status"] == "issued"
-    verdicts = {
-        u.index: u.classification.decision.verdict for u in updates if isinstance(u, EventJudged)
-    }
-    assert verdicts == {0: "allow", 1: "violation", 2: "allow", 3: "allow"}
+    assert set(_gates(updates).values()) == {"pass"}
+    assert _refunded(office, "LK-50211") == 129.99
+    # Each event is gated before the next one exists: the guardrail is on the path.
+    position = {(type(u).__name__, getattr(u, "index", -1)): i for i, u in enumerate(updates)}
+    for index in range(3):
+        assert position[("EventGated", index)] < position[("EventOccurred", index + 1)]
     assert isinstance(updates[-1], TurnFinished)
-    # Each event is judged after it occurs, never before.
-    occurred = [i for i, u in enumerate(updates) if isinstance(u, EventOccurred)]
-    judged = {u.index: i for i, u in enumerate(updates) if isinstance(u, EventJudged)}
-    for index, position in enumerate(occurred):
-        assert judged[index] > position
 
 
-async def test_observers_see_the_earlier_events_only_when_asked() -> None:
-    history = [
-        TraceEvent(kind="user_input", content="hi"),
-        TraceEvent(kind="model_output", content="Hello"),
+async def test_a_blocked_tool_call_never_runs_and_the_agent_sees_the_error() -> None:
+    agent, backend = _scripted(REFUND, REPLY)
+    office = BackOffice.seeded()
+    updates = await _run(
+        GuardedConversation(agent, ScriptedGuard({"tool_call": "violation"})), office=office
+    )
+
+    occurred = _occurred(updates)
+    assert [(u.event.kind, u.by_guardrail) for u in occurred] == [
+        ("user_input", False),
+        ("tool_call", False),
+        ("tool_response", True),  # the guardrail's stand-in, not the back office's answer
+        ("model_output", False),
     ]
-    reply = {"action": "reply", "content": "Sure."}
-
-    with_history = RecordingClassifier()
-    await _collect(ObservedConversation(_scripted(reply), [("llm", with_history)]), history)
-    without = RecordingClassifier()
-    await _collect(
-        ObservedConversation(_scripted(reply), [("llm", without)]), history, see_history=False
-    )
-
-    assert [len(r.history) for r in with_history.requests] == [2, 3]
-    assert all(r.history == () for r in without.requests)
-    assert all(r.session == ANA for r in with_history.requests)
+    assert _gates(updates) == {0: "pass", 1: "block", 3: "pass"}
+    assert "blocked by the policy guardrail (R5)" in (occurred[2].event.content or "")
+    assert _refunded(office, "LK-50211") == 0
+    assert "blocked by the policy guardrail" in backend.requests[1].user
 
 
-async def test_indices_continue_from_the_history() -> None:
-    history = [
-        TraceEvent(kind="user_input", content="hi"),
-        TraceEvent(kind="model_output", content="Hello"),
+async def test_a_held_tool_result_is_withheld_from_the_agent() -> None:
+    agent, backend = _scripted(REFUND, REPLY)
+    guard = ScriptedGuard({"tool_response": "policy_silent"})
+    updates = await _run(GuardedConversation(agent, guard))
+
+    assert _gates(updates)[2] == "hold"
+    second_prompt = backend.requests[1].user
+    assert '"status": "issued"' not in second_prompt
+    assert "held for human review" in second_prompt
+
+
+async def test_a_blocked_message_never_reaches_the_agent() -> None:
+    agent, backend = _scripted(REPLY)
+    updates = await _run(GuardedConversation(agent, ScriptedGuard({"user_input": "violation"})))
+
+    occurred = _occurred(updates)
+    assert [(u.event.kind, u.by_guardrail) for u in occurred] == [
+        ("user_input", False),
+        ("model_output", True),
     ]
-    updates = await _collect(
-        ObservedConversation(_scripted({"action": "reply", "content": "Sure."}), []), history
-    )
-    assert [u.index for u in updates if isinstance(u, EventOccurred)] == [2, 3]
+    assert "Your message was blocked" in (occurred[1].event.content or "")
+    assert backend.requests == []
 
 
-async def test_every_observer_judges_every_event() -> None:
-    agent = _scripted({"action": "reply", "content": "Hi."})
-    updates = await _collect(
-        ObservedConversation(
-            agent, [("llm", RecordingClassifier()), ("baseline", RecordingClassifier())]
-        )
-    )
+async def test_a_blocked_reply_is_replaced_for_the_customer() -> None:
+    agent, _ = _scripted(REPLY)
+    guard = ScriptedGuard({"model_output": "violation"})
+    occurred = _occurred(await _run(GuardedConversation(agent, guard)))
+    assert occurred[-1].by_guardrail
+    assert occurred[-1].event.content == "[This reply was blocked by the policy guardrail (R5).]"
+
+
+async def test_a_crashing_gatekeeper_fails_closed_by_holding() -> None:
+    agent, backend = _scripted(REPLY)
+    updates = await _run(GuardedConversation(agent, ScriptedGuard(fail=True)))
+    judged = [u for u in updates if isinstance(u, EventJudged)]
+    assert judged[0].classification.error == "guard crashed"
+    assert _gates(updates) == {0: "hold"}
+    assert backend.requests == []
+
+
+async def test_observers_judge_alongside_but_never_gate() -> None:
+    agent, _ = _scripted(REPLY)
+    baseline = ScriptedGuard({"user_input": "violation", "model_output": "violation"})
+    updates = await _run(GuardedConversation(agent, ScriptedGuard(), [("baseline", baseline)]))
     engines = sorted((u.index, u.engine) for u in updates if isinstance(u, EventJudged))
     assert engines == [(0, "baseline"), (0, "llm"), (1, "baseline"), (1, "llm")]
+    assert set(_gates(updates).values()) == {"pass"}
 
 
-async def test_a_crashing_observer_fails_closed() -> None:
-    agent = _scripted({"action": "reply", "content": "Hi."})
-    updates = await _collect(ObservedConversation(agent, [("llm", RecordingClassifier(fail=True))]))
-    judged = [u for u in updates if isinstance(u, EventJudged)]
-    assert len(judged) == 2
-    assert all(u.classification.decision.verdict == "policy_silent" for u in judged)
-    assert all(u.classification.error == "guard crashed" for u in judged)
+async def test_the_guardrail_sees_its_history_only_when_asked() -> None:
+    history = [
+        Entry(event=TraceEvent(kind="user_input", content="hi")),
+        Entry(event=TraceEvent(kind="model_output", content="[blocked]"), by_guardrail=True),
+    ]
+    with_history, without = ScriptedGuard(), ScriptedGuard()
+    await _run(GuardedConversation(_scripted(REPLY)[0], with_history), history)
+    await _run(GuardedConversation(_scripted(REPLY)[0], without), history, sees_history=False)
+
+    # The guardrail's own stand-ins are not part of what it has seen.
+    assert [len(r.history) for r in with_history.requests] == [1, 2]
+    assert all(r.history == () for r in without.requests)
 
 
-async def test_an_agent_failure_stops_the_turn_but_keeps_the_verdicts() -> None:
-    agent = SimulatedAgent(FakeBackend(lambda _: "not an action"), "You are Lark.")
-    updates = await _collect(ObservedConversation(agent, [("llm", RecordingClassifier())]))
-    assert [e.kind for e in _events(updates)] == ["user_input"]
-    stopped = [u for u in updates if isinstance(u, TurnStopped)]
-    assert "simulated agent failed" in stopped[0].reason
-    assert any(isinstance(u, EventJudged) for u in updates)
-    assert isinstance(updates[-1], TurnFinished)
+def test_views_of_a_conversation_with_stopped_events() -> None:
+    def ev(kind: str, text: str) -> TraceEvent:
+        if kind == "tool_call":
+            return TraceEvent(kind="tool_call", tool_name=text, arguments={})
+        if kind == "tool_response":
+            return TraceEvent(kind="tool_response", tool_name="t", content=text)
+        return TraceEvent.model_validate({"kind": kind, "content": text})
+
+    entries = [
+        Entry(event=ev("user_input", "manipulative"), gate="block"),
+        Entry(event=ev("model_output", "[notice to customer]"), by_guardrail=True),
+        Entry(event=ev("user_input", "refund please")),
+        Entry(event=ev("tool_call", "issue_refund"), gate="block"),
+        Entry(event=ev("tool_response", "[error for agent]"), by_guardrail=True),
+        Entry(event=ev("tool_call", "lookup_order")),
+        Entry(event=ev("tool_response", "leak"), gate="block"),
+        Entry(event=ev("model_output", "bad reply"), gate="block"),
+    ]
+    seen_by_agent = [e.content or e.tool_name for e in agent_view(entries)]
+    assert seen_by_agent == [
+        "refund please",
+        "issue_refund",
+        "[error for agent]",
+        "lookup_order",
+        "bad reply",  # the agent remembers what it said, even though the customer never saw it
+    ]
+    assert len(guardrail_view(entries)) == 6
+    assert [e.tool_name for e in executed_calls(entries)] == ["lookup_order"]
 
 
 async def test_a_turn_that_never_replies_is_cut_off() -> None:
@@ -181,16 +246,24 @@ async def test_a_turn_that_never_replies_is_cut_off() -> None:
         "tool_name": "lookup_order",
         "arguments": {"order_id": "LK-50211"},
     }
-    agent = _scripted(*[lookup] * 3)
-    updates = await _collect(ObservedConversation(agent, [], max_actions=3))
-    assert len(_events(updates)) == 1 + 3 * 2
+    agent, _ = _scripted(*[lookup] * 3)
+    updates = await _run(GuardedConversation(agent, ScriptedGuard(), max_actions=3))
+    assert len(_occurred(updates)) == 1 + 3 * 2
     assert any(isinstance(u, TurnStopped) and "3 actions" in u.reason for u in updates)
 
 
+async def test_an_agent_failure_stops_the_turn() -> None:
+    agent = SimulatedAgent(FakeBackend(lambda _: "not an action"), "You are Lark.")
+    updates = await _run(GuardedConversation(agent, ScriptedGuard()))
+    assert [u.event.kind for u in _occurred(updates)] == ["user_input"]
+    stopped = [u for u in updates if isinstance(u, TurnStopped)]
+    assert "simulated agent failed" in stopped[0].reason
+    assert isinstance(updates[-1], TurnFinished)
+
+
 async def test_closing_the_stream_early_cancels_the_turn() -> None:
-    agent = _scripted({"action": "reply", "content": "Hi."})
-    conversation = ObservedConversation(agent, [("llm", RecordingClassifier())])
+    agent, _ = _scripted(REPLY)
+    conversation = GuardedConversation(agent, ScriptedGuard(), [("baseline", ScriptedGuard())])
     stream = conversation.turn(BackOffice.seeded(), ANA, [], "hello")
-    first = await anext(stream)
-    assert isinstance(first, EventOccurred)
+    assert isinstance(await anext(stream), EventOccurred)
     await stream.aclose()  # must not hang or leak pending tasks

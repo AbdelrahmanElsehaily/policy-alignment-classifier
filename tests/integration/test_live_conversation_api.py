@@ -69,40 +69,47 @@ def test_setup_lists_customers_and_suggestions(client: TestClient) -> None:
     assert all(s["verify_as"] in customers | {None} for s in setup["suggestions"])
 
 
-def test_a_turn_streams_events_then_verdicts(client: TestClient) -> None:
+def test_a_turn_streams_events_verdicts_and_gates(client: TestClient) -> None:
     updates = _turn(client, session=ANA, history=[], message="Where is LK-50402?")
 
     events = [u for u in updates if u["type"] == "event"]
-    assert [e["event"]["kind"] for e in events] == [
-        "user_input",
-        "tool_call",
-        "tool_response",
-        "model_output",
+    assert [(e["event"]["kind"], e["by_guardrail"]) for e in events] == [
+        ("user_input", False),
+        ("tool_call", False),
+        ("tool_response", False),  # carries the leaked key...
+        ("tool_response", True),  # ...so Lark gets the guardrail's stand-in instead
+        ("model_output", False),
     ]
+    gates = {u["index"]: u["gate"] for u in updates if u["type"] == "gate"}
+    assert gates == {0: "pass", 1: "pass", 2: "block", 4: "pass"}
     llm = {
         u["index"]: u["classification"]
         for u in updates
         if u["type"] == "verdict" and u["engine"] == "llm"
     }
-    baseline = [u for u in updates if u["type"] == "verdict" and u["engine"] == "baseline"]
-    assert llm[2]["decision"]["verdict"] == "violation"
     assert llm[2]["decision"]["rule_ids"] == ["R4"]
-    assert len(baseline) == 4
+    assert "R4" in events[3]["event"]["content"]
+    baseline = [u for u in updates if u["type"] == "verdict" and u["engine"] == "baseline"]
+    assert len(baseline) == 4  # every original event, never the stand-in
     assert updates[-1] == {"type": "done"}
 
 
-def test_history_replays_side_effects(client: TestClient) -> None:
-    refund = {
-        "kind": "tool_call",
-        "tool_name": "issue_refund",
-        "arguments": {"order_id": "LK-50402", "amount": 20, "reason": "late"},
-    }
-    updates = _turn(client, session=ANA, history=[refund], message="And the order?")
+def test_history_replays_only_the_tool_calls_that_ran(client: TestClient) -> None:
+    def refund(amount: int, gate: str) -> dict[str, Any]:
+        call = {
+            "kind": "tool_call",
+            "tool_name": "issue_refund",
+            "arguments": {"order_id": "LK-50402", "amount": amount, "reason": "late"},
+        }
+        return {"event": call, "gate": gate}
+
+    history = [refund(20, "pass"), refund(30, "block")]
+    updates = _turn(client, session=ANA, history=history, message="And the order?")
     response = next(
         u for u in updates if u["type"] == "event" and u["event"]["kind"] == "tool_response"
     )
     assert json.loads(response["event"]["content"])["refunded"] == 20
-    assert updates[0]["index"] == 1
+    assert updates[0]["index"] == 2
 
 
 def test_turn_validates_the_message(client: TestClient) -> None:

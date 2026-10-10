@@ -38,7 +38,7 @@ from pac.interfaces.live_conversation import (
 )
 from pac.settings import Settings, get_settings
 from pac.simulation.application.agent import SimulatedAgent
-from pac.simulation.application.conversation import ObservedConversation
+from pac.simulation.application.conversation import GuardedConversation, executed_calls
 from pac.simulation.domain.back_office import BackOffice
 
 
@@ -130,15 +130,14 @@ class _Services:
                 self._agent_error = str(exc)
         return self._agent
 
-    def conversation(self) -> tuple[ObservedConversation | None, str | None]:
-        """The agent with both guardrails watching, or why it cannot run."""
+    def conversation(self) -> tuple[GuardedConversation | None, str | None]:
+        """The agent with the LLM guardrail inline and the baseline alongside, or why not."""
         agent, classifier = self.agent(), self.classifier()
         if agent is None:
             return None, self._agent_error
         if classifier is None:
             return None, self._classifier_error
-        observers = [("llm", classifier), ("baseline", self.baseline)]
-        return ObservedConversation(agent, observers), None
+        return GuardedConversation(agent, classifier, [("baseline", self.baseline)]), None
 
 
 def create_app(
@@ -207,12 +206,12 @@ def create_app(
 
     @app.post("/api/conversation/turn")
     def conversation_turn(turn: TurnRequest) -> StreamingResponse:
-        """Stream one turn as NDJSON: each event as it happens, then each verdict as it lands."""
+        """Stream one turn as NDJSON: each event, its verdicts, and what the guardrail did."""
         conversation, error = services.conversation()
         if conversation is None:
             raise HTTPException(status_code=503, detail=error)
         office = BackOffice.seeded()
-        office.replay(turn.history)
+        office.replay(executed_calls(turn.history))
 
         async def lines() -> AsyncIterator[str]:
             async for update in conversation.turn(
@@ -220,7 +219,7 @@ def create_app(
                 turn.session,
                 turn.history,
                 turn.message,
-                observers_see_history=turn.guardrail_sees_history,
+                guardrail_sees_history=turn.guardrail_sees_history,
             ):
                 yield update.model_dump_json() + "\n"
 

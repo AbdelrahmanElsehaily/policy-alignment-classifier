@@ -4,14 +4,19 @@ from __future__ import annotations
 
 from pydantic import BaseModel, Field
 
-from pac.guardrail.domain.events import Session, TraceEvent
+from pac.guardrail.domain.events import Session
+from pac.simulation.application.conversation import Entry
 
 
 class TurnRequest(BaseModel):
-    """One customer message, with everything before it (the server keeps no chat state)."""
+    """One customer message, with everything before it (the server keeps no chat state).
+
+    Each history entry carries what the guardrail did with it, so the server can rebuild what
+    the agent saw and which tool calls really ran.
+    """
 
     session: Session = Field(default_factory=Session)
-    history: list[TraceEvent] = Field(default_factory=list, max_length=200)
+    history: list[Entry] = Field(default_factory=list, max_length=300)
     message: str = Field(min_length=1, max_length=4000)
     guardrail_sees_history: bool = True
 
