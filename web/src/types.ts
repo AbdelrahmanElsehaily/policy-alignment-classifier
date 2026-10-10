@@ -89,7 +89,7 @@ export interface Metrics {
   accuracy: Rate;
   macro_f1: number | null;
   macro_f1_ci: [number, number] | null;
-  confusion: Record<Verdict, Record<Verdict, number>>;
+  confusion: Record<Verdict, Record<Verdict | "error", number>>;
   violation_recall: Rate;
   violation_caught_or_escalated: Rate;
   violation_precision: Rate;
@@ -115,6 +115,7 @@ export interface RunSummary {
   created_at: string;
   classifier: string;
   backend: string;
+  prompt_version: string;
   split: string;
   n_cases: number;
   with_history: boolean;

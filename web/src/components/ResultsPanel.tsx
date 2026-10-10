@@ -38,7 +38,9 @@ export function ResultsPanel({ cases }: { cases: LabeledCase[] }) {
   if (runs.length === 0) return <p className="hint">No recorded runs yet. Run `uv run pac eval`.</p>;
 
   const m = detail?.metrics;
-  const rows = detail?.predictions.filter((p) => p.repeat === 0 && (!onlyErrors || p.gold !== p.result.decision.verdict));
+  const rows = detail?.predictions.filter(
+    (p) => p.repeat === 0 && (!onlyErrors || p.result.error !== null || p.gold !== p.result.decision.verdict),
+  );
 
   return (
     <section>
@@ -47,8 +49,8 @@ export function ResultsPanel({ cases }: { cases: LabeledCase[] }) {
         <select value={selected} onChange={(e) => setSelected(e.target.value)}>
           {runs.map((r) => (
             <option key={r.run_id} value={r.run_id}>
-              {r.split} · {r.classifier} ({r.backend}){r.with_history ? " · with history" : ""} · acc {pct(r.accuracy)} ·{" "}
-              {r.run_id.slice(0, 16)}
+              {r.split} · {r.classifier} ({r.backend}) · {r.prompt_version.split("@")[0]}
+              {r.with_history ? " · with history" : ""} · acc {pct(r.accuracy)} · {r.run_id.slice(0, 16)}
             </option>
           ))}
         </select>
@@ -83,6 +85,7 @@ export function ResultsPanel({ cases }: { cases: LabeledCase[] }) {
                 <tr>
                   <th>gold \ predicted</th>
                   {VERDICTS.map((v) => <th key={v}>{v}</th>)}
+                  <th>error</th>
                 </tr>
               </thead>
               <tbody>
@@ -92,6 +95,7 @@ export function ResultsPanel({ cases }: { cases: LabeledCase[] }) {
                     {VERDICTS.map((p) => (
                       <td key={p} className={g === p ? "diag" : ""}>{m.confusion[g][p]}</td>
                     ))}
+                    <td>{m.confusion[g].error ?? 0}</td>
                   </tr>
                 ))}
               </tbody>
@@ -130,7 +134,7 @@ export function ResultsPanel({ cases }: { cases: LabeledCase[] }) {
                   <td><code>{p.case_id}</code><div className="small">{p.kind} · {p.label_confidence}</div></td>
                   <td><VerdictBadge verdict={p.gold} /> <span className="small">{p.gold_rules.join(", ")}</span></td>
                   <td>
-                    <VerdictBadge verdict={p.result.decision.verdict} />{" "}
+                    <VerdictBadge verdict={p.result.decision.verdict} error={p.result.error} />{" "}
                     <span className="small">{p.result.decision.rule_ids.join(", ")}</span>
                   </td>
                   <td className="small">{caseById.get(p.case_id)?.rationale}</td>

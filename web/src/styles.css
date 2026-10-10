@@ -62,6 +62,7 @@ button:disabled { opacity: 0.6; cursor: wait; }
 .badge-allow { color: var(--allow); }
 .badge-violation { color: var(--violation); }
 .badge-policy_silent { color: var(--silent); }
+.badge-error { color: var(--muted); border-style: dashed; }
 table { width: 100%; border-collapse: collapse; background: var(--surface); font-size: 0.9em; }
 th, td { text-align: left; vertical-align: top; padding: 6px 8px; border-bottom: 1px solid var(--border); }
 th { color: var(--muted); font-weight: 600; }

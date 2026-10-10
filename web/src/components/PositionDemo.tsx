@@ -76,10 +76,16 @@ export function PositionDemo() {
                 <td>
                   <code>{kind}</code>
                 </td>
-                <td>{cell?.llm ? <VerdictBadge verdict={cell.llm.decision.verdict} /> : cell?.error ? "error" : "…"}</td>
+                <td>{cell?.llm ? (
+                    <VerdictBadge verdict={cell.llm.decision.verdict} error={cell.llm.error} />
+                  ) : cell?.error ? (
+                    "error"
+                  ) : (
+                    "…"
+                  )}</td>
                 <td>{cell?.llm?.decision.rule_ids.join(", ")}</td>
                 <td>{cell?.baseline ? <VerdictBadge verdict={cell.baseline.decision.verdict} /> : "…"}</td>
-                <td className="small">{cell?.llm?.decision.rationale ?? cell?.error}</td>
+                <td className="small">{cell?.llm?.error ?? cell?.llm?.decision.rationale ?? cell?.error}</td>
               </tr>
             );
           })}
