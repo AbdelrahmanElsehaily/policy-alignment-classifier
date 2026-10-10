@@ -163,3 +163,8 @@ def test_calibration_excludes_errors() -> None:
     assert top.n == 2
     assert top.accuracy == pytest.approx(0.5)
     assert m.expected_calibration_error == pytest.approx(0.45)
+
+
+def test_metrics_do_not_depend_on_prediction_order() -> None:
+    preds = [pred(str(i), "allow" if i % 3 else "violation", "allow") for i in range(20)]
+    assert compute_metrics(preds) == compute_metrics(list(reversed(preds)))

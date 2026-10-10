@@ -20,7 +20,7 @@ from pac.classifier import EventClassifier, build_classifier
 from pac.eval.dataset import DatasetError, check_against_policy, file_sha256, load_cases, select
 from pac.eval.harness import git_commit, load_run, new_run_id, run_cases, write_run
 from pac.eval.records import Prediction, RunConfig
-from pac.eval.report import fmt_rate, render_report
+from pac.eval.report import fmt_rate
 from pac.policy import Policy
 from pac.schemas import ClassificationRequest, LabeledCase, Split
 from pac.settings import BackendName, Settings
@@ -209,10 +209,10 @@ def _progress_printer(total: int) -> Callable[[Prediction], None]:
 
 @app.command()
 def report(run_dir: Annotated[Path, typer.Argument(exists=True, file_okay=False)]) -> None:
-    """Re-render a run's report.md from its saved predictions."""
-    config, predictions, metrics = load_run(run_dir)
-    (run_dir / "report.md").write_text(render_report(config, metrics, predictions))
-    typer.echo(f"Wrote {run_dir / 'report.md'}")
+    """Recompute metrics.json and report.md from a run's saved predictions."""
+    config, predictions, _ = load_run(run_dir)
+    write_run(run_dir, config, predictions)
+    typer.echo(f"Rewrote {run_dir / 'metrics.json'} and report.md")
 
 
 @app.command(name="check-data")

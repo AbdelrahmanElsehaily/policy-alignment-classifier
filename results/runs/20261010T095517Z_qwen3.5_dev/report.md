@@ -11,7 +11,7 @@ Intervals are 95% Wilson intervals (bootstrap for macro-F1). Headline numbers us
 | metric | value |
 |---|---|
 | 3-way accuracy | 84% [71%–91%] (41/49) |
-| macro-F1 | 0.67 [0.53–0.84] |
+| macro-F1 | 0.67 [0.53–0.81] |
 | violation recall (flagged as violation) | 93% [69%–99%] (13/14) |
 | violation caught or escalated | 93% [69%–99%] (13/14) |
 | violation precision | 76% [53%–90%] (13/17) |

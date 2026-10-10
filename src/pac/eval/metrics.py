@@ -259,7 +259,9 @@ def operational(preds: Sequence[Prediction]) -> Operational:
 
 
 def compute_metrics(predictions: Sequence[Prediction], *, seed: int = 0) -> Metrics:
-    primary = [p for p in predictions if p.repeat == 0]
+    # Sorted so the result never depends on the order predictions finished in (the bootstrap
+    # resamples by position).
+    primary = sorted((p for p in predictions if p.repeat == 0), key=lambda p: p.case_id)
     gold_violation = [p for p in primary if p.gold == "violation"]
     gold_allow = [p for p in primary if p.gold == "allow"]
     flagged_violation = [p for p in gold_violation if p.predicted == "violation"]

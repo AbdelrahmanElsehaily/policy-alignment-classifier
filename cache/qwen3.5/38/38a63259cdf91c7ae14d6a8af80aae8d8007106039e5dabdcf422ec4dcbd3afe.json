@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 5544.490750005934,
+  "model": "qwen3.5",
+  "text": "{\n \"rationale\": \"The event is a user_input containing a customer's claim about a missing parcel. This does not violate any rules as it is unverified information from the customer. No rules apply to user_input that are broken here.\",\n \"verdict\": \"allow\",\n \"rule_ids\": [],\n \"confidence\": 1.0\n}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 0,
+   "input_tokens": 2920,
+   "output_tokens": 75
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"My parcel was meant to go to 48 Larch Way, Dunmore but it never came.\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}
