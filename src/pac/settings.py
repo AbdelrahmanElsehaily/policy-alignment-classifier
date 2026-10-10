@@ -11,7 +11,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
-BackendName = Literal["anthropic", "ollama", "replay", "fake"]
+BackendName = Literal["anthropic", "ollama", "replay"]
 
 
 class Settings(BaseSettings):
@@ -31,6 +31,10 @@ class Settings(BaseSettings):
     cache_dir: Path = REPO_ROOT / "cache"
     results_dir: Path = REPO_ROOT / "results"
     web_dist: Path = REPO_ROOT / "web" / "dist"
+
+    # Classification is a short, latency-sensitive call; "low" effort is the documented
+    # sweet spot for that workload on current Claude models.
+    anthropic_effort: Literal["low", "medium", "high"] = "low"
 
     timeout_s: float = 60.0
     max_output_tokens: int = 1024

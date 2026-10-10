@@ -43,12 +43,12 @@ select = ["E", "W", "F", "I", "B", "UP", "SIM", "RUF", "ASYNC", "PT", "C4", "PL"
 ignore = ["PLR0913", "PLR2004", "PLR0911", "PLR0912", "RUF001", "RUF002", "RUF003"]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["PLR2004", "S101"]
+"tests/**" = ["PLR2004", "ASYNC240"]
 
 [tool.mypy]
 python_version = "3.12"
 strict = true
-packages = ["pac"]
+files = ["src", "tests"]
 mypy_path = "src"
 plugins = ["pydantic.mypy"]
 
