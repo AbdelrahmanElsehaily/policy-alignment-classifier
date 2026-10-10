@@ -46,10 +46,15 @@ class CachingBackend:
         key = request.cache_key(self._model)
         path = self._path(key)
         if path.exists():
-            record = json.loads(path.read_text(encoding="utf-8"))
-            return Completion.model_validate(record["completion"]).model_copy(
-                update={"cached": True}
-            )
+            try:
+                record = json.loads(path.read_text(encoding="utf-8"))
+                return Completion.model_validate(record["completion"]).model_copy(
+                    update={"cached": True}
+                )
+            except (ValueError, KeyError, TypeError) as exc:
+                if self._inner is None:
+                    raise CacheMiss(f"corrupt cache entry {path.name}: {exc}") from exc
+                path.unlink()  # re-record below
         if self._inner is None:
             raise CacheMiss(f"no recorded completion for this request under model {self._model}")
 

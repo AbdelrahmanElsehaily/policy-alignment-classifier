@@ -21,6 +21,7 @@ REPAIR_INSTRUCTION = (
 
 _RULE_PREFIX = re.compile(r"^\s*(R\d{1,2})\b")
 _THINK_BLOCK = re.compile(r"<think>.*?</think>", re.DOTALL)
+MAX_RATIONALE_CHARS = 2000
 
 
 def output_schema(policy: Policy) -> dict[str, Any]:
@@ -129,4 +130,8 @@ def parse_decision(text: str, known_rules: frozenset[str]) -> Decision:
     raw["rule_ids"] = rules
     if isinstance(raw.get("verdict"), str):
         raw["verdict"] = raw["verdict"].strip().lower()
+    rationale = raw.get("rationale")
+    if isinstance(rationale, str) and len(rationale) > MAX_RATIONALE_CHARS:
+        # A verbose but otherwise valid answer must not fail closed over its length.
+        raw["rationale"] = rationale[: MAX_RATIONALE_CHARS - 1] + "…"
     return Decision.model_validate(raw)

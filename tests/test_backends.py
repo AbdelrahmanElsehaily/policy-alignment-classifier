@@ -268,3 +268,10 @@ def test_factory_builds_minimax(tmp_path: Path, monkeypatch: pytest.MonkeyPatch)
 def test_factory_requires_minimax_key(tmp_path: Path) -> None:
     with pytest.raises(BackendError, match="MINIMAX_API_KEY"):
         build_backend(Settings(backend="minimax", cache_dir=tmp_path))
+
+
+@respx.mock
+async def test_ollama_non_object_body() -> None:
+    respx.post("http://ollama.test/api/chat").respond(json=[1, 2])
+    with pytest.raises(BackendError, match="not a JSON object"):
+        await OllamaBackend("m", host="http://ollama.test").complete(REQUEST)

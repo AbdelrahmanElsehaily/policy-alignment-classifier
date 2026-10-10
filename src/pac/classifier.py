@@ -105,6 +105,9 @@ class LLMClassifier:
             except BackendError as exc:
                 error = str(exc)
                 continue
+            except Exception as exc:  # a guardrail must fail closed on anything
+                error = f"unexpected backend failure: {type(exc).__name__}: {exc}"[:300]
+                continue
 
             usage = _add(usage, completion.usage)
             model_latency_ms += completion.latency_ms
@@ -118,7 +121,7 @@ class LLMClassifier:
             return self._result(decision, started, usage, model_latency_ms, cached=cached)
 
         return self._result(
-            fail_closed(error), started, usage, model_latency_ms, cached=False, error=error
+            fail_closed(error), started, usage, model_latency_ms, cached=cached, error=error
         )
 
     def _result(
@@ -145,6 +148,11 @@ class LLMClassifier:
 
 
 def _first_line(exc: Exception) -> str:
+    """A one-line, specific reason (pydantic's first line alone just says '1 validation error')."""
+    if isinstance(exc, ValidationError) and exc.errors():
+        first = exc.errors()[0]
+        where = ".".join(str(p) for p in first["loc"]) or "output"
+        return f"{where}: {first['msg']}"[:200]
     return str(exc).strip().splitlines()[0][:200]
 
 

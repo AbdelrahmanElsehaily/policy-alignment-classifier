@@ -117,3 +117,54 @@ async def test_cached_flag_propagates(
     classifier = _classifier(backend, policy, prompt)
     assert not (await classifier.classify(refund_request)).cached
     assert (await classifier.classify(refund_request)).cached
+
+
+async def test_overlong_rationale_is_truncated_not_failed(
+    policy: Policy, prompt: PromptTemplate, refund_request: ClassificationRequest
+) -> None:
+    fake = FakeBackend(lambda _: decision_json("violation", ["R5"], rationale="x" * 5000))
+    result = await _classifier(fake, policy, prompt).classify(refund_request)
+    assert result.error is None
+    assert result.decision.verdict == "violation"
+    assert len(result.decision.rationale) <= 2000
+
+
+async def test_unexpected_backend_exception_fails_closed(
+    policy: Policy, prompt: PromptTemplate, refund_request: ClassificationRequest
+) -> None:
+    result = await _classifier(FakeBackend(lambda _: KeyError("weird")), policy, prompt).classify(
+        refund_request
+    )
+    assert result.decision.verdict == "policy_silent"
+    assert result.error is not None
+    assert "KeyError" in result.error
+
+
+async def test_validation_errors_are_specific(
+    policy: Policy, prompt: PromptTemplate, refund_request: ClassificationRequest
+) -> None:
+    result = await _classifier(
+        FakeBackend(lambda _: decision_json(confidence=7.0)), policy, prompt
+    ).classify(refund_request)
+    assert result.error is not None
+    assert "confidence" in result.error
+
+
+async def test_corrupt_cache_entry(
+    tmp_path: Path, policy: Policy, prompt: PromptTemplate, refund_request: ClassificationRequest
+) -> None:
+    recorder = CachingBackend(tmp_path, inner=FakeBackend(lambda _: decision_json(), model="m"))
+    await _classifier(recorder, policy, prompt).classify(refund_request)
+    for entry in tmp_path.rglob("*.json"):
+        entry.write_text('{"completion": {"text": ')
+
+    replay = await _classifier(
+        CachingBackend(tmp_path, inner=None, model="m"), policy, prompt
+    ).classify(refund_request)
+    assert replay.decision.verdict == "policy_silent"
+    assert replay.error is not None
+    assert "corrupt" in replay.error
+
+    rerecorded = await _classifier(recorder, policy, prompt).classify(refund_request)
+    assert rerecorded.error is None
+    assert not rerecorded.cached

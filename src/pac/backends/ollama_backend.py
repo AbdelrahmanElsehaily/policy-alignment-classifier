@@ -56,6 +56,8 @@ class OllamaBackend:
         except (httpx.HTTPError, ValueError) as exc:
             raise BackendError(f"ollama request failed: {exc!r}") from exc
 
+        if not isinstance(body, dict):
+            raise BackendError("ollama response was not a JSON object")
         if body.get("done_reason") == "length":
             raise BackendError("ollama output hit num_predict before completing")
         try:
