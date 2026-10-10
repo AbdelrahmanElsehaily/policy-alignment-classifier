@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { type JSX, useEffect, useState } from "react";
 
 import { api } from "./api";
 import { ClassifyPanel } from "./components/ClassifyPanel";
@@ -13,6 +13,9 @@ type Tab = (typeof TABS)[number];
 
 export function App() {
   const [tab, setTab] = useState<Tab>("Examples");
+  // Panels stay mounted once opened and are only hidden when inactive, so switching tabs keeps
+  // their state: a conversation, example results, a half-edited event, a selected run.
+  const [opened, setOpened] = useState<ReadonlySet<Tab>>(() => new Set<Tab>(["Examples"]));
   const [health, setHealth] = useState<Health | null>(null);
   const [cases, setCases] = useState<LabeledCase[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -21,6 +24,19 @@ export function App() {
     api.health().then(setHealth).catch((e: Error) => setError(e.message));
     api.cases().then(setCases).catch((e: Error) => setError(e.message));
   }, []);
+
+  function open(next: Tab) {
+    setTab(next);
+    setOpened((prev) => (prev.has(next) ? prev : new Set(prev).add(next)));
+  }
+
+  const panels: Record<Tab, JSX.Element> = {
+    Examples: <ExamplesPanel health={health} />,
+    "Live conversation": <ConversationPanel />,
+    "Classify an event": <ClassifyPanel cases={cases} />,
+    "Position demo": <PositionDemo />,
+    "Eval results": <ResultsPanel cases={cases} />,
+  };
 
   return (
     <main>
@@ -40,18 +56,18 @@ export function App() {
         </p>
         <nav>
           {TABS.map((t) => (
-            <button key={t} className={t === tab ? "tab active" : "tab"} onClick={() => setTab(t)}>
+            <button key={t} className={t === tab ? "tab active" : "tab"} onClick={() => open(t)}>
               {t}
             </button>
           ))}
         </nav>
       </header>
       {error && <p className="error">{error}</p>}
-      {tab === "Examples" && <ExamplesPanel health={health} />}
-      {tab === "Live conversation" && <ConversationPanel />}
-      {tab === "Classify an event" && <ClassifyPanel cases={cases} />}
-      {tab === "Position demo" && <PositionDemo />}
-      {tab === "Eval results" && <ResultsPanel cases={cases} />}
+      {TABS.filter((t) => opened.has(t)).map((t) => (
+        <div key={t} hidden={t !== tab}>
+          {panels[t]}
+        </div>
+      ))}
     </main>
   );
 }
