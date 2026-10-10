@@ -6,7 +6,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
-from pydantic import Field, SecretStr
+from pydantic import Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -43,6 +43,12 @@ class Settings(BaseSettings):
     timeout_s: float = 60.0
     max_output_tokens: int = 1024
     concurrency: int = 4
+
+    @field_validator("anthropic_api_key", "minimax_api_key", mode="after")
+    @classmethod
+    def _blank_key_is_no_key(cls, value: SecretStr | None) -> SecretStr | None:
+        # `MINIMAX_API_KEY=` in a copied .env must read as "not configured", not as a key.
+        return value if value is not None and value.get_secret_value().strip() else None
 
 
 @lru_cache(maxsize=1)

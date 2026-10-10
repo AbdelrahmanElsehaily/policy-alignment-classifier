@@ -25,7 +25,14 @@ from pac.settings import REPO_ROOT, Settings
 
 pytestmark = pytest.mark.integration
 
-SETTINGS = Settings()
+# Fixed repo paths, deliberately not read from the environment or a developer's .env: this
+# test is about the committed artefacts, wherever the local config points.
+SETTINGS = Settings(
+    policy_path=REPO_ROOT / "policy" / "policy_v0.md",
+    cases_path=REPO_ROOT / "data" / "cases.jsonl",
+    cache_dir=REPO_ROOT / "cache",
+    results_dir=REPO_ROOT / "results",
+)
 RUNS = list_runs(SETTINGS.results_dir)
 
 

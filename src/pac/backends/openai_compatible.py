@@ -82,7 +82,9 @@ class OpenAICompatibleBackend:
             model=self._model,
             latency_ms=(time.perf_counter() - started) * 1000,
             usage=Usage(
-                input_tokens=int(usage.get("prompt_tokens", 0)),
+                # OpenAI-style prompt_tokens include cached tokens; Anthropic's input_tokens
+                # do not. Normalise to the Anthropic meaning so reports are comparable.
+                input_tokens=int(usage.get("prompt_tokens", 0)) - int(cached_tokens),
                 output_tokens=int(usage.get("completion_tokens", 0)),
                 cache_read_input_tokens=int(cached_tokens),
             ),

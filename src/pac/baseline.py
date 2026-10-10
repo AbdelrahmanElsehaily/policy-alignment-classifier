@@ -84,6 +84,9 @@ class RegexBaseline:
 
     name = "regex-baseline"
 
+    def __init__(self, policy_version: str = "v0") -> None:
+        self._policy_version = policy_version
+
     async def classify(self, request: ClassificationRequest) -> Classification:
         started = time.perf_counter()
         rules = regex_rules(flatten(request))
@@ -97,6 +100,6 @@ class RegexBaseline:
             decision=decision,
             model=self.name,
             prompt_version="n/a",
-            policy_version="v0",
+            policy_version=self._policy_version,
             latency_ms=(time.perf_counter() - started) * 1000,
         )

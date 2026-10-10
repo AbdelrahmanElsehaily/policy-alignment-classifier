@@ -123,15 +123,53 @@ def test_classify_missing_key_is_a_clean_error(tmp_path: Path) -> None:
 
 
 def test_classify_from_stdin_with_replay(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Unrecorded event in replay: prints the fail-closed result (and exits 1)."""
     monkeypatch.setenv("PAC_CACHE_DIR", str(tmp_path))
     payload = ClassificationRequest(
         event=TraceEvent(kind="user_input", content="hi")
     ).model_dump_json()
     result = runner.invoke(app, ["classify", "--backend", "replay", "--model", "m"], input=payload)
-    assert result.exit_code == 0, result.output
-    assert json.loads(result.output)["decision"]["verdict"] == "policy_silent"
+    assert result.exit_code == 1, result.output
+    printed = result.output[: result.output.rindex("}") + 1]
+    assert json.loads(printed)["decision"]["verdict"] == "policy_silent"
 
 
 def test_unknown_backend(tmp_path: Path) -> None:
     result = runner.invoke(app, ["classify", "--backend", "gpt"], input="{}")
     assert result.exit_code != 0
+
+
+def test_classify_rejects_invalid_request_cleanly() -> None:
+    result = runner.invoke(
+        app, ["classify", "--backend", "replay", "--model", "m"], input='{"x": 1}'
+    )
+    assert result.exit_code == 1
+    assert "invalid request" in plain(result.output)
+    assert "Traceback" not in result.output
+
+
+def test_classify_missing_file() -> None:
+    result = runner.invoke(app, ["classify", "does-not-exist.json"])
+    assert result.exit_code == 2
+
+
+def test_classify_exits_nonzero_when_failed_closed(tmp_path: Path) -> None:
+    payload = ClassificationRequest(
+        event=TraceEvent(kind="user_input", content="never recorded")
+    ).model_dump_json()
+    result = runner.invoke(
+        app,
+        ["classify", "--backend", "replay", "--model", "m"],
+        input=payload,
+        env={"PAC_CACHE_DIR": str(tmp_path)},
+    )
+    assert result.exit_code == 1
+    assert "failed closed" in plain(result.output)
+
+
+def test_replay_with_no_cache_is_rejected(dataset: Path) -> None:
+    result = runner.invoke(
+        app, ["eval", "--backend", "replay", "--model", "m", "--no-cache", "--repeats", "2"]
+    )
+    assert result.exit_code == 2
+    assert "replay" in plain(result.output)

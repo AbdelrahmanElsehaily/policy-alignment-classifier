@@ -122,6 +122,8 @@ async def test_runs_endpoints(
     assert detail["metrics"]["n_cases"] == 3
     assert client.get("/api/runs/nope").status_code == 404
     assert client.get("/api/runs/..%2F..%2Fetc").status_code == 404
+    assert client.get("/api/runs/%2E%2E").status_code == 404
+    assert client.get("/api/runs/.hidden").status_code == 404
 
 
 def test_root_without_frontend(client: TestClient) -> None:
@@ -139,3 +141,24 @@ def test_serves_built_frontend(tmp_path: Path, policy: Policy, prompt: PromptTem
     )
     assert "<title>pac</title>" in client.get("/").text
     assert client.get("/assets/app.js").status_code == 200
+
+
+def test_parent_dir_run_id_cannot_escape(
+    tmp_path: Path, policy: Policy, prompt: PromptTemplate
+) -> None:
+    """A results dir whose parent looks like a run must still not be served via '..'."""
+    (tmp_path / "config.json").write_text("{}")
+    settings = Settings(results_dir=tmp_path, web_dist=tmp_path / "none")
+    client = TestClient(
+        create_app(settings, LLMClassifier(FakeBackend(_responder), policy, prompt))
+    )
+    (tmp_path / "runs").mkdir()
+    assert client.get("/api/runs/%2E%2E").status_code == 404
+
+
+def test_blank_api_key_means_unconfigured(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("MINIMAX_API_KEY", "")
+    settings = Settings(backend="minimax", web_dist=tmp_path, results_dir=tmp_path)
+    health = TestClient(create_app(settings)).get("/api/health").json()
+    assert health["llm_available"] is False
+    assert "MINIMAX_API_KEY" in health["llm_error"]

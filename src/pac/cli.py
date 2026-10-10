@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Annotated, Any, get_args
 
 import typer
+from pydantic import ValidationError
 
 from pac.backends import BackendError, build_backend
 from pac.baseline import RegexBaseline
@@ -68,20 +69,28 @@ def _fail(message: str) -> typer.Exit:
 @app.command()
 def classify(
     request_file: Annotated[
-        Path | None, typer.Argument(help="JSON ClassificationRequest; reads stdin if omitted")
+        Path | None,
+        typer.Argument(
+            help="JSON ClassificationRequest; reads stdin if omitted", exists=True, dir_okay=False
+        ),
     ] = None,
     backend: BackendOpt = None,
     model: ModelOpt = None,
 ) -> None:
-    """Classify one event and print the result as JSON."""
+    """Classify one event and print the result as JSON. Exits 1 if the classifier failed closed."""
     raw = request_file.read_text() if request_file else sys.stdin.read()
-    request = ClassificationRequest.model_validate_json(raw)
+    try:
+        request = ClassificationRequest.model_validate_json(raw)
+    except ValidationError as exc:
+        raise _fail(f"invalid request: {exc}") from exc
     try:
         classifier = build_classifier(_settings(backend, model))
     except BackendError as exc:
         raise _fail(str(exc)) from exc
     result = asyncio.run(classifier.classify(request))
     typer.echo(result.model_dump_json(indent=2))
+    if result.error is not None:
+        raise _fail(f"classifier failed closed: {result.error}")
 
 
 @app.command(name="eval")
@@ -198,7 +207,12 @@ def _make_classifier(
 ) -> tuple[EventClassifier, str, str]:
     """Return the classifier plus the prompt version and backend name to record."""
     if kind is ClassifierKind.baseline:
-        return RegexBaseline(), "n/a", "regex"
+        return RegexBaseline(Policy.load(settings.policy_path).version), "n/a", "regex"
+    if not cache and settings.backend == "replay":
+        raise typer.BadParameter(
+            "--no-cache with --backend replay would replay the cache anyway",
+            param_hint="--no-cache",
+        )
     try:
         backend = build_backend(settings, use_cache=cache)
         llm = build_classifier(settings, backend=backend)
@@ -253,12 +267,23 @@ def serve(
     from pac.api import create_app  # noqa: PLC0415
 
     settings = Settings()
-    if rebuild or not (settings.web_dist / "index.html").exists():
+    if rebuild or _frontend_stale(settings.web_dist):
         _build_frontend(settings.web_dist.parent)
     typer.echo(
         f"Serving on http://{host}:{port}  (backend={settings.backend}, model={settings.model})"
     )
     uvicorn.run(create_app(settings), host=host, port=port, log_level="info")
+
+
+def _frontend_stale(dist: Path) -> bool:
+    """True when the build is missing or older than any frontend source (e.g. after a pull)."""
+    index = dist / "index.html"
+    if not index.exists():
+        return True
+    web = dist.parent
+    sources = [*(web / "src").rglob("*"), web / "index.html", web / "package-lock.json"]
+    built = index.stat().st_mtime
+    return any(p.is_file() and p.stat().st_mtime > built for p in sources)
 
 
 def _build_frontend(web_dir: Path) -> None:

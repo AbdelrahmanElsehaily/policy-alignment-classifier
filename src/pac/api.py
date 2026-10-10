@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from functools import cached_property
 from typing import Annotated, Any, Literal
 
@@ -20,6 +21,8 @@ from pac.eval.records import Prediction, RunConfig
 from pac.policy import Policy
 from pac.schemas import Classification, ClassificationRequest, LabeledCase
 from pac.settings import Settings, get_settings
+
+RUN_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 
 
 class Health(BaseModel):
@@ -42,6 +45,7 @@ class RunSummary(BaseModel):
     created_at: str
     classifier: str
     backend: str
+    prompt_version: str
     split: str
     n_cases: int
     with_history: bool
@@ -63,7 +67,6 @@ class _Services:
         self.settings = settings
         self._classifier = classifier
         self._classifier_error: str | None = None
-        self.baseline = RegexBaseline()
 
     @cached_property
     def policy(self) -> Policy:
@@ -72,6 +75,10 @@ class _Services:
     @cached_property
     def cases(self) -> list[LabeledCase]:
         return load_cases(self.settings.cases_path)
+
+    @cached_property
+    def baseline(self) -> RegexBaseline:
+        return RegexBaseline(policy_version=self.policy.version)
 
     def classifier(self) -> EventClassifier | None:
         if self._classifier is None and self._classifier_error is None:
@@ -140,6 +147,7 @@ def create_app(
                     created_at=config.created_at,
                     classifier=config.classifier,
                     backend=config.backend,
+                    prompt_version=config.prompt_version,
                     split=config.split,
                     n_cases=config.n_cases,
                     with_history=config.with_history,
@@ -153,7 +161,7 @@ def create_app(
     @app.get("/api/runs/{run_id}")
     def run(run_id: str) -> RunDetail:
         run_dir = services.settings.results_dir / "runs" / run_id
-        if run_id != run_dir.name or not (run_dir / "config.json").exists():
+        if not RUN_ID.match(run_id) or not (run_dir / "config.json").exists():
             raise HTTPException(status_code=404, detail=f"no run {run_id!r}")
         config, predictions, metrics = load_run(run_dir)
         return RunDetail(config=config, metrics=metrics, predictions=predictions)

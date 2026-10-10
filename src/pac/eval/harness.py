@@ -56,17 +56,23 @@ def new_run_id(classifier_name: str, split: str, *, history: bool = False) -> st
 
 
 def git_commit() -> str | None:
+    """Short HEAD sha, suffixed ``-dirty`` when tracked files have uncommitted changes."""
     try:
-        out = subprocess.run(
+        head = subprocess.run(
             ["git", "rev-parse", "--short", "HEAD"],
             capture_output=True,
             text=True,
             check=True,
             timeout=5,
-        )
+        ).stdout.strip()
+        dirty = subprocess.run(
+            ["git", "diff", "--quiet", "HEAD", "--"], capture_output=True, timeout=5, check=False
+        ).returncode
     except (OSError, subprocess.SubprocessError):
         return None
-    return out.stdout.strip() or None
+    if not head:
+        return None
+    return f"{head}-dirty" if dirty == 1 else head
 
 
 def write_run(run_dir: Path, config: RunConfig, predictions: Sequence[Prediction]) -> Metrics:

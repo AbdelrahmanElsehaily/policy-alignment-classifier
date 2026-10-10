@@ -232,6 +232,7 @@ async def test_openai_compatible_request_shape_and_usage() -> None:
     assert body["max_completion_tokens"] == REQUEST.max_tokens
     assert completion.text == '{"a": 1}'
     assert completion.usage.cache_read_input_tokens == 1200
+    assert completion.usage.input_tokens == 300  # 1500 prompt tokens minus 1200 cached
 
 
 @respx.mock
