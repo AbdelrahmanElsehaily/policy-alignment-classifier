@@ -25,9 +25,9 @@ export function VerdictCard({ title, result }: { title: string; result: Classifi
       <p className="rationale">{decision.rationale}</p>
       {result.error && <p className="error">Fail-closed: {result.error}</p>}
       <div className="meta">
-        confidence {pct(decision.confidence)} · model {ms(result.model_latency_ms)}
-        {result.cached ? " (recorded)" : ""} · {result.usage.input_tokens} in / {result.usage.output_tokens} out ·{" "}
-        {result.model}
+        {result.model === "regex-baseline" ? "regex" : result.cached ? "recorded answer" : "live call"} · model{" "}
+        {ms(result.model_latency_ms)} · confidence {pct(decision.confidence)} · {result.usage.input_tokens} in /{" "}
+        {result.usage.output_tokens} out · {result.model}
       </div>
     </div>
   );

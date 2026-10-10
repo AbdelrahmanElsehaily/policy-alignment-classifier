@@ -269,17 +269,29 @@ def serve(
     host: Annotated[str, typer.Option()] = "127.0.0.1",
     port: Annotated[int, typer.Option()] = 8000,
     rebuild: Annotated[bool, typer.Option(help="Rebuild the frontend even if built")] = False,
+    live: Annotated[
+        bool,
+        typer.Option(help="Call the model on every request (no cache); needs a real backend"),
+    ] = False,
 ) -> None:
     """Build the React app if needed, then serve the API and UI on one port."""
     import uvicorn  # noqa: PLC0415 - server-only dependency, keeps CLI startup fast
 
     from pac.interfaces.api import create_app  # noqa: PLC0415
 
-    settings = Settings()
+    settings = Settings(live=True) if live else Settings()
+    if settings.live and settings.backend == "replay":
+        raise _fail(
+            "--live needs a real model. For example:\n"
+            "  PAC_BACKEND=ollama PAC_MODEL=qwen3.5 uv run pac serve --live\n"
+            "  PAC_BACKEND=minimax PAC_MODEL=MiniMax-M3 MINIMAX_API_KEY=... uv run pac serve --live"
+        )
     if rebuild or _frontend_stale(settings.web_dist):
         _build_frontend(settings.web_dist.parent)
+    mode = "LIVE: every request calls the model" if settings.live else "recorded answers"
     typer.echo(
-        f"Serving on http://{host}:{port}  (backend={settings.backend}, model={settings.model})"
+        f"Serving on http://{host}:{port}  "
+        f"(backend={settings.backend}, model={settings.model}, {mode})"
     )
     uvicorn.run(create_app(settings), host=host, port=port, log_level="info")
 

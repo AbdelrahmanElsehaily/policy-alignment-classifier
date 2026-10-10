@@ -164,3 +164,10 @@ def test_blank_api_key_means_unconfigured(tmp_path: Path, monkeypatch: pytest.Mo
     health = TestClient(create_app(settings)).get("/api/health").json()
     assert health["llm_available"] is False
     assert "MINIMAX_API_KEY" in health["llm_error"]
+
+
+def test_examples_and_live_flag(client: TestClient) -> None:
+    examples = client.get("/api/examples").json()
+    assert len(examples) >= 10
+    assert {"title", "look_for", "case"} <= set(examples[0])
+    assert client.get("/api/health").json()["live"] is False

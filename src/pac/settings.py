@@ -31,9 +31,14 @@ class Settings(BaseSettings):
     minimax_thinking: Literal["disabled", "adaptive"] = "disabled"
     ollama_host: str = "http://localhost:11434"
 
+    # Live mode: every classification calls the model; the response cache is neither read nor
+    # written. For demos -- eval runs should keep the cache so results stay reproducible.
+    live: bool = False
+
     policy_path: Path = REPO_ROOT / "policy" / "policy_v0.md"
     prompt_path: Path = REPO_ROOT / "prompts" / "classifier_v2.md"
     cases_path: Path = REPO_ROOT / "data" / "cases.jsonl"
+    examples_path: Path = REPO_ROOT / "data" / "demo_examples.json"
     cache_dir: Path = REPO_ROOT / "cache"
     results_dir: Path = REPO_ROOT / "results"
     web_dist: Path = REPO_ROOT / "web" / "dist"

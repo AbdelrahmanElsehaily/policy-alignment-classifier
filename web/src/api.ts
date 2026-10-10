@@ -1,6 +1,7 @@
 import type {
   Classification,
   ClassificationRequest,
+  DemoExample,
   Health,
   LabeledCase,
   RunDetail,
@@ -30,6 +31,7 @@ export type Engine = "llm" | "baseline";
 export const api = {
   health: () => request<Health>("/api/health"),
   cases: () => request<LabeledCase[]>("/api/cases"),
+  examples: () => request<DemoExample[]>("/api/examples"),
   runs: () => request<RunSummary[]>("/api/runs"),
   run: (id: string) => request<RunDetail>(`/api/runs/${encodeURIComponent(id)}`),
   classify: (body: ClassificationRequest, engine: Engine = "llm") =>

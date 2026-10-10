@@ -174,3 +174,9 @@ def test_replay_with_no_cache_is_rejected(dataset: Path) -> None:
     )
     assert result.exit_code == 2
     assert "replay" in plain(result.output)
+
+
+def test_serve_live_refuses_replay() -> None:
+    result = runner.invoke(app, ["serve", "--live"], env={"PAC_BACKEND": "replay"})
+    assert result.exit_code == 1
+    assert "--live needs a real model" in plain(result.output)

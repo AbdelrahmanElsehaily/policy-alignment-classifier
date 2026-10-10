@@ -34,6 +34,24 @@ backend:
 
 Copy [`.env.example`](.env.example) to `.env` to set these.
 
+## Live demo (real model calls)
+
+```bash
+PAC_BACKEND=ollama PAC_MODEL=qwen3.5 uv run pac serve --live
+```
+
+`--live` sends **every request to the model**. The response cache is neither read nor written, so even
+known eval cases get a fresh answer. For MiniMax, use `PAC_BACKEND=minimax PAC_MODEL=MiniMax-M3
+MINIMAX_API_KEY=… uv run pac serve --live`. The server refuses `--live` in replay mode rather than
+silently serving recordings.
+
+The UI opens on **Examples**: 14 curated scenarios from the eval set, each showing the expected verdict and
+what to look for. **Run** asks the live model and shows its verdict, rationale and latency next to the
+regex baseline. **Run with history** (on the refund and address-change cases) shows the earlier events
+settling a case the single event can't decide. **Run all** goes through them one at a time, which is about
+2–3 minutes on a laptop with the local 9.7B model. The banner says LIVE or RECORDED, and every result is
+marked "live" or "recorded".
+
 ## Evaluate
 
 ```bash

@@ -2,15 +2,16 @@ import { useEffect, useState } from "react";
 
 import { api } from "./api";
 import { ClassifyPanel } from "./components/ClassifyPanel";
+import { ExamplesPanel } from "./components/ExamplesPanel";
 import { PositionDemo } from "./components/PositionDemo";
 import { ResultsPanel } from "./components/ResultsPanel";
 import type { Health, LabeledCase } from "./types";
 
-const TABS = ["Classify an event", "Position demo", "Eval results"] as const;
+const TABS = ["Examples", "Classify an event", "Position demo", "Eval results"] as const;
 type Tab = (typeof TABS)[number];
 
 export function App() {
-  const [tab, setTab] = useState<Tab>("Classify an event");
+  const [tab, setTab] = useState<Tab>("Examples");
   const [health, setHealth] = useState<Health | null>(null);
   const [cases, setCases] = useState<LabeledCase[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -28,8 +29,9 @@ export function App() {
           Lark, the support agent for Larkspur Electronics (fictional), with policy v0.{" "}
           {health &&
             (health.llm_available ? (
-              <span>
-                Classifier: <code>{health.model}</code> via <code>{health.backend}</code>.
+              <span className={health.live ? "mode live" : "mode recorded"}>
+                {health.live ? "LIVE" : "RECORDED"} · <code>{health.model}</code> via <code>{health.backend}</code>
+                {health.live ? " · every request calls the model" : " · answers replayed from the cache"}
               </span>
             ) : (
               <span className="error">LLM unavailable: {health.llm_error} (the regex baseline still works)</span>
@@ -44,6 +46,7 @@ export function App() {
         </nav>
       </header>
       {error && <p className="error">{error}</p>}
+      {tab === "Examples" && <ExamplesPanel health={health} />}
       {tab === "Classify an event" && <ClassifyPanel cases={cases} />}
       {tab === "Position demo" && <PositionDemo />}
       {tab === "Eval results" && <ResultsPanel cases={cases} />}

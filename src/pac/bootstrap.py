@@ -66,7 +66,16 @@ def build_policy(settings: Settings) -> Policy:
 
 
 def build_classifier(settings: Settings, backend: LLMBackend | None = None) -> LLMClassifier:
-    """The LLM classifier: configured backend + policy + prompt."""
+    """The LLM classifier: configured backend + policy + prompt.
+
+    In live mode the backend is not wrapped in the cache, so every call reaches the model.
+    """
+    if backend is None and settings.live:
+        if settings.backend == "replay":
+            raise BackendError(
+                "Live mode needs a real model: set PAC_BACKEND to ollama, minimax or anthropic."
+            )
+        backend = build_backend(settings, use_cache=False)
     policy = build_policy(settings)
     prompt = load_prompt(settings.prompt_path, policy, max_tokens=settings.max_output_tokens)
     return LLMClassifier(

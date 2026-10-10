@@ -22,6 +22,7 @@ from pac.guardrail.domain.classification import Classification, EventClassifier
 from pac.guardrail.domain.events import ClassificationRequest
 from pac.guardrail.domain.policy import Policy
 from pac.guardrail.infrastructure.regex_classifier import RegexBaseline
+from pac.interfaces.demo_examples import DemoExample, load_examples
 from pac.settings import Settings, get_settings
 
 
@@ -29,6 +30,7 @@ class Health(BaseModel):
     status: Literal["ok"] = "ok"
     backend: str
     model: str
+    live: bool
     llm_available: bool
     llm_error: str | None
 
@@ -110,6 +112,7 @@ def create_app(
         return Health(
             backend=services.settings.backend,
             model=services.settings.model,
+            live=services.settings.live,
             llm_available=error is None,
             llm_error=error,
         )
@@ -127,6 +130,10 @@ def create_app(
     @app.get("/api/cases")
     def cases() -> list[LabeledCase]:
         return services.cases
+
+    @app.get("/api/examples")
+    def examples() -> list[DemoExample]:
+        return load_examples(services.settings.examples_path, services.cases)
 
     @app.post("/api/classify")
     async def classify(

@@ -57,6 +57,8 @@ export interface LabeledCase {
   request: ClassificationRequest;
   label: Verdict;
   rule_ids: string[];
+  label_with_history: Verdict | null;
+  rule_ids_with_history: string[];
   label_confidence: "high" | "medium" | "contested";
   rationale: string;
   tags: string[];
@@ -66,8 +68,15 @@ export interface LabeledCase {
 export interface Health {
   backend: string;
   model: string;
+  live: boolean;
   llm_available: boolean;
   llm_error: string | null;
+}
+
+export interface DemoExample {
+  title: string;
+  look_for: string;
+  case: LabeledCase;
 }
 
 export interface Rate {

@@ -69,3 +69,15 @@ th { color: var(--muted); font-weight: 600; }
 td.diag { font-weight: 700; }
 .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
 section { overflow-x: auto; }
+
+.examples { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 12px; margin-top: 12px; }
+.card.example { display: flex; flex-direction: column; gap: 6px; margin-bottom: 0; }
+pre.event { margin: 0; padding: 8px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+  white-space: pre-wrap; word-break: break-word; font-size: 0.82em; max-height: 9em; overflow: auto; }
+.row.compact { gap: 6px; align-items: center; }
+.result { border-top: 1px solid var(--border); padding-top: 6px; }
+.match { color: var(--allow); font-weight: 600; font-size: 0.85em; }
+.mismatch { color: var(--violation); font-weight: 600; font-size: 0.85em; }
+.mode { display: inline-block; padding: 1px 8px; border-radius: 6px; border: 1px solid currentColor; }
+.mode.live { color: var(--allow); }
+.mode.recorded { color: var(--muted); }
