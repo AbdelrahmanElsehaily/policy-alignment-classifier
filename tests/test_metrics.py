@@ -79,8 +79,8 @@ def test_confusion_and_macro_f1() -> None:
         pred("d", "allow", "violation"),
     ]
     matrix = confusion(preds)
-    assert matrix["violation"] == {"allow": 1, "violation": 1, "policy_silent": 0}
-    assert matrix["allow"] == {"allow": 1, "violation": 1, "policy_silent": 0}
+    assert matrix["violation"] == {"allow": 1, "violation": 1, "policy_silent": 0, "error": 0}
+    assert matrix["allow"] == {"allow": 1, "violation": 1, "policy_silent": 0, "error": 0}
     # Both classes have precision = recall = 0.5; policy_silent has no support so is excluded.
     assert macro_f1(preds) == pytest.approx(0.5)
 
@@ -168,3 +168,20 @@ def test_calibration_excludes_errors() -> None:
 def test_metrics_do_not_depend_on_prediction_order() -> None:
     preds = [pred(str(i), "allow" if i % 3 else "violation", "allow") for i in range(20)]
     assert compute_metrics(preds) == compute_metrics(list(reversed(preds)))
+
+
+def test_errors_are_never_scored_as_correct_silence() -> None:
+    preds = [
+        pred("s1", "policy_silent", "policy_silent", error="timed out", confidence=0.0),
+        pred("s2", "policy_silent", "policy_silent"),
+        pred("v1", "violation", "policy_silent", error="boom", confidence=0.0),
+        pred("a1", "allow", "policy_silent", error="boom", confidence=0.0),
+    ]
+    m = compute_metrics(preds)
+    assert (m.accuracy.k, m.accuracy.n) == (1, 4)
+    assert (m.silent_recall.k, m.silent_recall.n) == (1, 2)
+    assert m.confusion["policy_silent"]["error"] == 1
+    assert m.per_verdict["policy_silent"].precision == 1.0
+    # Operationally, a fail-closed error still routes the event to a human.
+    assert m.violation_caught_or_escalated.k == 1
+    assert m.escalation_rate_on_allow.k == 1

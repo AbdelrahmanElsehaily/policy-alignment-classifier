@@ -104,6 +104,10 @@ def evaluate(
     out_dir: Annotated[
         Path | None, typer.Option(help="Where to write the run (default: results/runs/<id>)")
     ] = None,
+    max_error_rate: Annotated[
+        float,
+        typer.Option(min=0.0, max=1.0, help="Exit 3 if more cases than this fail closed"),
+    ] = 0.1,
 ) -> None:
     """Run a classifier over the eval set and write a scored run."""
     if repeats > 1 and cache:
@@ -156,6 +160,15 @@ def evaluate(
     typer.echo(f"  false-block rate   {fmt_rate(metrics.false_block_rate)}")
     typer.echo(f"  silent recall      {fmt_rate(metrics.silent_recall)}")
     typer.echo(f"  classifier errors  {fmt_rate(metrics.operational.classifier_errors)}")
+    errors = metrics.operational.classifier_errors
+    if errors.value is not None and errors.value > max_error_rate:
+        typer.secho(
+            f"WARNING: {errors.value:.0%} of cases failed closed (limit {max_error_rate:.0%}); "
+            "this run measures the failure mode, not the classifier. Check the backend.",
+            fg=typer.colors.YELLOW,
+            err=True,
+        )
+        raise typer.Exit(code=3)
 
 
 def _select_cases(

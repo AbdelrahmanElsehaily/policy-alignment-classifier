@@ -48,6 +48,8 @@ async def test_committed_run_reproduces(run_dir: Path) -> None:
     config, recorded, metrics = load_run(run_dir)
     recomputed = compute_metrics(recorded)
     assert json.loads(recomputed.model_dump_json()) == json.loads(metrics.model_dump_json())
+    errors = metrics.operational.classifier_errors
+    assert (errors.value or 0) <= 0.1, "a committed run that mostly failed closed measures nothing"
     if config.repeats > 1:
         pytest.skip("variance runs bypass the cache by design; only their metrics are checked")
     assert file_sha256(SETTINGS.cases_path) == config.dataset_sha256, (

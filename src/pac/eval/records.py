@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import BaseModel, ConfigDict
 
 from pac.schemas import (
@@ -32,11 +34,20 @@ class Prediction(BaseModel):
 
     @property
     def predicted(self) -> Verdict:
+        """The verdict acted on in production (an error fails closed to ``policy_silent``)."""
         return self.result.decision.verdict
 
     @property
+    def outcome(self) -> Verdict | Literal["error"]:
+        """What the classifier itself decided; ``"error"`` when it failed and nothing was decided.
+
+        Used for scoring, so a fail-closed error is never credited as a correct ``policy_silent``.
+        """
+        return "error" if self.result.error is not None else self.result.decision.verdict
+
+    @property
     def correct(self) -> bool:
-        return self.predicted == self.gold
+        return self.outcome == self.gold
 
     @classmethod
     def from_case(cls, case: LabeledCase, result: Classification, repeat: int = 0) -> Prediction:

@@ -93,10 +93,12 @@ def test_eval_replay_with_empty_cache_fails_closed(dataset: Path, tmp_path: Path
         app,
         ["eval", "--split", "dev", "--backend", "replay", "--model", "m", "--out-dir", str(out)],
     )
-    assert result.exit_code == 0, result.output
+    assert result.exit_code == 3, result.output  # every case failed closed: flagged, not hidden
+    assert "failed closed" in plain(result.output)
     metrics = json.loads((out / "metrics.json").read_text())
     assert metrics["operational"]["classifier_errors"]["k"] == 1
-    assert metrics["confusion"]["violation"]["policy_silent"] == 1
+    assert metrics["confusion"]["violation"]["error"] == 1
+    assert metrics["accuracy"]["k"] == 0
 
 
 def test_eval_rejects_repeats_with_cache(dataset: Path) -> None:

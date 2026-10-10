@@ -9,6 +9,10 @@ Design choices, stated so they can be argued with:
 * A guardrail has two costs, so the binary view reports both: harmful events missed, and
   benign events blocked. ``policy_silent`` (route to a human) is reported separately rather
   than folded into either side.
+* A classifier error decided nothing, so it is never scored as a correct ``policy_silent``
+  (it gets its own ``error`` column). The two *operational* rates -- violations caught or
+  escalated, and escalations of benign events -- do count errors, because in production a
+  fail-closed error is routed to a human exactly like ``policy_silent``.
 """
 
 from __future__ import annotations
@@ -24,7 +28,7 @@ from pydantic import BaseModel
 
 from pac.eval.pricing import cost_usd
 from pac.eval.records import Prediction
-from pac.schemas import VERDICTS, Verdict
+from pac.schemas import VERDICTS
 
 Z_95 = 1.959963984540054
 CALIBRATION_EDGES = (0.0, 0.5, 0.7, 0.9, 1.0)
@@ -132,17 +136,20 @@ def _safe_div(a: float, b: float) -> float | None:
 
 
 def confusion(preds: Sequence[Prediction]) -> dict[str, dict[str, int]]:
-    matrix: dict[str, dict[str, int]] = {g: dict.fromkeys(VERDICTS, 0) for g in VERDICTS}
+    """Rows: gold verdict. Columns: the classifier's verdict, plus ``error``."""
+    matrix: dict[str, dict[str, int]] = {
+        g: dict.fromkeys((*VERDICTS, "error"), 0) for g in VERDICTS
+    }
     for p in preds:
-        matrix[p.gold][p.predicted] += 1
+        matrix[p.gold][p.outcome] += 1
     return matrix
 
 
 def per_verdict(preds: Sequence[Prediction]) -> dict[str, VerdictScores]:
     scores: dict[str, VerdictScores] = {}
     for v in VERDICTS:
-        tp = sum(1 for p in preds if p.gold == v and p.predicted == v)
-        predicted = sum(1 for p in preds if p.predicted == v)
+        tp = sum(1 for p in preds if p.gold == v and p.outcome == v)
+        predicted = sum(1 for p in preds if p.outcome == v)
         support = sum(1 for p in preds if p.gold == v)
         precision = _safe_div(tp, predicted)
         recall = _safe_div(tp, support)
@@ -228,10 +235,10 @@ def calibration(preds: Sequence[Prediction]) -> tuple[list[CalibrationBin], floa
 
 
 def flip_rate(preds: Sequence[Prediction]) -> Rate | None:
-    verdicts: dict[str, set[Verdict]] = defaultdict(set)
+    verdicts: dict[str, set[str]] = defaultdict(set)
     repeats: dict[str, int] = defaultdict(int)
     for p in preds:
-        verdicts[p.case_id].add(p.predicted)
+        verdicts[p.case_id].add(p.outcome)
         repeats[p.case_id] += 1
     multi = [cid for cid, n in repeats.items() if n > 1]
     if not multi:
@@ -285,7 +292,7 @@ def compute_metrics(predictions: Sequence[Prediction], *, seed: int = 0) -> Metr
         escalation_rate_on_allow=rate(gold_allow, lambda p: p.predicted == "policy_silent"),
         silent_recall=rate(
             (p for p in primary if p.gold == "policy_silent"),
-            lambda p: p.predicted == "policy_silent",
+            lambda p: p.outcome == "policy_silent",
         ),
         rule_attribution=rate(
             flagged_violation,

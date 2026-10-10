@@ -53,7 +53,9 @@ def render_report(config: RunConfig, m: Metrics, predictions: Sequence[Predictio
         f"**Commit:** `{config.git_commit or 'unknown'}`",
         "",
         "Intervals are 95% Wilson intervals (bootstrap for macro-F1). Headline numbers use "
-        "repeat 0 only.",
+        "repeat 0 only. Classifier errors are never scored as correct; they count as "
+        "escalations only in the two operational rates (caught-or-escalated, escalation on "
+        "allow), because a fail-closed error is routed to a human.",
         "",
         "## Headline",
         "",
@@ -74,9 +76,10 @@ def render_report(config: RunConfig, m: Metrics, predictions: Sequence[Predictio
         lines.append(f"| verdict flip rate across repeats | {fmt_rate(m.flip_rate)} |")
 
     lines += ["", "## Confusion matrix (rows: gold, columns: predicted)", ""]
-    lines += ["| gold \\ pred | " + " | ".join(VERDICTS) + " |", "|---|---|---|---|"]
+    columns = (*VERDICTS, "error")
+    lines += ["| gold \\ pred | " + " | ".join(columns) + " |", "|---|---|---|---|---|"]
     for gold in VERDICTS:
-        row = " | ".join(str(m.confusion[gold][pred]) for pred in VERDICTS)
+        row = " | ".join(str(m.confusion[gold].get(pred, 0)) for pred in columns)
         lines.append(f"| **{gold}** | {row} |")
 
     lines += ["", "## Breakdowns", ""]
