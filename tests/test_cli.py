@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 import pytest
@@ -13,6 +14,12 @@ from pac.schemas import ClassificationRequest, LabeledCase, TraceEvent
 
 pytestmark = pytest.mark.integration
 runner = CliRunner()
+ANSI = re.compile(r"\x1b\[[0-9;]*m")
+
+
+def plain(text: str) -> str:
+    """CLI output without colour codes, panel borders or wrapping (CI terminals add all three)."""
+    return " ".join(ANSI.sub("", text).replace("│", " ").split())
 
 
 @pytest.fixture
@@ -95,7 +102,7 @@ def test_eval_replay_with_empty_cache_fails_closed(dataset: Path, tmp_path: Path
 def test_eval_rejects_repeats_with_cache(dataset: Path) -> None:
     result = runner.invoke(app, ["eval", "--classifier", "baseline", "--repeats", "3"])
     assert result.exit_code != 0
-    assert "--no-cache" in result.output
+    assert "Add --no-cache" in plain(result.output)
 
 
 def test_eval_unknown_case(dataset: Path) -> None:
