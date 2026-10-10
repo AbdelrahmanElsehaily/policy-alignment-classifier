@@ -48,7 +48,7 @@ ignore = ["PLR0913", "PLR0917", "PLR2004", "PLR0911", "PLR0912", "RUF001", "RUF0
 [tool.mypy]
 python_version = "3.12"
 strict = true
-files = ["src", "tests"]
+files = ["src", "tests", "data"]
 mypy_path = "src"
 plugins = ["pydantic.mypy"]
 
