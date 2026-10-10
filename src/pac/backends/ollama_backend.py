@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import time
+
 import httpx
 
 from pac.backends.base import BackendError, Completion, LLMRequest
@@ -42,6 +44,7 @@ class OllamaBackend:
                 {"role": "user", "content": request.user},
             ],
         }
+        started = time.perf_counter()
         try:
             response = await self._client.post("/api/chat", json=payload)
             response.raise_for_status()
@@ -63,6 +66,7 @@ class OllamaBackend:
         return Completion(
             text=text,
             model=self._model,
+            latency_ms=(time.perf_counter() - started) * 1000,
             usage=Usage(
                 input_tokens=int(body.get("prompt_eval_count", 0)),
                 output_tokens=int(body.get("eval_count", 0)),

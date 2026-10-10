@@ -124,6 +124,9 @@ class Classification(_Strict):
     prompt_version: str
     policy_version: str
     latency_ms: float
+    # Time spent waiting on the model across all attempts, as originally measured (also for
+    # results replayed from the cache). ``latency_ms`` is this call's own wall time.
+    model_latency_ms: float = 0.0
     usage: Usage = Field(default_factory=Usage)
     cached: bool = False
     error: str | None = None

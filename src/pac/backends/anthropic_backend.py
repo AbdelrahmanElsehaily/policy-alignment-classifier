@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import time
 from typing import Any, Literal
 
 import anthropic
@@ -38,6 +39,7 @@ class AnthropicBackend:
         return self._model
 
     async def complete(self, request: LLMRequest) -> Completion:
+        started = time.perf_counter()
         try:
             response = await self._client.messages.create(
                 model=self._model,
@@ -70,6 +72,7 @@ class AnthropicBackend:
         return Completion(
             text=text,
             model=self._model,
+            latency_ms=(time.perf_counter() - started) * 1000,
             usage=Usage(
                 input_tokens=usage.input_tokens,
                 output_tokens=usage.output_tokens,

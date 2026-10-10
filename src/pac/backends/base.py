@@ -38,6 +38,9 @@ class Completion(BaseModel):
     text: str
     model: str
     usage: Usage = Usage()
+    # Wall time of the provider call when it was made. Preserved through the cache, so a
+    # replayed run still reports the latency the model actually had.
+    latency_ms: float = 0.0
     cached: bool = False
 
 

@@ -85,6 +85,7 @@ class LLMClassifier:
     async def classify(self, request: ClassificationRequest) -> Classification:
         started = time.perf_counter()
         usage = Usage()
+        model_latency_ms = 0.0
         cached = True
         repair = False
         error = "no attempts made"
@@ -106,6 +107,7 @@ class LLMClassifier:
                 continue
 
             usage = _add(usage, completion.usage)
+            model_latency_ms += completion.latency_ms
             cached = cached and completion.cached
             try:
                 decision = parse_decision(completion.text, self._policy.rule_ids)
@@ -113,15 +115,18 @@ class LLMClassifier:
                 error = f"unparseable output: {_first_line(exc)}"
                 repair = True
                 continue
-            return self._result(decision, started, usage, cached=cached)
+            return self._result(decision, started, usage, model_latency_ms, cached=cached)
 
-        return self._result(fail_closed(error), started, usage, cached=False, error=error)
+        return self._result(
+            fail_closed(error), started, usage, model_latency_ms, cached=False, error=error
+        )
 
     def _result(
         self,
         decision: Decision,
         started: float,
         usage: Usage,
+        model_latency_ms: float,
         *,
         cached: bool,
         error: str | None = None,
@@ -132,6 +137,7 @@ class LLMClassifier:
             prompt_version=self._prompt.version,
             policy_version=self._policy.version,
             latency_ms=(time.perf_counter() - started) * 1000,
+            model_latency_ms=model_latency_ms,
             usage=usage,
             cached=cached,
             error=error,
