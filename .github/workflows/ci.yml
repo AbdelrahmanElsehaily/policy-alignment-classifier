@@ -35,6 +35,9 @@ jobs:
       - name: Types
         run: uv run mypy
 
+      - name: Architecture (import contracts)
+        run: uv run lint-imports
+
       - name: Tests
         run: uv run pytest --cov=pac --cov-report=term-missing --cov-fail-under=90
 

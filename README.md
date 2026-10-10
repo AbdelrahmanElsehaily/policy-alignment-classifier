@@ -52,14 +52,14 @@ Wilson interval.
 ## Develop
 
 ```bash
-uv sync                          # Python env (3.12)
+uv sync                          # Python env (3.14)
 uv run pytest                    # unit + integration tests, offline
-uv run ruff format . && uv run ruff check . && uv run mypy
+uv run ruff format . && uv run ruff check . && uv run mypy && uv run lint-imports
 cd web && npm ci && npm test && npm run build      # Node.js 22.12+ (CI uses 24)
 ```
 
 CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) enforces formatting, lint, strict typing (Python
-and TypeScript) and the tests. It also **replays every committed eval run from the response cache and
+and TypeScript), the architecture's dependency rules (import-linter), and the tests. It also **replays every committed eval run from the response cache and
 requires identical verdicts and metrics**, so a change that silently moves a reported number fails the
 build.
 
@@ -71,11 +71,14 @@ build.
 | [`policy/policy_v1_proposed.md`](policy/policy_v1_proposed.md) | Amendments the corner cases argue for |
 | [`prompts/`](prompts/) | Versioned prompt templates (v1 kept for traceability; v2 is the default) |
 | [`data/build_cases.py`](data/build_cases.py) | The eval set, with each label's reasoning; generates `data/cases.jsonl` |
-| [`src/pac/`](src/pac/) | Schemas, policy loader, prompt rendering, classifier, backends, baseline, eval harness, API, CLI |
+| [`src/pac/guardrail/`](src/pac/guardrail/) | Core domain: judging one event. Domain model, the LLM classifier use case, model adapters, regex baseline |
+| [`src/pac/evaluation/`](src/pac/evaluation/) | Measuring a guardrail: labelled cases, metrics, eval use cases, run storage |
+| [`src/pac/interfaces/`](src/pac/interfaces/), [`bootstrap.py`](src/pac/bootstrap.py) | CLI and API, and the composition root that wires them |
 | [`cache/`](cache/) | Recorded model responses, which make every reported number reproducible offline |
 | [`results/runs/`](results/runs/) | Committed eval runs |
 | [`web/`](web/) | One-page React app |
 | [`docs/WRITEUP.md`](docs/WRITEUP.md) | Reasoning, assumptions, results, limitations |
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Where the guardrail sits (man in the middle), bounded contexts, layers, enforced dependency rules |
 | [`docs/CORNER_CASES.md`](docs/CORNER_CASES.md) | What the policy does not decide, and what to do about it |
 | [`docs/LABELING.md`](docs/LABELING.md) | Labelling conventions and who labelled |
 | [`docs/POLICY_RATIONALE.md`](docs/POLICY_RATIONALE.md) | Why each rule exists and is worded as it is |

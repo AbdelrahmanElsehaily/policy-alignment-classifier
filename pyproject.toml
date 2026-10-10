@@ -25,6 +25,7 @@ build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
+    "import-linter>=2.15",
     "mypy>=2.4.0",
     "pytest>=9.1.1",
     "pytest-asyncio>=1.4.0",
@@ -64,3 +65,53 @@ markers = [
     "integration: exercises several components together (still offline)",
     "live: calls a real LLM backend; skipped unless PAC_LIVE_TESTS=1",
 ]
+
+# Architecture fitness functions: `uv run lint-imports` (also run in CI).
+[tool.importlinter]
+root_package = "pac"
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "Outer layers depend on inner ones, never the reverse"
+type = "layers"
+layers = [
+    "pac.interfaces",
+    "pac.bootstrap",
+    "pac.evaluation",
+    "pac.guardrail",
+]
+
+[[tool.importlinter.contracts]]
+name = "Guardrail context is layered: infrastructure > application > domain"
+type = "layers"
+layers = [
+    "pac.guardrail.infrastructure",
+    "pac.guardrail.application",
+    "pac.guardrail.domain",
+]
+
+[[tool.importlinter.contracts]]
+name = "Evaluation context is layered: infrastructure > application > domain"
+type = "layers"
+layers = [
+    "pac.evaluation.infrastructure",
+    "pac.evaluation.application",
+    "pac.evaluation.domain",
+]
+
+[[tool.importlinter.contracts]]
+name = "Evaluation sees only the guardrail's published domain model"
+type = "forbidden"
+source_modules = ["pac.evaluation"]
+forbidden_modules = ["pac.guardrail.application", "pac.guardrail.infrastructure"]
+
+[[tool.importlinter.contracts]]
+name = "Domain and application code stay free of I/O frameworks and configuration"
+type = "forbidden"
+source_modules = [
+    "pac.guardrail.domain",
+    "pac.guardrail.application",
+    "pac.evaluation.domain",
+    "pac.evaluation.application",
+]
+forbidden_modules = ["anthropic", "httpx", "fastapi", "typer", "uvicorn", "pac.settings"]
