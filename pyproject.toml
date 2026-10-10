@@ -1,0 +1,66 @@
+[project]
+name = "pac"
+version = "0.1.0"
+description = "LLM-prompted policy alignment classifier for AI agent trace events"
+authors = [
+    { email = "abdelrahman.sehaily@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "anthropic>=1.13.0",
+    "fastapi>=0.143.0",
+    "httpx>=0.28.1",
+    "pydantic>=2.9",
+    "pydantic-settings>=2.15.0",
+    "typer>=0.27.3",
+    "uvicorn[standard]>=0.54.0",
+]
+
+[project.scripts]
+pac = "pac.cli:app"
+
+[build-system]
+requires = ["uv_build>=0.11.6,<0.12.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "mypy>=2.4.0",
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+    "pytest-cov>=7.1.0",
+    "respx>=0.23.1",
+    "ruff>=0.17.0",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests", "data"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "UP", "SIM", "RUF", "ASYNC", "PT", "C4", "PL"]
+ignore = ["PLR0913", "PLR2004", "PLR0911", "PLR0912", "RUF001", "RUF002", "RUF003"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["PLR2004", "S101"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+packages = ["pac"]
+mypy_path = "src"
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = ["respx.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = "-ra --strict-markers"
+markers = [
+    "integration: exercises several components together (still offline)",
+    "live: calls a real LLM backend; skipped unless PAC_LIVE_TESTS=1",
+]
