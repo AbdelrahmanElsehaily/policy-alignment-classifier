@@ -68,7 +68,7 @@ def git_commit() -> str | None:
         dirty = subprocess.run(
             ["git", "diff", "--quiet", "HEAD", "--"], capture_output=True, timeout=5, check=False
         ).returncode
-    except (OSError, subprocess.SubprocessError):
+    except OSError, subprocess.SubprocessError:
         return None
     if not head:
         return None

@@ -5,7 +5,7 @@ description = "LLM-prompted policy alignment classifier for AI agent trace event
 authors = [
     { email = "abdelrahman.sehaily@gmail.com" }
 ]
-requires-python = ">=3.12"
+requires-python = ">=3.14"
 dependencies = [
     "anthropic>=1.13.0",
     "fastapi>=0.143.0",
@@ -35,7 +35,7 @@ dev = [
 
 [tool.ruff]
 line-length = 100
-target-version = "py312"
+target-version = "py314"
 src = ["src", "tests", "data"]
 
 [tool.ruff.lint]
@@ -46,7 +46,7 @@ ignore = ["PLR0913", "PLR0917", "PLR2004", "PLR0911", "PLR0912", "RUF001", "RUF0
 "tests/**" = ["PLR2004", "ASYNC240"]
 
 [tool.mypy]
-python_version = "3.12"
+python_version = "3.14"
 strict = true
 files = ["src", "tests", "data", "scripts"]
 mypy_path = "src"
