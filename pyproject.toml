@@ -77,7 +77,7 @@ type = "layers"
 layers = [
     "pac.interfaces",
     "pac.bootstrap",
-    "pac.evaluation",
+    "pac.evaluation | pac.simulation",
     "pac.guardrail",
 ]
 
@@ -100,6 +100,24 @@ layers = [
 ]
 
 [[tool.importlinter.contracts]]
+name = "Simulation context is layered: application > domain"
+type = "layers"
+layers = [
+    "pac.simulation.application",
+    "pac.simulation.domain",
+]
+
+[[tool.importlinter.contracts]]
+name = "Simulation sees the guardrail's domain model and LLM port, never the classifier"
+type = "forbidden"
+source_modules = ["pac.simulation"]
+forbidden_modules = [
+    "pac.guardrail.infrastructure",
+    "pac.guardrail.application.llm_classifier",
+    "pac.guardrail.application.prompting",
+]
+
+[[tool.importlinter.contracts]]
 name = "Evaluation sees only the guardrail's published domain model"
 type = "forbidden"
 source_modules = ["pac.evaluation"]
@@ -113,5 +131,7 @@ source_modules = [
     "pac.guardrail.application",
     "pac.evaluation.domain",
     "pac.evaluation.application",
+    "pac.simulation.domain",
+    "pac.simulation.application",
 ]
 forbidden_modules = ["anthropic", "httpx", "fastapi", "typer", "uvicorn", "pac.settings"]

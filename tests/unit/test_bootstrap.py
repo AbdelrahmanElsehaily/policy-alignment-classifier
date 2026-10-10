@@ -6,9 +6,10 @@ from pathlib import Path
 
 import pytest
 
-from pac.bootstrap import build_classifier
+from pac.bootstrap import build_agent, build_classifier
 from pac.guardrail.application.ports import BackendError
 from pac.guardrail.infrastructure.llm.caching import CachingBackend
+from pac.guardrail.infrastructure.llm.ollama import OllamaBackend
 from pac.guardrail.infrastructure.llm.openai_compatible import OpenAICompatibleBackend
 from pac.settings import Settings
 
@@ -38,3 +39,19 @@ def test_live_mode_calls_the_model_directly(
 def test_live_mode_refuses_replay(tmp_path: Path) -> None:
     with pytest.raises(BackendError, match="Live mode needs a real model"):
         build_classifier(_settings(tmp_path, backend="replay", live=True))
+
+
+def test_the_agent_needs_live_mode_and_a_real_model(tmp_path: Path) -> None:
+    with pytest.raises(BackendError, match="needs a real model in live mode"):
+        build_agent(_settings(tmp_path, backend="ollama"))
+    with pytest.raises(BackendError, match="needs a real model in live mode"):
+        build_agent(_settings(tmp_path, backend="replay", live=True))
+
+
+def test_the_agent_is_never_cached_and_can_use_its_own_model(tmp_path: Path) -> None:
+    agent = build_agent(_settings(tmp_path, backend="ollama", live=True, agent_model="llama3.3"))
+    assert isinstance(agent._backend, OllamaBackend)
+    assert agent.model == "llama3.3"
+    assert "You are Lark" in agent._system
+    same_model = build_agent(_settings(tmp_path, backend="ollama", live=True, model="qwen3.5"))
+    assert same_model.model == "qwen3.5"

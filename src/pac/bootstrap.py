@@ -17,6 +17,7 @@ from pac.guardrail.infrastructure.llm.ollama import OllamaBackend
 from pac.guardrail.infrastructure.llm.openai_compatible import OpenAICompatibleBackend
 from pac.guardrail.infrastructure.regex_classifier import RegexBaseline
 from pac.settings import Settings
+from pac.simulation.application.agent import SimulatedAgent
 
 
 def build_backend(settings: Settings, *, use_cache: bool = True) -> LLMBackend:
@@ -92,3 +93,23 @@ def build_baseline(settings: Settings) -> RegexBaseline:
 
 def build_run_store(settings: Settings) -> FileRunStore:
     return FileRunStore(settings.results_dir / "runs")
+
+
+def build_agent(settings: Settings) -> SimulatedAgent:
+    """The simulated agent for the live conversation. Never cached: every turn is new.
+
+    It needs live mode, which also keeps the classifier off the response cache, so a chat never
+    writes recordings next to the committed eval cache.
+    """
+    if not settings.live or settings.backend == "replay":
+        raise BackendError(
+            "The live conversation needs a real model in live mode: set PAC_BACKEND to "
+            "ollama, minimax or anthropic and start with `pac serve --live`."
+        )
+    if settings.agent_model is not None:
+        settings = settings.model_copy(update={"model": settings.agent_model})
+    return SimulatedAgent(
+        build_backend(settings, use_cache=False),
+        settings.agent_prompt_path.read_text(),
+        max_tokens=settings.max_output_tokens,
+    )

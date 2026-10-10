@@ -39,6 +39,10 @@ class Settings(BaseSettings):
     prompt_path: Path = REPO_ROOT / "prompts" / "classifier_v2.md"
     cases_path: Path = REPO_ROOT / "data" / "cases.jsonl"
     examples_path: Path = REPO_ROOT / "data" / "demo_examples.json"
+    # The live conversation's simulated agent: its instructions, and an optional different
+    # model to play it (same backend). Unset, the classifier's model plays both roles.
+    agent_prompt_path: Path = REPO_ROOT / "prompts" / "lark_agent.md"
+    agent_model: str | None = None
     cache_dir: Path = REPO_ROOT / "cache"
     results_dir: Path = REPO_ROOT / "results"
     web_dist: Path = REPO_ROOT / "web" / "dist"
