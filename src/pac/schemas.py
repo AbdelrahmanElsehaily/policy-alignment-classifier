@@ -144,9 +144,23 @@ class LabeledCase(_Strict):
     rationale: str = Field(min_length=1)
     tags: tuple[str, ...] = ()
     origin: Literal["targeted", "transcript"] = "targeted"
+    # The answer once the classifier also sees ``history`` (history ablation only). Set where
+    # earlier events supply a fact the event lacks; otherwise ``label`` applies in both settings.
+    label_with_history: Verdict | None = None
+    rule_ids_with_history: tuple[str, ...] = ()
 
     @model_validator(mode="after")
     def _label_has_rules(self) -> Self:
         if self.label == "violation" and not self.rule_ids:
             raise ValueError(f"{self.id}: violation label must cite a rule")
+        if self.label_with_history == "violation" and not self.rule_ids_with_history:
+            raise ValueError(f"{self.id}: violation label_with_history must cite a rule")
+        if self.label_with_history is not None and not self.request.history:
+            raise ValueError(f"{self.id}: label_with_history needs history")
         return self
+
+    def gold(self, *, with_history: bool) -> tuple[Verdict, tuple[str, ...]]:
+        """The label to score against in the given setting."""
+        if with_history and self.label_with_history is not None:
+            return self.label_with_history, self.rule_ids_with_history
+        return self.label, self.rule_ids

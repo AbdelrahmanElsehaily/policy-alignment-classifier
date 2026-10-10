@@ -132,6 +132,24 @@ async def test_history_ablation_passes_history(policy: Policy, prompt: PromptTem
     assert "<history" in fake.requests[0].user
 
 
+async def test_history_ablation_scores_against_label_with_history(
+    policy: Policy, prompt: PromptTemplate
+) -> None:
+    case = _cases()[0].model_copy(
+        update={
+            "label": "policy_silent",
+            "rule_ids": (),
+            "label_with_history": "violation",
+            "rule_ids_with_history": ("R5",),
+        }
+    )
+    classifier = LLMClassifier(FakeBackend(_responder), policy, prompt)
+    without = await run_cases(classifier, [case])
+    with_history = await run_cases(classifier, [case], with_history=True)
+    assert (without[0].gold, with_history[0].gold) == ("policy_silent", "violation")
+    assert with_history[0].gold_rules == ("R5",)
+
+
 async def test_repeats(policy: Policy, prompt: PromptTemplate) -> None:
     predictions = await run_cases(
         LLMClassifier(FakeBackend(_responder), policy, prompt), _cases()[:2], repeats=3

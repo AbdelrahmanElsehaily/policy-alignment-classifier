@@ -41,7 +41,7 @@ async def run_cases(
         request = case.request if with_history else case.request.model_copy(update={"history": ()})
         async with semaphore:
             result = await classifier.classify(request)
-        prediction = Prediction.from_case(case, result, repeat)
+        prediction = Prediction.from_case(case, result, repeat, with_history=with_history)
         if on_result is not None:
             on_result(prediction)
         return prediction

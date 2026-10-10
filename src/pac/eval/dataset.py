@@ -33,7 +33,7 @@ def load_cases(path: Path) -> list[LabeledCase]:
 def check_against_policy(cases: Iterable[LabeledCase], policy: Policy) -> None:
     """Every rule a label cites must exist in the policy it is measured against."""
     for case in cases:
-        unknown = set(case.rule_ids) - policy.rule_ids
+        unknown = (set(case.rule_ids) | set(case.rule_ids_with_history)) - policy.rule_ids
         if unknown:
             raise DatasetError(f"{case.id}: cites rules not in policy: {sorted(unknown)}")
 

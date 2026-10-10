@@ -50,14 +50,22 @@ class Prediction(BaseModel):
         return self.outcome == self.gold
 
     @classmethod
-    def from_case(cls, case: LabeledCase, result: Classification, repeat: int = 0) -> Prediction:
+    def from_case(
+        cls,
+        case: LabeledCase,
+        result: Classification,
+        repeat: int = 0,
+        *,
+        with_history: bool = False,
+    ) -> Prediction:
+        gold, gold_rules = case.gold(with_history=with_history)
         return cls(
             case_id=case.id,
             repeat=repeat,
             split=case.split,
             kind=case.request.event.kind,
-            gold=case.label,
-            gold_rules=case.rule_ids,
+            gold=gold,
+            gold_rules=gold_rules,
             label_confidence=case.label_confidence,
             tags=case.tags,
             origin=case.origin,
