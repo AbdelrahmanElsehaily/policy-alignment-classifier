@@ -2,12 +2,13 @@ import { useEffect, useState } from "react";
 
 import { api } from "./api";
 import { ClassifyPanel } from "./components/ClassifyPanel";
+import { ConversationPanel } from "./components/ConversationPanel";
 import { ExamplesPanel } from "./components/ExamplesPanel";
 import { PositionDemo } from "./components/PositionDemo";
 import { ResultsPanel } from "./components/ResultsPanel";
 import type { Health, LabeledCase } from "./types";
 
-const TABS = ["Examples", "Classify an event", "Position demo", "Eval results"] as const;
+const TABS = ["Examples", "Live conversation", "Classify an event", "Position demo", "Eval results"] as const;
 type Tab = (typeof TABS)[number];
 
 export function App() {
@@ -47,6 +48,7 @@ export function App() {
       </header>
       {error && <p className="error">{error}</p>}
       {tab === "Examples" && <ExamplesPanel health={health} />}
+      {tab === "Live conversation" && <ConversationPanel />}
       {tab === "Classify an event" && <ClassifyPanel cases={cases} />}
       {tab === "Position demo" && <PositionDemo />}
       {tab === "Eval results" && <ResultsPanel cases={cases} />}

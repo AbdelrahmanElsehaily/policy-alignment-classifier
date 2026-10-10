@@ -81,3 +81,26 @@ pre.event { margin: 0; padding: 8px; background: var(--bg); border: 1px solid va
 .mode { display: inline-block; padding: 1px 8px; border-radius: 6px; border: 1px solid currentColor; }
 .mode.live { color: var(--allow); }
 .mode.recorded { color: var(--muted); }
+
+/* Live conversation */
+.suggestions { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 14px; }
+button.chip { background: transparent; color: var(--text); border: 1px solid var(--border); border-radius: 999px; padding: 3px 12px; font-size: 0.85em; }
+.transcript { display: flex; flex-direction: column; gap: 6px; }
+.turn-row { display: grid; grid-template-columns: 96px minmax(0, 1fr) 220px; gap: 10px; align-items: start; background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--border); border-radius: 6px; padding: 8px 10px; }
+.turn-row.kind-tool_call, .turn-row.kind-tool_response { margin-left: 24px; }
+.turn-row.verdict-allow { border-left-color: var(--allow); }
+.turn-row.verdict-violation { border-left-color: var(--violation); }
+.turn-row.verdict-policy_silent { border-left-color: var(--silent); }
+.turn-row .speaker { font-weight: 600; padding-top: 2px; }
+.turn-row .said { margin: 0; white-space: pre-wrap; }
+.turn-row code.tool { word-break: break-word; }
+pre.tool-result { max-height: 160px; overflow: auto; white-space: pre-wrap; word-break: break-word; }
+.verdicts { display: flex; flex-direction: column; gap: 4px; }
+.verdicts summary { cursor: pointer; }
+.pending { font-style: italic; }
+.composer { display: flex; gap: 8px; margin-top: 12px; align-items: stretch; }
+.composer textarea { flex: 1; font-family: inherit; font-size: 1em; }
+@media (max-width: 640px) {
+  .turn-row { grid-template-columns: 1fr; }
+  .turn-row.kind-tool_call, .turn-row.kind-tool_response { margin-left: 12px; }
+}

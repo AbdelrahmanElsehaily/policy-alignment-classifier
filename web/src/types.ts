@@ -159,3 +159,41 @@ export interface RunDetail {
   metrics: Metrics;
   predictions: Prediction[];
 }
+
+// Live conversation (src/pac/interfaces/live_conversation.py, src/pac/simulation)
+
+export interface CustomerView {
+  customer_id: string;
+  name: string;
+  email: string;
+}
+
+export interface Suggestion {
+  label: string;
+  message: string;
+  verify_as: string | null;
+  exercises: string;
+}
+
+export interface ConversationSetup {
+  available: boolean;
+  error: string | null;
+  agent_model: string | null;
+  customers: CustomerView[];
+  suggestions: Suggestion[];
+}
+
+export interface TurnRequest {
+  session: Session;
+  history: TraceEvent[];
+  message: string;
+  guardrail_sees_history: boolean;
+}
+
+export type Engine = "llm" | "baseline";
+
+export type TurnUpdate =
+  | { type: "event"; index: number; event: TraceEvent }
+  | { type: "verdict"; index: number; engine: Engine; classification: Classification }
+  | { type: "stopped"; reason: string }
+  | { type: "done" };
