@@ -1,11 +1,12 @@
 import pytest
 
-from pac.policy import Policy
+from pac.guardrail.domain.policy import Policy
+from pac.guardrail.infrastructure.files import load_policy
 from pac.settings import Settings
 
 
 def test_shipped_policy_parses() -> None:
-    policy = Policy.load(Settings().policy_path)
+    policy = load_policy(Settings().policy_path)
     assert policy.version == "v0"
     assert policy.rule_ids == frozenset(f"R{i}" for i in range(1, 14))
     assert len(policy.sha256) == 64

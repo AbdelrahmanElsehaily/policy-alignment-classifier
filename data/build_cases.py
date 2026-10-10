@@ -25,15 +25,9 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from pac.schemas import (
-    ClassificationRequest,
-    LabelConfidence,
-    LabeledCase,
-    Session,
-    Split,
-    TraceEvent,
-    Verdict,
-)
+from pac.evaluation.domain.cases import LabelConfidence, LabeledCase, Split
+from pac.guardrail.domain.decision import Verdict
+from pac.guardrail.domain.events import ClassificationRequest, Session, TraceEvent
 
 OUT = Path(__file__).with_name("cases.jsonl")
 

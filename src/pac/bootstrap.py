@@ -1,0 +1,85 @@
+"""Composition root: the only place that turns ``Settings`` into wired objects.
+
+Interfaces (CLI, API) ask this module for ready-to-use services; nothing below the interface
+layer reads configuration or picks concrete adapters.
+"""
+
+from __future__ import annotations
+
+from pac.evaluation.infrastructure.run_store import FileRunStore
+from pac.guardrail.application.llm_classifier import LLMClassifier
+from pac.guardrail.application.ports import BackendError, LLMBackend
+from pac.guardrail.domain.policy import Policy
+from pac.guardrail.infrastructure.files import load_policy, load_prompt
+from pac.guardrail.infrastructure.llm.anthropic import AnthropicBackend
+from pac.guardrail.infrastructure.llm.caching import CachingBackend
+from pac.guardrail.infrastructure.llm.ollama import OllamaBackend
+from pac.guardrail.infrastructure.llm.openai_compatible import OpenAICompatibleBackend
+from pac.guardrail.infrastructure.regex_classifier import RegexBaseline
+from pac.settings import Settings
+
+
+def build_backend(settings: Settings, *, use_cache: bool = True) -> LLMBackend:
+    """The configured LLM backend, wrapped in the response cache.
+
+    ``replay`` serves only recorded completions and never touches the network.
+    """
+    if settings.backend == "replay":
+        return CachingBackend(settings.cache_dir, inner=None, model=settings.model)
+
+    inner: LLMBackend
+    if settings.backend == "anthropic":
+        if settings.anthropic_api_key is None:
+            raise BackendError(
+                "ANTHROPIC_API_KEY is not set. Set it, or use PAC_BACKEND=replay to serve "
+                "recorded results, or PAC_BACKEND=ollama for a local model."
+            )
+        inner = AnthropicBackend(
+            settings.model,
+            api_key=settings.anthropic_api_key.get_secret_value(),
+            effort=settings.anthropic_effort,
+            timeout_s=settings.timeout_s,
+        )
+    elif settings.backend == "minimax":
+        if settings.minimax_api_key is None:
+            raise BackendError("MINIMAX_API_KEY is not set.")
+        inner = OpenAICompatibleBackend(
+            settings.model,
+            base_url=settings.minimax_base_url,
+            api_key=settings.minimax_api_key.get_secret_value(),
+            extra_body={
+                "thinking": {"type": settings.minimax_thinking},
+                "reasoning_split": True,
+            },
+            timeout_s=settings.timeout_s,
+        )
+    else:
+        inner = OllamaBackend(
+            settings.model, host=settings.ollama_host, timeout_s=settings.timeout_s
+        )
+
+    return CachingBackend(settings.cache_dir, inner=inner) if use_cache else inner
+
+
+def build_policy(settings: Settings) -> Policy:
+    return load_policy(settings.policy_path)
+
+
+def build_classifier(settings: Settings, backend: LLMBackend | None = None) -> LLMClassifier:
+    """The LLM classifier: configured backend + policy + prompt."""
+    policy = build_policy(settings)
+    prompt = load_prompt(settings.prompt_path, policy, max_tokens=settings.max_output_tokens)
+    return LLMClassifier(
+        backend if backend is not None else build_backend(settings),
+        policy,
+        prompt,
+        timeout_s=settings.timeout_s,
+    )
+
+
+def build_baseline(settings: Settings) -> RegexBaseline:
+    return RegexBaseline(policy_version=build_policy(settings).version)
+
+
+def build_run_store(settings: Settings) -> FileRunStore:
+    return FileRunStore(settings.results_dir / "runs")

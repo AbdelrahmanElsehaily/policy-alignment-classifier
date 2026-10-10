@@ -1,7 +1,7 @@
 import pytest
 
-from pac.eval.agreement import cohen_kappa
-from pac.schemas import Verdict
+from pac.evaluation.domain.agreement import cohen_kappa
+from pac.guardrail.domain.decision import Verdict
 
 
 def test_perfect_agreement() -> None:

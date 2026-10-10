@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from pac.eval.metrics import (
+from pac.evaluation.domain.metrics import (
     bootstrap_macro_f1,
     compute_metrics,
     confusion,
@@ -11,8 +11,10 @@ from pac.eval.metrics import (
     percentile,
     wilson,
 )
-from pac.eval.records import Prediction
-from pac.schemas import Classification, Decision, EventKind, Usage, Verdict
+from pac.evaluation.domain.prediction import Prediction
+from pac.guardrail.domain.classification import Classification, Usage
+from pac.guardrail.domain.decision import Decision, Verdict
+from pac.guardrail.domain.events import EventKind
 
 
 def pred(

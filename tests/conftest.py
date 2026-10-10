@@ -6,9 +6,10 @@ from pathlib import Path
 
 import pytest
 
-from pac.policy import Policy
-from pac.prompting import PromptTemplate
-from pac.schemas import ClassificationRequest, Session, TraceEvent
+from pac.guardrail.application.prompting import PromptTemplate
+from pac.guardrail.domain.events import ClassificationRequest, Session, TraceEvent
+from pac.guardrail.domain.policy import Policy
+from pac.guardrail.infrastructure.files import load_policy, load_prompt
 from pac.settings import Settings, get_settings
 
 
@@ -31,12 +32,12 @@ def _isolated_settings(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
 
 @pytest.fixture(scope="session")
 def policy() -> Policy:
-    return Policy.load(Settings().policy_path)
+    return load_policy(Settings().policy_path)
 
 
 @pytest.fixture(scope="session")
 def prompt(policy: Policy) -> PromptTemplate:
-    return PromptTemplate.load(Settings().prompt_path, policy)
+    return load_prompt(Settings().prompt_path, policy)
 
 
 @pytest.fixture

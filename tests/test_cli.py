@@ -9,8 +9,9 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from pac.cli import app
-from pac.schemas import ClassificationRequest, LabeledCase, TraceEvent
+from pac.evaluation.domain.cases import LabeledCase
+from pac.guardrail.domain.events import ClassificationRequest, TraceEvent
+from pac.interfaces.cli import app
 
 pytestmark = pytest.mark.integration
 runner = CliRunner()

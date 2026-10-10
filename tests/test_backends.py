@@ -11,12 +11,14 @@ import httpx2
 import pytest
 import respx
 
-from pac.backends import BackendError, CacheMiss, CachingBackend, LLMRequest, build_backend
-from pac.backends.anthropic_backend import AnthropicBackend
-from pac.backends.fake import FakeBackend
-from pac.backends.ollama_backend import OllamaBackend
-from pac.backends.openai_compatible import OpenAICompatibleBackend
+from pac.bootstrap import build_backend
+from pac.guardrail.application.ports import BackendError, LLMRequest
+from pac.guardrail.infrastructure.llm.anthropic import AnthropicBackend
+from pac.guardrail.infrastructure.llm.caching import CacheMiss, CachingBackend
+from pac.guardrail.infrastructure.llm.ollama import OllamaBackend
+from pac.guardrail.infrastructure.llm.openai_compatible import OpenAICompatibleBackend
 from pac.settings import Settings
+from tests.support.fakes import FakeBackend
 
 REQUEST = LLMRequest(
     system="policy text", user="event", json_schema={"type": "object"}, max_tokens=64

@@ -3,7 +3,9 @@ from typing import Any
 import pytest
 from pydantic import ValidationError
 
-from pac.schemas import ClassificationRequest, Decision, LabeledCase, Session, TraceEvent
+from pac.evaluation.domain.cases import LabeledCase
+from pac.guardrail.domain.decision import Decision
+from pac.guardrail.domain.events import ClassificationRequest, Session, TraceEvent
 
 
 @pytest.mark.parametrize(

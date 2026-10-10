@@ -9,18 +9,19 @@ or the metrics code that would alter a reported number fails here, in CI, offlin
 from __future__ import annotations
 
 import json
-from pathlib import Path
 
 import pytest
 
-from pac.backends import CachingBackend
-from pac.baseline import RegexBaseline
-from pac.classifier import EventClassifier, LLMClassifier
-from pac.eval.dataset import file_sha256, load_cases
-from pac.eval.harness import list_runs, load_run, run_cases
-from pac.eval.metrics import compute_metrics
-from pac.policy import Policy
-from pac.prompting import PromptTemplate
+from pac.evaluation.application.run_eval import run_cases
+from pac.evaluation.domain.metrics import compute_metrics
+from pac.evaluation.domain.run import RunConfig
+from pac.evaluation.infrastructure.case_store import file_sha256, load_cases
+from pac.evaluation.infrastructure.run_store import FileRunStore
+from pac.guardrail.application.llm_classifier import LLMClassifier
+from pac.guardrail.domain.classification import EventClassifier
+from pac.guardrail.infrastructure.files import load_policy, load_prompt
+from pac.guardrail.infrastructure.llm.caching import CachingBackend
+from pac.guardrail.infrastructure.regex_classifier import RegexBaseline
 from pac.settings import REPO_ROOT, Settings
 
 pytestmark = pytest.mark.integration
@@ -33,26 +34,27 @@ SETTINGS = Settings(
     cache_dir=REPO_ROOT / "cache",
     results_dir=REPO_ROOT / "results",
 )
-RUNS = list_runs(SETTINGS.results_dir)
+STORE = FileRunStore(SETTINGS.results_dir / "runs")
+RUNS = STORE.list_ids()
 
 
-def _classifier_for(run_dir: Path) -> EventClassifier:
-    config, _, _ = load_run(run_dir)
+def _classifier_for(config: RunConfig) -> EventClassifier:
     if config.backend == "regex":
         return RegexBaseline()
-    policy = Policy.load(SETTINGS.policy_path)
+    policy = load_policy(SETTINGS.policy_path)
     assert policy.sha256 == config.policy_sha256, "policy changed since this run was recorded"
     stem = config.prompt_version.split("@")[0]
-    prompt = PromptTemplate.load(REPO_ROOT / "prompts" / f"{stem}.md", policy)
+    prompt = load_prompt(REPO_ROOT / "prompts" / f"{stem}.md", policy)
     assert prompt.version == config.prompt_version, f"{stem}.md changed since this run"
     replay = CachingBackend(SETTINGS.cache_dir, inner=None, model=config.classifier)
     return LLMClassifier(replay, policy, prompt)
 
 
 @pytest.mark.skipif(not RUNS, reason="no committed runs")
-@pytest.mark.parametrize("run_dir", RUNS, ids=[r.name for r in RUNS])
-async def test_committed_run_reproduces(run_dir: Path) -> None:
-    config, recorded, metrics = load_run(run_dir)
+@pytest.mark.parametrize("run_id", RUNS)
+async def test_committed_run_reproduces(run_id: str) -> None:
+    saved = STORE.load(run_id)
+    config, recorded, metrics = saved.config, saved.predictions, saved.metrics
     recomputed = compute_metrics(recorded)
     assert json.loads(recomputed.model_dump_json()) == json.loads(metrics.model_dump_json())
     errors = metrics.operational.classifier_errors
@@ -66,7 +68,7 @@ async def test_committed_run_reproduces(run_dir: Path) -> None:
     cases = [by_id[p.case_id] for p in recorded if p.repeat == 0]
 
     replayed = await run_cases(
-        _classifier_for(run_dir), cases, with_history=config.with_history, concurrency=8
+        _classifier_for(config), cases, with_history=config.with_history, concurrency=8
     )
 
     expected = {p.case_id: p for p in recorded if p.repeat == 0}

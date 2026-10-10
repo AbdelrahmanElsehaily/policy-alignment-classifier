@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import pytest
 
-from pac.baseline import RegexBaseline, _luhn_ok, regex_rules
-from pac.schemas import ClassificationRequest, TraceEvent
+from pac.guardrail.domain.events import ClassificationRequest, TraceEvent
+from pac.guardrail.infrastructure.regex_classifier import RegexBaseline, _luhn_ok, regex_rules
 
 
 @pytest.mark.parametrize(

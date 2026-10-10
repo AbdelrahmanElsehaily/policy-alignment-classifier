@@ -7,17 +7,19 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
-from pac.api import create_app
-from pac.backends import LLMRequest
-from pac.backends.fake import FakeBackend
-from pac.classifier import LLMClassifier
-from pac.eval.harness import run_cases, write_run
-from pac.eval.records import RunConfig
-from pac.policy import Policy
-from pac.prompting import PromptTemplate
-from pac.schemas import ClassificationRequest, LabeledCase, TraceEvent
+from pac.evaluation.application.run_eval import record_run, run_cases
+from pac.evaluation.domain.cases import LabeledCase
+from pac.evaluation.domain.run import RunConfig
+from pac.evaluation.infrastructure.run_store import FileRunStore
+from pac.guardrail.application.llm_classifier import LLMClassifier
+from pac.guardrail.application.ports import LLMRequest
+from pac.guardrail.application.prompting import PromptTemplate
+from pac.guardrail.domain.events import ClassificationRequest, TraceEvent
+from pac.guardrail.domain.policy import Policy
+from pac.interfaces.api import create_app
 from pac.settings import Settings
 from tests.conftest import decision_json
+from tests.support.fakes import FakeBackend
 
 pytestmark = pytest.mark.integration
 
@@ -113,7 +115,7 @@ async def test_runs_endpoints(
         repeats=1,
         with_history=False,
     )
-    write_run(settings.results_dir / "runs" / run_id, config, predictions)
+    record_run(FileRunStore(settings.results_dir / "runs"), config, predictions)
 
     summaries = client.get("/api/runs").json()
     assert [s["run_id"] for s in summaries] == [run_id]

@@ -14,8 +14,8 @@ import json
 import sys
 from typing import Any
 
-from pac.classifier import build_classifier
-from pac.schemas import ClassificationRequest, EventKind, Session, TraceEvent
+from pac.bootstrap import build_classifier
+from pac.guardrail.domain.events import ClassificationRequest, EventKind, Session, TraceEvent
 from pac.settings import Settings
 
 ANA = Session(verified=True, verified_customer_id="C-1001", email_on_file="ana.ruiz@mail.example")

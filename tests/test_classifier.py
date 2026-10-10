@@ -3,13 +3,14 @@ from __future__ import annotations
 import asyncio
 from pathlib import Path
 
-from pac.backends import BackendError, CachingBackend, LLMRequest
-from pac.backends.fake import FakeBackend
-from pac.classifier import LLMClassifier
-from pac.policy import Policy
-from pac.prompting import REPAIR_INSTRUCTION, PromptTemplate
-from pac.schemas import ClassificationRequest
+from pac.guardrail.application.llm_classifier import LLMClassifier
+from pac.guardrail.application.ports import BackendError, LLMRequest
+from pac.guardrail.application.prompting import REPAIR_INSTRUCTION, PromptTemplate
+from pac.guardrail.domain.events import ClassificationRequest
+from pac.guardrail.domain.policy import Policy
+from pac.guardrail.infrastructure.llm.caching import CachingBackend
 from tests.conftest import decision_json
+from tests.support.fakes import FakeBackend
 
 
 def _classifier(

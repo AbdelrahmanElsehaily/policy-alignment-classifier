@@ -6,15 +6,16 @@ import re
 import pytest
 from pydantic import ValidationError
 
-from pac.policy import Policy
-from pac.prompting import (
+from pac.guardrail.application.prompting import (
     REPAIR_INSTRUCTION,
     PromptTemplate,
     output_schema,
     parse_decision,
     to_tagged_json,
 )
-from pac.schemas import ClassificationRequest, Decision, TraceEvent
+from pac.guardrail.domain.decision import Decision
+from pac.guardrail.domain.events import ClassificationRequest, TraceEvent
+from pac.guardrail.domain.policy import Policy
 from tests.conftest import decision_json
 
 
@@ -75,7 +76,7 @@ def test_repair_changes_the_request(
     ],
 )
 def test_parse_tolerates_formatting(text: str, policy: Policy) -> None:
-    decision = parse_decision(text, policy.rule_ids)
+    decision = parse_decision(text, policy)
     assert decision.verdict == "violation"
     assert decision.rule_ids == ("R5",)
 
@@ -94,4 +95,4 @@ def test_parse_tolerates_formatting(text: str, policy: Policy) -> None:
 )
 def test_parse_rejects_bad_output(text: str, policy: Policy) -> None:
     with pytest.raises((ValueError, ValidationError)):
-        parse_decision(text, policy.rule_ids)
+        parse_decision(text, policy)

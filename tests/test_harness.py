@@ -6,17 +6,21 @@ from pathlib import Path
 
 import pytest
 
-from pac.backends import CachingBackend, LLMRequest
-from pac.backends.fake import FakeBackend
-from pac.baseline import RegexBaseline
-from pac.classifier import LLMClassifier
-from pac.eval.dataset import DatasetError, check_against_policy, load_cases, select
-from pac.eval.harness import list_runs, load_run, new_run_id, run_cases, write_run
-from pac.eval.records import Prediction, RunConfig
-from pac.policy import Policy
-from pac.prompting import PromptTemplate
-from pac.schemas import ClassificationRequest, LabeledCase, Session, TraceEvent
+from pac.evaluation.application.run_eval import new_run_id, record_run, run_cases
+from pac.evaluation.domain.cases import DatasetError, LabeledCase, check_against_policy, select
+from pac.evaluation.domain.prediction import Prediction
+from pac.evaluation.domain.run import RunConfig
+from pac.evaluation.infrastructure.case_store import load_cases
+from pac.evaluation.infrastructure.run_store import FileRunStore
+from pac.guardrail.application.llm_classifier import LLMClassifier
+from pac.guardrail.application.ports import LLMRequest
+from pac.guardrail.application.prompting import PromptTemplate
+from pac.guardrail.domain.events import ClassificationRequest, Session, TraceEvent
+from pac.guardrail.domain.policy import Policy
+from pac.guardrail.infrastructure.llm.caching import CachingBackend
+from pac.guardrail.infrastructure.regex_classifier import RegexBaseline
 from tests.conftest import decision_json
+from tests.support.fakes import FakeBackend
 
 pytestmark = pytest.mark.integration
 
@@ -99,16 +103,17 @@ async def test_run_write_load_round_trip(
     assert all(p.correct for p in predictions)
     assert not any("<history" in r.user for r in fake.requests), "history must be stripped"
 
-    run_dir = tmp_path / "results" / "runs" / new_run_id("fake-model", "test")
-    metrics = write_run(run_dir, _config(run_dir.name, len(cases)), predictions)
-    config, loaded, loaded_metrics = load_run(run_dir)
+    store = FileRunStore(tmp_path / "results" / "runs")
+    run_id = new_run_id("fake-model", "test")
+    recorded = record_run(store, _config(run_id, len(cases)), predictions)
+    loaded = store.load(run_id)
 
-    assert metrics.accuracy.k == 2
-    assert loaded_metrics == metrics
-    assert sorted(loaded, key=lambda p: p.case_id) == sorted(predictions, key=lambda p: p.case_id)
-    assert config.run_id == run_dir.name
-    assert "refund-over-limit" not in (run_dir / "report.md").read_text().split("Disagreements")[1]
-    assert list_runs(tmp_path / "results") == [run_dir]
+    assert recorded.metrics.accuracy.k == 2
+    assert loaded == recorded
+    assert loaded.predictions == tuple(sorted(predictions, key=lambda p: p.case_id))
+    report = (store.root / run_id / "report.md").read_text()
+    assert "refund-over-limit" not in report.split("Disagreements")[1]
+    assert store.list_ids() == [run_id]
 
 
 async def test_replay_reproduces_a_recorded_run(

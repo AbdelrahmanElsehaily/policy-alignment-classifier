@@ -1,4 +1,5 @@
-// Hand-mirrored from src/pac/schemas.py and src/pac/api.py (only what the UI reads).
+// Hand-mirrored from the domain models (src/pac/guardrail/domain, src/pac/evaluation/domain)
+// and src/pac/interfaces/api.py -- only what the UI reads.
 
 export type EventKind = "user_input" | "model_output" | "tool_call" | "tool_response";
 export type Verdict = "allow" | "violation" | "policy_silent";

@@ -6,9 +6,10 @@ import subprocess
 import sys
 from collections import Counter
 
-from pac.eval.dataset import check_against_policy, load_cases
-from pac.policy import Policy
-from pac.schemas import EVENT_KINDS, LabeledCase
+from pac.evaluation.domain.cases import LabeledCase, check_against_policy
+from pac.evaluation.infrastructure.case_store import load_cases
+from pac.guardrail.domain.events import EVENT_KINDS
+from pac.guardrail.domain.policy import Policy
 from pac.settings import REPO_ROOT, Settings
 
 
