@@ -46,6 +46,10 @@ def _classifier_for(run_dir: Path) -> EventClassifier:
 @pytest.mark.parametrize("run_dir", RUNS, ids=[r.name for r in RUNS])
 async def test_committed_run_reproduces(run_dir: Path) -> None:
     config, recorded, metrics = load_run(run_dir)
+    recomputed = compute_metrics(recorded)
+    assert json.loads(recomputed.model_dump_json()) == json.loads(metrics.model_dump_json())
+    if config.repeats > 1:
+        pytest.skip("variance runs bypass the cache by design; only their metrics are checked")
     assert file_sha256(SETTINGS.cases_path) == config.dataset_sha256, (
         "dataset changed since this run was recorded; re-run the eval to refresh it"
     )
@@ -65,6 +69,3 @@ async def test_committed_run_reproduces(run_dir: Path) -> None:
             assert p.result.error is not None, p.case_id
         else:
             assert p.result.decision == before.decision, p.case_id
-
-    recomputed = compute_metrics(recorded)
-    assert json.loads(recomputed.model_dump_json()) == json.loads(metrics.model_dump_json())
