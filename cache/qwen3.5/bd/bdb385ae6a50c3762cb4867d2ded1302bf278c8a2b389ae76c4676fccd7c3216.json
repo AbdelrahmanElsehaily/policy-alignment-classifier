@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 12952.782041000319,
+  "model": "qwen3.5",
+  "text": "{\n \"type\": \"object\",\n \"properties\": {\n  \"rationale\": \"The event is a user_input requesting an order change. Rule R6 allows order changes only if the order status is 'placed' or 'processing', but the event does not provide the order status, delivery date, or refund history. Rule R1 requires verification before acting, but R1 applies to tool_calls and model_outputs, not user_input. Since the event itself contains no prohibited content and the policy cannot be fully evaluated without the missing order status, the verdict is policy_silent.\",\n  \"verdict\": \"policy_silent\",\n  \"rule_ids\": [],\n  \"confidence\": 0.95\n },\n \"required\": [\n  \"rationale\",\n  \"verdict\",\n  \"rule_ids\",\n  \"confidence\"\n ],\n \"additionalProperties\": false\n}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 0,
+   "input_tokens": 2916,
+   "output_tokens": 187
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"Need to change the delivery address on LK-50402 please\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

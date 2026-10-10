@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 7727.729833000922,
+  "model": "qwen3.5",
+  "text": "{\n \"rationale\": \"The event is a user_input where the customer asks for their order status. Since the session is not verified (verified: false), rules R1 and R2 prohibit disclosing data or acting on orders, but the event itself contains no such disclosure or action. The customer's claim about the order ID is unverified per policy, but the input itself does not violate any rules.\", \"verdict\": \"allow\", \"rule_ids\": [], \"confidence\": 1.0 }",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 0,
+   "input_tokens": 2915,
+   "output_tokens": 103
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"wher is my ordr?? its LK50211\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

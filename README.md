@@ -16,16 +16,21 @@ limitations.
 uv run pac serve
 ```
 
-This installs Python dependencies, builds the React app on first run (needs Node.js 20+), and serves the UI
-and API on <http://127.0.0.1:8000>. It needs no API key: the app falls back to the **recorded** results of
-every eval case and the regex baseline. To classify *new* events live, choose a backend:
+This installs Python dependencies, builds the React app on first run (needs Node.js 22.12+), and serves the
+UI and API on <http://127.0.0.1:8000>.
+
+**No API key needed.** By default (`PAC_BACKEND=replay`) the app answers from the **recorded** model
+responses committed in `cache/`. Those cover every eval case (dev and test, as the UI sends them) and the
+position-demo presets. An event that was never recorded is not guessed at. It fails closed and shows as
+"error → human review", and the regex baseline still answers. To classify *new* events live, pick a
+backend:
 
 | Backend | Set | Notes |
 |---|---|---|
 | MiniMax-M3 | `PAC_BACKEND=minimax PAC_MODEL=MiniMax-M3 MINIMAX_API_KEY=…` | OpenAI-compatible API; thinking disabled for latency |
 | Claude | `PAC_BACKEND=anthropic PAC_MODEL=claude-haiku-5-5 ANTHROPIC_API_KEY=…` | Structured outputs plus prompt caching of the policy |
-| Local (Ollama) | `PAC_BACKEND=ollama PAC_MODEL=qwen3.5` | What the committed results were produced with |
-| Recorded only | `PAC_BACKEND=replay PAC_MODEL=qwen3.5` | Offline; serves the committed cache, and unseen events fail closed |
+| Local (Ollama) | `PAC_BACKEND=ollama PAC_MODEL=qwen3.5` | The model behind every committed result (each run's `config.json` records its backend, prompt hash and commit) |
+| Recorded only (default) | `PAC_BACKEND=replay PAC_MODEL=qwen3.5` | Offline; serves the committed cache, and unseen events fail closed |
 
 Copy [`.env.example`](.env.example) to `.env` to set these.
 
@@ -50,7 +55,7 @@ Wilson interval.
 uv sync                          # Python env (3.12)
 uv run pytest                    # unit + integration tests, offline
 uv run ruff format . && uv run ruff check . && uv run mypy
-cd web && npm ci && npm test && npm run build
+cd web && npm ci && npm test && npm run build      # Node.js 22.12+ (CI uses 24)
 ```
 
 CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) enforces formatting, lint, strict typing (Python

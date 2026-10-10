@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 5749.6009999886155,
+  "model": "qwen3.5",
+  "text": "{\n \"rationale\": \"The event is a user_input asking a product question. It does not attempt to manipulate the agent, reveal secrets, or access unverified data, so no rules are broken.\",\n \"verdict\": \"allow\",\n \"rule_ids\": [],\n \"confidence\": 1.0\n}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 0,
+   "input_tokens": 2914,
+   "output_tokens": 67
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"does the Halden speaker work with Bluetooth 5.3 phones?\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

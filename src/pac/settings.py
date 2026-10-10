@@ -19,8 +19,10 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(env_prefix="PAC_", env_file=".env", extra="ignore")
 
-    backend: BackendName = "anthropic"
-    model: str = "claude-haiku-5-5"
+    # Default: serve the committed recordings, so a fresh clone works with no keys or model.
+    # Set PAC_BACKEND / PAC_MODEL (see .env.example) to classify new events live.
+    backend: BackendName = "replay"
+    model: str = "qwen3.5"
 
     anthropic_api_key: SecretStr | None = Field(default=None, validation_alias="ANTHROPIC_API_KEY")
     minimax_api_key: SecretStr | None = Field(default=None, validation_alias="MINIMAX_API_KEY")

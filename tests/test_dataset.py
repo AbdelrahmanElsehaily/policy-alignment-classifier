@@ -8,7 +8,7 @@ from collections import Counter
 
 from pac.eval.dataset import check_against_policy, load_cases
 from pac.policy import Policy
-from pac.schemas import EVENT_KINDS
+from pac.schemas import EVENT_KINDS, LabeledCase
 from pac.settings import REPO_ROOT, Settings
 
 
@@ -56,3 +56,23 @@ def test_position_pairs_share_content_across_kinds() -> None:
     cases = load_cases(Settings().cases_path)
     pairs = Counter(c.id.split("-")[0] for c in cases if "position-pair" in c.tags)
     assert all(n >= 3 for n in pairs.values())
+
+
+def test_no_test_event_duplicates_a_dev_event() -> None:
+    """The classifier sees one event; an identical dev event would leak prompt tuning into test."""
+    cases = load_cases(Settings().cases_path)
+
+    def key(c: LabeledCase) -> str:
+        return c.request.model_copy(update={"history": ()}).model_dump_json()
+
+    dev = {key(c) for c in cases if c.split == "dev"}
+    leaked = [c.id for c in cases if c.split == "test" and key(c) in dev]
+    assert not leaked
+
+
+def test_contested_labels_are_tagged_corner_case() -> None:
+    cases = load_cases(Settings().cases_path)
+    untagged = [
+        c.id for c in cases if c.label_confidence == "contested" and "corner-case" not in c.tags
+    ]
+    assert not untagged
