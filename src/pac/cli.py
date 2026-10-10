@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import asyncio
+import shutil
+import subprocess
 import sys
 from collections.abc import Callable
 from datetime import UTC, datetime
@@ -224,3 +226,37 @@ def check_data() -> None:
         raise _fail(str(exc)) from exc
     by_split = {s: sum(1 for c in cases if c.split == s) for s in ("dev", "test")}
     typer.echo(f"OK: {len(cases)} cases ({by_split['dev']} dev, {by_split['test']} test)")
+
+
+@app.command()
+def serve(
+    host: Annotated[str, typer.Option()] = "127.0.0.1",
+    port: Annotated[int, typer.Option()] = 8000,
+    rebuild: Annotated[bool, typer.Option(help="Rebuild the frontend even if built")] = False,
+) -> None:
+    """Build the React app if needed, then serve the API and UI on one port."""
+    import uvicorn  # noqa: PLC0415 - server-only dependency, keeps CLI startup fast
+
+    from pac.api import create_app  # noqa: PLC0415
+
+    settings = Settings()
+    if rebuild or not (settings.web_dist / "index.html").exists():
+        _build_frontend(settings.web_dist.parent)
+    typer.echo(
+        f"Serving on http://{host}:{port}  (backend={settings.backend}, model={settings.model})"
+    )
+    uvicorn.run(create_app(settings), host=host, port=port, log_level="info")
+
+
+def _build_frontend(web_dir: Path) -> None:
+    npm = shutil.which("npm")
+    if npm is None:
+        typer.secho(
+            "npm not found: serving the API only (UI needs Node.js 20+).", fg=typer.colors.YELLOW
+        )
+        return
+    typer.echo("Building the frontend (first run only)…")
+    for args in (["ci", "--no-audit", "--no-fund"], ["run", "build"]):
+        result = subprocess.run([npm, *args], cwd=web_dir, check=False)
+        if result.returncode != 0:
+            raise _fail(f"`npm {' '.join(args)}` failed in {web_dir}")
