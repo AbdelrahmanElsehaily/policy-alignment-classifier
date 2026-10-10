@@ -16,7 +16,7 @@ from pac.guardrail.application.ports import LLMRequest
 from pac.guardrail.application.prompting import PromptTemplate
 from pac.guardrail.domain.events import ClassificationRequest, TraceEvent
 from pac.guardrail.domain.policy import Policy
-from pac.interfaces.api import create_app
+from pac.interfaces.api import API_VERSION, create_app
 from pac.settings import Settings
 from tests.support.builders import decision_json
 from tests.support.fakes import FakeBackend
@@ -49,6 +49,7 @@ def _body(kind: str, content: str) -> dict[str, object]:
 def test_health_and_policy(client: TestClient) -> None:
     health = client.get("/api/health").json()
     assert health["llm_available"] is True
+    assert health["api_version"] == API_VERSION
     policy = client.get("/api/policy").json()
     assert policy["version"] == "v0"
     assert policy["rule_ids"][:2] == ["R1", "R2"]

@@ -41,9 +41,15 @@ from pac.simulation.application.agent import SimulatedAgent
 from pac.simulation.application.conversation import GuardedConversation, executed_calls
 from pac.simulation.domain.back_office import BackOffice
 
+# Bump when a request or response shape the web app relies on changes. The app is read from disk
+# on every page load but the server's code only at startup, so a server started before a change can
+# end up serving a newer page; the page compares versions and asks for a restart.
+API_VERSION = 2
+
 
 class Health(BaseModel):
     status: Literal["ok"] = "ok"
+    api_version: int = API_VERSION
     backend: str
     model: str
     live: bool

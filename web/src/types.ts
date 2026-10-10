@@ -66,6 +66,8 @@ export interface LabeledCase {
 }
 
 export interface Health {
+  /** Missing on servers older than the version check itself. */
+  api_version?: number;
   backend: string;
   model: string;
   live: boolean;

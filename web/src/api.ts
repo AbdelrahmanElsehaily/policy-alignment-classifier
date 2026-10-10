@@ -35,6 +35,14 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 export type { Engine };
 
+/** Must match API_VERSION in src/pac/interfaces/api.py. */
+export const API_VERSION = 2;
+
+/** A server started before the last API change, still running, serving this newer page. */
+export function isStaleServer(health: Health): boolean {
+  return health.api_version !== API_VERSION;
+}
+
 export const api = {
   health: () => request<Health>("/api/health"),
   cases: () => request<LabeledCase[]>("/api/cases"),

@@ -14,7 +14,7 @@ export interface Row {
 export function applyUpdate(rows: Row[], update: TurnUpdate): Row[] {
   if (update.type === "event") {
     const next = [...rows];
-    next[update.index] = { event: update.event, verdicts: {}, byGuardrail: update.by_guardrail };
+    next[update.index] = { event: update.event, verdicts: {}, byGuardrail: update.by_guardrail ?? false };
     return next;
   }
   if (update.type === "verdict" || update.type === "gate") {

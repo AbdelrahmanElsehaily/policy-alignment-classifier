@@ -1,6 +1,6 @@
 import { type JSX, useEffect, useState } from "react";
 
-import { api } from "./api";
+import { api, isStaleServer } from "./api";
 import { ClassifyPanel } from "./components/ClassifyPanel";
 import { ConversationPanel } from "./components/ConversationPanel";
 import { ExamplesPanel } from "./components/ExamplesPanel";
@@ -62,6 +62,12 @@ export function App() {
           ))}
         </nav>
       </header>
+      {health && isStaleServer(health) && (
+        <p className="error">
+          The server is older than this page (API version {health.api_version ?? 1}, page expects a newer one), so
+          some requests will fail. Restart <code>pac serve</code>.
+        </p>
+      )}
       {error && <p className="error">{error}</p>}
       {TABS.filter((t) => opened.has(t)).map((t) => (
         <div key={t} hidden={t !== tab}>
