@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+dist/
+*.egg-info/
+
+# Env
+.env
+
+# Frontend
+web/node_modules/
+web/dist/
+
+# Local-only
+Research_Engineer-Takehome.pdf
+results/scratch/
+.DS_Store
