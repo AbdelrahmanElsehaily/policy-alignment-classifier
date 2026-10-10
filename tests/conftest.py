@@ -15,7 +15,13 @@ from pac.settings import Settings, get_settings
 @pytest.fixture(autouse=True)
 def _isolated_settings(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
     """Keep the developer's shell environment and .env out of the test suite."""
-    for var in ("PAC_BACKEND", "PAC_MODEL", "ANTHROPIC_API_KEY", "PAC_CACHE_DIR"):
+    for var in (
+        "PAC_BACKEND",
+        "PAC_MODEL",
+        "ANTHROPIC_API_KEY",
+        "MINIMAX_API_KEY",
+        "PAC_CACHE_DIR",
+    ):
         monkeypatch.delenv(var, raising=False)
     monkeypatch.chdir(Path(__file__).parent)
     get_settings.cache_clear()

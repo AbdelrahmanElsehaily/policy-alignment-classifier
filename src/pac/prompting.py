@@ -20,6 +20,7 @@ REPAIR_INSTRUCTION = (
 )
 
 _RULE_PREFIX = re.compile(r"^\s*(R\d{1,2})\b")
+_THINK_BLOCK = re.compile(r"<think>.*?</think>", re.DOTALL)
 
 
 def output_schema(policy: Policy) -> dict[str, Any]:
@@ -103,9 +104,11 @@ class PromptTemplate:
 def parse_decision(text: str, known_rules: frozenset[str]) -> Decision:
     """Parse model output into a :class:`Decision`, tolerating fences and surrounding prose.
 
+    Reasoning models may prefix their answer with a ``<think>`` block, which is discarded.
     Rule ids are normalised (``"R5(b)"`` -> ``"R5"``) and must exist in the policy. Raises
     ``ValueError`` on anything that cannot be turned into a valid decision.
     """
+    text = _THINK_BLOCK.sub("", text)
     start = text.find("{")
     if start == -1:
         raise ValueError("no JSON object in model output")

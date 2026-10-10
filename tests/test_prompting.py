@@ -71,6 +71,7 @@ def test_repair_changes_the_request(
         f"```json\n{decision_json('violation', ['R5'])}\n```",
         f"Here is my answer: {decision_json('violation', ['R5(b)'])} Hope that helps.",
         decision_json("VIOLATION", ["R5", "R5"]),
+        f"<think>Is it {{over}} the limit? yes</think>{decision_json('violation', ['R5'])}",
     ],
 )
 def test_parse_tolerates_formatting(text: str, policy: Policy) -> None:

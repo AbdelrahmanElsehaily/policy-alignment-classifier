@@ -6,6 +6,7 @@ from pac.backends.anthropic_backend import AnthropicBackend
 from pac.backends.base import BackendError, Completion, LLMBackend, LLMRequest
 from pac.backends.cache import CacheMiss, CachingBackend
 from pac.backends.ollama_backend import OllamaBackend
+from pac.backends.openai_compatible import OpenAICompatibleBackend
 from pac.settings import Settings
 
 __all__ = [
@@ -38,6 +39,19 @@ def build_backend(settings: Settings, *, use_cache: bool = True) -> LLMBackend:
             settings.model,
             api_key=settings.anthropic_api_key.get_secret_value(),
             effort=settings.anthropic_effort,
+            timeout_s=settings.timeout_s,
+        )
+    elif settings.backend == "minimax":
+        if settings.minimax_api_key is None:
+            raise BackendError("MINIMAX_API_KEY is not set.")
+        inner = OpenAICompatibleBackend(
+            settings.model,
+            base_url=settings.minimax_base_url,
+            api_key=settings.minimax_api_key.get_secret_value(),
+            extra_body={
+                "thinking": {"type": settings.minimax_thinking},
+                "reasoning_split": True,
+            },
             timeout_s=settings.timeout_s,
         )
     else:

@@ -15,6 +15,7 @@ from pac.backends import BackendError, CacheMiss, CachingBackend, LLMRequest, bu
 from pac.backends.anthropic_backend import AnthropicBackend
 from pac.backends.fake import FakeBackend
 from pac.backends.ollama_backend import OllamaBackend
+from pac.backends.openai_compatible import OpenAICompatibleBackend
 from pac.settings import Settings
 
 REQUEST = LLMRequest(
@@ -194,3 +195,76 @@ async def test_ollama_connection_error() -> None:
     respx.post("http://ollama.test/api/chat").mock(side_effect=httpx.ConnectError("refused"))
     with pytest.raises(BackendError, match="failed"):
         await OllamaBackend("m", host="http://ollama.test").complete(REQUEST)
+
+
+# --- openai-compatible (MiniMax) backend -----------------------------------------------------
+
+
+def _minimax(**extra: object) -> OpenAICompatibleBackend:
+    return OpenAICompatibleBackend(
+        "MiniMax-M3",
+        base_url="http://minimax.test/v1/",
+        api_key="test-key",
+        extra_body={"thinking": {"type": "disabled"}, "reasoning_split": True, **extra},
+    )
+
+
+@respx.mock
+async def test_openai_compatible_request_shape_and_usage() -> None:
+    route = respx.post("http://minimax.test/v1/chat/completions").respond(
+        json={
+            "choices": [{"message": {"content": '{"a": 1}'}, "finish_reason": "stop"}],
+            "usage": {
+                "prompt_tokens": 1500,
+                "completion_tokens": 60,
+                "prompt_tokens_details": {"cached_tokens": 1200},
+            },
+        }
+    )
+    completion = await _minimax().complete(REQUEST)
+
+    sent = route.calls[0].request
+    body = json.loads(sent.content)
+    assert sent.headers["Authorization"] == "Bearer test-key"
+    assert body["model"] == "MiniMax-M3"
+    assert body["thinking"] == {"type": "disabled"}
+    assert body["reasoning_split"] is True
+    assert body["max_completion_tokens"] == REQUEST.max_tokens
+    assert completion.text == '{"a": 1}'
+    assert completion.usage.cache_read_input_tokens == 1200
+
+
+@respx.mock
+@pytest.mark.parametrize(
+    ("response", "message"),
+    [
+        (httpx.Response(401, text="invalid api key"), "HTTP 401"),
+        (httpx.Response(200, json={"choices": []}), "no message"),
+        (
+            httpx.Response(
+                200, json={"choices": [{"message": {"content": "{"}, "finish_reason": "length"}]}
+            ),
+            "max tokens",
+        ),
+        (
+            httpx.Response(200, json={"choices": [{"message": {"content": ""}}]}),
+            "empty",
+        ),
+    ],
+)
+async def test_openai_compatible_failures(response: httpx.Response, message: str) -> None:
+    respx.post("http://minimax.test/v1/chat/completions").mock(return_value=response)
+    with pytest.raises(BackendError, match=message):
+        await _minimax().complete(REQUEST)
+
+
+def test_factory_builds_minimax(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("MINIMAX_API_KEY", "k")
+    backend = build_backend(Settings(backend="minimax", model="MiniMax-M3", cache_dir=tmp_path))
+    assert isinstance(backend, CachingBackend)
+    assert backend.model == "MiniMax-M3"
+
+
+def test_factory_requires_minimax_key(tmp_path: Path) -> None:
+    with pytest.raises(BackendError, match="MINIMAX_API_KEY"):
+        build_backend(Settings(backend="minimax", cache_dir=tmp_path))

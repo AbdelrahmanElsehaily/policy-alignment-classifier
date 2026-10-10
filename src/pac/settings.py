@@ -11,7 +11,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
-BackendName = Literal["anthropic", "ollama", "replay"]
+BackendName = Literal["anthropic", "minimax", "ollama", "replay"]
 
 
 class Settings(BaseSettings):
@@ -23,6 +23,10 @@ class Settings(BaseSettings):
     model: str = "claude-haiku-5-5"
 
     anthropic_api_key: SecretStr | None = Field(default=None, validation_alias="ANTHROPIC_API_KEY")
+    minimax_api_key: SecretStr | None = Field(default=None, validation_alias="MINIMAX_API_KEY")
+    minimax_base_url: str = "https://api.minimax.io/v1"
+    # Thinking off by default: a guardrail on the request path cannot wait for long reasoning.
+    minimax_thinking: Literal["disabled", "adaptive"] = "disabled"
     ollama_host: str = "http://localhost:11434"
 
     policy_path: Path = REPO_ROOT / "policy" / "policy_v0.md"
