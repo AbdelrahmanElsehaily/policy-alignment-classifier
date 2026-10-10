@@ -21,3 +21,6 @@ web/dist/
 Research_Engineer-Takehome.pdf
 results/scratch/
 .DS_Store
+
+# Local tooling
+.claude/
