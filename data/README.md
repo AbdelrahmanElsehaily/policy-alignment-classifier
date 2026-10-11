@@ -8,7 +8,23 @@ data/
   ui/         metadata the web app shows: curated examples, readable case names
 ```
 
-## The eval sets
+## What the eval measures on
+
+549 labelled events. The prompt was written against 49 of them, so those never count in a result; the
+other 500 are held out, grouped by where they came from.
+
+| Events | Count | allow / violation / silent | What they are |
+|---|---|---|---|
+| Prompt written against | 49 | 28 / 14 / 7 | Hand-written; used to develop the prompt |
+| **Held out** | **500** | 271 / 110 / 119 | |
+| · hand-written | 114 | 53 / 41 / 20 | Realistic single events, never tuned on: the headline |
+| · recorded conversations | 191 | 135 / 35 / 21 | A simulated customer talking to the agent, unscripted |
+| · scripted conversations | 62 | 45 / 6 / 11 | Five conversations, each built around one trap |
+| · targeted probes | 133 | 38 / 28 / 67 | One family of events per corner case, plus history windows |
+
+## The files
+
+The groups above live in three files, because the sets were built in rounds:
 
 | Split | File | Cases | Labels (allow / violation / silent) | What it is | Built by | Last label change |
 |---|---|---|---|---|---|---|
@@ -20,7 +36,7 @@ data/
 Each split's labels were committed before any model ran on it. Every later change to a label is
 logged with its reason in [`docs/LABELING.md`](../docs/LABELING.md).
 
-**Why four splits in three files.** The sets were built in rounds, and every committed run records its
+**Why the files are split this way.** The sets were built in rounds, and every committed run records its
 dataset file's name and SHA-256, which CI replays. Adding a round as a new file left the earlier files,
 and the runs measured on them, untouched. Splitting `dev_test.jsonl` now would change its hash and break
 those runs, so dev and test stay together, told apart by each case's `split` field.
