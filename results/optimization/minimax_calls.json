@@ -1,0 +1,12 @@
+{
+ "by_phase": {
+  "baseline-validation": 64,
+  "connectivity-check": 1,
+  "miprov2": 763,
+  "smoke-test": 3,
+  "train-eval": 386
+ },
+ "failed": 5,
+ "model": "MiniMax-M3",
+ "sent": 1217
+}
