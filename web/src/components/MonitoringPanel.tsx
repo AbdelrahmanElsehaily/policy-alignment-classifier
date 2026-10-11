@@ -167,7 +167,7 @@ function LiveTraffic() {
       ) : (
         <p className="hint">
           {t.events === 0
-            ? "No live traffic yet. Classify events (Examples, Classify an event, Live conversation) and they appear here."
+            ? "No live traffic yet. Classify events (on Try it, or in Live conversation) and they appear here."
             : `Drift is judged once the window holds enough events (${snapshot.window_events} so far). Meanwhile, check a recorded run below.`}
         </p>
       )}
