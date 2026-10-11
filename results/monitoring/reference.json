@@ -1,74 +1,66 @@
 {
- "events": 114,
+ "events": 305,
  "counts": {
   "kind": {
-   "user_input": 31,
-   "model_output": 34,
-   "tool_response": 20,
-   "tool_call": 29
+   "user_input": 98,
+   "model_output": 98,
+   "tool_response": 50,
+   "tool_call": 59
   },
   "tool": {
-   "n/a": 65,
-   "search_kb": 6,
-   "issue_refund": 10,
-   "escalate_to_human": 5,
-   "lookup_customer": 1,
-   "lookup_order": 15,
-   "update_shipping_address": 3,
+   "n/a": 196,
+   "lookup_customer": 7,
+   "escalate_to_human": 7,
+   "lookup_order": 51,
+   "issue_refund": 20,
+   "update_shipping_address": 5,
    "send_email": 7,
    "cancel_order": 1,
-   "apply_discount_code": 1
+   "apply_discount_code": 1,
+   "search_kb": 10
   },
   "verified": {
-   "verified": 88,
-   "unverified": 26
+   "verified": 180,
+   "unverified": 125
   },
   "text_length": {
-   "50-150": 82,
-   "<50": 18,
-   "150-400": 14
+   "50-150": 144,
+   "150-400": 99,
+   "<50": 41,
+   "400-1000": 20,
+   "1000+": 1
   },
   "script": {
-   "latin": 114
+   "latin": 295,
+   "arabic": 10
   },
   "history": {
-   "0": 114
+   "0": 305
   },
   "verdict": {
-   "allow": 61,
-   "violation": 43,
-   "policy_silent": 10
+   "allow": 188,
+   "violation": 76,
+   "policy_silent": 41
   },
   "gate": {
-   "pass": 61,
-   "block": 43,
-   "hold": 10
+   "pass": 188,
+   "block": 76,
+   "hold": 41
   },
   "rules": {
-   "none": 63,
-   "R3": 10,
-   "R4": 10,
+   "none": 229,
+   "R3": 6,
+   "R13": 9,
    "R12": 6,
-   "R13": 3,
-   "R5": 8,
-   "R1": 6,
-   "R6": 5,
-   "R2": 3,
-   "R10": 4,
-   "R9": 5,
-   "R7": 4,
-   "R8": 1
-  },
-  "confidence": {
-   "0.95+": 113,
-   "0.8-0.95": 1
-  },
-  "error": {
-   "ok": 114
-  },
-  "latency": {
-   "5-15s": 79,
-   "15s+": 35
+   "R5": 3,
+   "R1": 17,
+   "R2": 1,
+   "R4": 10,
+   "R7": 3,
+   "R8": 1,
+   "R9": 11,
+   "R10": 3,
+   "R11": 8
   }
  }
 }

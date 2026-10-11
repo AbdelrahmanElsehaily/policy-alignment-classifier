@@ -28,7 +28,9 @@ from pydantic import Field
 from pac.guardrail.domain.value_object import ValueObject
 from pac.monitoring.domain.features import FEATURE_GROUP, FeatureGroup, Observation
 
-DriftStatus = Literal["stable", "moderate", "major", "insufficient"]
+# "not_compared": the reference has no data for the feature, e.g. model latency in a reference
+# built from labels.
+DriftStatus = Literal["stable", "moderate", "major", "insufficient", "not_compared"]
 
 MODERATE_PSI = 0.1
 MAJOR_PSI = 0.25
@@ -122,7 +124,12 @@ def compare(reference: Profile, current: Profile, *, min_events: int = 100) -> D
     features = []
     for feature, group in FEATURE_GROUP.items():
         ref, cur = reference.shares(feature), current.shares(feature)
-        if not enough or not ref or not cur:
+        if reference.events and not ref:
+            features.append(
+                FeatureDrift(feature=feature, group=group, psi=None, status="not_compared")
+            )
+            continue
+        if not enough or not cur:
             features.append(
                 FeatureDrift(feature=feature, group=group, psi=None, status="insufficient")
             )
@@ -147,10 +154,10 @@ def compare(reference: Profile, current: Profile, *, min_events: int = 100) -> D
                 new=new,
             )
         )
-    statuses = {f.status for f in features}
+    statuses = {f.status for f in features} - {"not_compared"}
     overall: DriftStatus = (
         "insufficient"
-        if statuses == {"insufficient"}
+        if statuses <= {"insufficient"}
         else "major"
         if "major" in statuses
         else "moderate"

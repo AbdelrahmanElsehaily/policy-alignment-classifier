@@ -13,6 +13,7 @@ from collections.abc import Sequence
 from typing import Literal
 
 from pac.guardrail.domain.classification import Classification
+from pac.guardrail.domain.decision import Verdict
 from pac.guardrail.domain.enforcement import gate_for
 from pac.guardrail.domain.events import ClassificationRequest
 from pac.guardrail.domain.value_object import ValueObject
@@ -21,6 +22,9 @@ FeatureGroup = Literal["input", "output"]
 
 INPUT_FEATURES = ("kind", "tool", "verified", "text_length", "script", "history")
 OUTPUT_FEATURES = ("verdict", "gate", "rules", "confidence", "error", "latency")
+# Properties of whichever model answers, with no expected value: a reference built from labels
+# leaves them out, and they are reported as not compared.
+MODEL_FEATURES = ("confidence", "error", "latency")
 FEATURE_GROUP: dict[str, FeatureGroup] = {
     **dict.fromkeys(INPUT_FEATURES, "input"),
     **dict.fromkeys(OUTPUT_FEATURES, "output"),
@@ -67,14 +71,12 @@ def script_of(text: str) -> str:
     return name if top / total >= 0.6 else "mixed"
 
 
-def observe(request: ClassificationRequest, result: Classification) -> Observation:
-    """The features of one judged event."""
+def _inputs(request: ClassificationRequest) -> dict[str, tuple[str, ...]]:
     event = request.event
     text = event.content or ""
     if event.arguments is not None:
         text = json.dumps(event.arguments, ensure_ascii=False)
-    decision = result.decision
-    values: dict[str, tuple[str, ...]] = {
+    return {
         "kind": (event.kind,),
         "tool": (event.tool_name or "n/a",),
         "verified": ("verified" if request.session.verified else "unverified",),
@@ -87,9 +89,26 @@ def observe(request: ClassificationRequest, result: Classification) -> Observati
         "history": (
             bucket(len(request.history), (1, 3, 6, 11), ("0", "1-2", "3-5", "6-10", "11+")),
         ),
-        "verdict": (decision.verdict,),
-        "gate": (gate_for(decision.verdict),),
-        "rules": decision.rule_ids or ("none",),
+    }
+
+
+def _answer(verdict: Verdict, rule_ids: Sequence[str]) -> dict[str, tuple[str, ...]]:
+    # Rules count only on violations, where they say which rule is broken. Labels cite none on
+    # other verdicts, and a model citing the rule it couldn't decide shouldn't read as drift.
+    broken = tuple(rule_ids) if verdict == "violation" else ()
+    return {
+        "verdict": (verdict,),
+        "gate": (gate_for(verdict),),
+        "rules": broken or ("none",),
+    }
+
+
+def observe(request: ClassificationRequest, result: Classification) -> Observation:
+    """The features of one judged event."""
+    decision = result.decision
+    values: dict[str, tuple[str, ...]] = {
+        **_inputs(request),
+        **_answer(decision.verdict, decision.rule_ids),
         "confidence": (
             bucket(decision.confidence, (0.5, 0.8, 0.95), ("<0.5", "0.5-0.8", "0.8-0.95", "0.95+")),
         ),
@@ -103,3 +122,14 @@ def observe(request: ClassificationRequest, result: Classification) -> Observati
         ),
     }
     return Observation(values=values)
+
+
+def observe_expected(
+    request: ClassificationRequest, verdict: Verdict, rule_ids: Sequence[str]
+) -> Observation:
+    """An event with its expected (labelled) answer: what the classifier should say about it.
+
+    A reference built this way doesn't depend on any model; the model's own properties
+    (``MODEL_FEATURES``) are left out.
+    """
+    return Observation(values={**_inputs(request), **_answer(verdict, rule_ids)})

@@ -6,7 +6,15 @@ from pathlib import Path
 
 import pytest
 
-from pac.bootstrap import build_agent, build_classifier, dataset_file, dataset_path, load_all_cases
+from pac.bootstrap import (
+    build_agent,
+    build_classifier,
+    dataset_file,
+    dataset_path,
+    expected_cases,
+    expected_profile,
+    load_all_cases,
+)
 from pac.guardrail.application.ports import BackendError
 from pac.guardrail.infrastructure.llm.caching import CachingBackend
 from pac.guardrail.infrastructure.llm.ollama import OllamaBackend
@@ -78,3 +86,11 @@ def test_runs_find_their_dataset_by_current_or_former_name() -> None:
     assert dataset_file(settings, "stress_cases.jsonl") == settings.stress_cases_path
     with pytest.raises(FileNotFoundError):
         dataset_file(settings, "nope.jsonl")
+
+
+def test_the_drift_reference_is_test_plus_recorded_conversations() -> None:
+    settings = Settings()
+    cases = expected_cases(settings)
+    assert {c.split for c in cases} == {"test", "stress"}
+    assert all("family:recorded" in c.tags for c in cases if c.split == "stress")
+    assert expected_profile(settings).events == len(cases)

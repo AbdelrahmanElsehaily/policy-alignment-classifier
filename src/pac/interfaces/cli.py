@@ -22,6 +22,7 @@ from pac.bootstrap import (
     build_classifier,
     build_policy,
     dataset_path,
+    expected_profile,
     load_all_cases,
     profile_of_run,
 )
@@ -341,15 +342,25 @@ def _profile_of_run(settings: Settings, run_id: str) -> Profile:
 
 @monitor_app.command("reference")
 def monitor_reference(
-    run_id: Annotated[str, typer.Argument(help="The run whose traffic is 'normal'")],
+    run_id: Annotated[
+        str | None,
+        typer.Argument(help="Profile this run instead of the labelled expected traffic"),
+    ] = None,
     out: Annotated[Path | None, typer.Option(help="Where to write the profile")] = None,
 ) -> None:
-    """Build the reference profile that live traffic is compared with."""
+    """Build the reference profile that live traffic is compared with.
+
+    By default: the test split and the recorded conversations, with their gold labels, so the
+    reference doesn't depend on any model. Given a run, it profiles that run's answers instead.
+    """
     settings = Settings()
-    profile = _profile_of_run(settings, run_id)
+    if run_id is None:
+        profile, source = expected_profile(settings), "the test split and recorded conversations"
+    else:
+        profile, source = _profile_of_run(settings, run_id), run_id
     path = out or settings.monitoring_reference_path
     save_profile(profile, path)
-    typer.echo(f"Wrote {path}: {profile.events} events from {run_id}")
+    typer.echo(f"Wrote {path}: {profile.events} events from {source}")
 
 
 @monitor_app.command("compare")
@@ -364,7 +375,7 @@ def monitor_compare(
     settings = Settings()
     ref = load_profile(reference or settings.monitoring_reference_path)
     if ref is None:
-        raise _fail("No reference profile yet. Build one: uv run pac monitor reference RUN_ID")
+        raise _fail("No reference profile yet. Build one: uv run pac monitor reference")
     report = compare(ref, _profile_of_run(settings, run_id), min_events=min_events)
     typer.echo(
         f"Drift of {run_id} ({report.current_events} events) against the reference "

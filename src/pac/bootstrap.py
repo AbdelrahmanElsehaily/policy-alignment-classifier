@@ -22,7 +22,7 @@ from pac.guardrail.infrastructure.llm.openai_compatible import OpenAICompatibleB
 from pac.guardrail.infrastructure.regex_classifier import RegexBaseline
 from pac.monitoring.application.monitor import Monitor
 from pac.monitoring.domain.drift import Profile
-from pac.monitoring.domain.features import observe
+from pac.monitoring.domain.features import observe, observe_expected
 from pac.monitoring.infrastructure.exporters import load_profile
 from pac.settings import Settings
 from pac.simulation.application.agent import SimulatedAgent
@@ -165,6 +165,27 @@ def build_monitor(settings: Settings) -> Monitor:
         load_profile(settings.monitoring_reference_path),
         window=settings.monitoring_window,
         min_events=settings.monitoring_min_events,
+    )
+
+
+def expected_cases(settings: Settings) -> list[LabeledCase]:
+    """The traffic the classifier is expected to see: the test split and the events of the
+    recorded natural conversations. Dev (tuned on), hard and the generated stress families
+    (built to over-represent corner cases) are left out."""
+    test = [c for c in load_cases(settings.cases_path) if c.split == "test"]
+    recorded = [c for c in load_cases(settings.stress_cases_path) if "family:recorded" in c.tags]
+    return test + recorded
+
+
+def expected_profile(settings: Settings) -> Profile:
+    """The reference for drift: expected traffic with its gold labels, independent of any model.
+
+    Events are profiled as the evaluated classifier sees them, one at a time without history, and
+    with their single-event labels; traffic that sends history then shows up as different.
+    """
+    return Profile.of(
+        observe_expected(c.request.without_history(), c.label, c.rule_ids)
+        for c in expected_cases(settings)
     )
 
 

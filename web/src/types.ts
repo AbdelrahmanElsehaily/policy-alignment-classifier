@@ -226,7 +226,7 @@ export type TurnUpdate =
 
 // Drift monitoring (src/pac/monitoring)
 
-export type DriftStatus = "stable" | "moderate" | "major" | "insufficient";
+export type DriftStatus = "stable" | "moderate" | "major" | "insufficient" | "not_compared";
 
 export interface FeatureDrift {
   feature: string;

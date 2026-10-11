@@ -27,7 +27,7 @@ describe("monitoring helpers", () => {
     for (const feature of ["kind", "tool", "verified", "text_length", "script", "history"]) {
       expect(FEATURES[feature].name).toBeTruthy();
     }
-    expect(Object.keys(STATUS)).toEqual(["stable", "moderate", "major", "insufficient"]);
+    expect(Object.keys(STATUS)).toEqual(["stable", "moderate", "major", "insufficient", "not_compared"]);
     expect(average(10, 0)).toBeNull();
     expect(average(10, 4)).toBe(2.5);
   });

@@ -88,7 +88,7 @@ class Monitor:
         for feature in report.features:
             before = self._statuses.get(feature.feature, "stable")
             self._statuses[feature.feature] = feature.status
-            if feature.status in (before, "insufficient"):
+            if feature.status in (before, "insufficient", "not_compared"):
                 continue
             if feature.status in ("moderate", "major"):
                 logger.warning(

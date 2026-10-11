@@ -20,7 +20,7 @@ def load_profile(path: Path) -> Profile | None:
     return Profile.model_validate_json(path.read_text(encoding="utf-8"))
 
 
-_STATUS_CODE = {"stable": 0, "moderate": 1, "major": 2, "insufficient": -1}
+_STATUS_CODE = {"stable": 0, "moderate": 1, "major": 2, "insufficient": -1, "not_compared": -2}
 
 
 def _label(value: str) -> str:

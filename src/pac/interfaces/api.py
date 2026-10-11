@@ -331,7 +331,7 @@ def _monitoring_routes(app: FastAPI, services: _Services) -> None:
         if reference is None:
             raise HTTPException(
                 status_code=404,
-                detail="No reference profile yet. Build one: uv run pac monitor reference RUN_ID",
+                detail="No reference profile yet. Build one: uv run pac monitor reference",
             )
         try:
             current = profile_of_run(services.settings, run_id)

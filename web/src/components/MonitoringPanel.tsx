@@ -228,8 +228,10 @@ export function MonitoringPanel() {
         In production nobody labels the traffic, so accuracy can't be measured there, but its <b>shape</b> can. If the
         events coming in, or the verdicts going out, move away from what the classifier was evaluated on, its eval
         numbers stop describing it. Every event the classifier judges is profiled and compared with a{" "}
-        <b>reference</b> (the Test-split run) using the Population Stability Index. A drifting feature logs one{" "}
-        <code>drift detected</code> warning.
+        <b>reference</b>: the traffic it was evaluated on (the test split and the recorded conversations, 305 events)
+        with the <b>expected</b> verdicts from their labels, so the reference doesn't depend on any model. The
+        comparison uses the Population Stability Index, and a drifting feature logs one <code>drift detected</code>{" "}
+        warning.
       </p>
       <details className="how-to-read">
         <summary>How to read drift</summary>
@@ -247,6 +249,10 @@ export function MonitoringPanel() {
             inputs means the classifier changed (a new model, prompt or provider behaviour).
           </li>
           <li>Rare categories are merged, so a handful of unusual events doesn't raise a false alarm.</li>
+          <li>
+            <b>Not compared:</b> confidence, errors and latency belong to whichever model answers, and labels have no
+            value for them, so they are counted but not compared.
+          </li>
         </ul>
       </details>
 
@@ -255,8 +261,8 @@ export function MonitoringPanel() {
 
       <h3>Check a recorded run against the reference</h3>
       <p className="small">
-        The same comparison for an eval run, so drift can be seen without live traffic. The Stress run is natural
-        conversations and corner cases; compare it with Test, the reference.
+        The same comparison for an eval run, so drift can be seen without live traffic. Stress adds corner-case
+        families on top of the recorded conversations, so it should drift; Hard should drift more.
       </p>
       <RecordedRun />
     </section>

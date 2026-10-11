@@ -11,7 +11,7 @@ export const FEATURES: Record<string, { name: string; about: string }> = {
   history: { name: "History length", about: "How many earlier events came with the event." },
   verdict: { name: "Verdict", about: "allow, violation or policy silent." },
   gate: { name: "Gate", about: "What the guardrail did: pass, block or hold for a human." },
-  rules: { name: "Rules cited", about: "Which policy rules the classifier cited." },
+  rules: { name: "Rules broken", about: "Which rules the violations broke (none for other verdicts)." },
   confidence: { name: "Confidence", about: "The confidence the classifier stated." },
   error: { name: "Errors", about: "Calls that failed and were held for a human." },
   latency: { name: "Model latency", about: "How long the model took per event." },
@@ -28,6 +28,10 @@ export const STATUS: Record<DriftStatus, { label: string; explain: string }> = {
     explain: "Very different (PSI 0.25 or more). The eval numbers may no longer describe this traffic.",
   },
   insufficient: { label: "not enough data", explain: "Fewer events than needed to judge (100 by default)." },
+  not_compared: {
+    label: "not compared",
+    explain: "The reference has no value for this: it belongs to the model, not to the traffic.",
+  },
 };
 
 /** Where a PSI value sits on a bar scaled so 0.5 fills it (larger values are capped). */

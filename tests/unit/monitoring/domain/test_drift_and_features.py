@@ -8,7 +8,14 @@ from pac.guardrail.domain.classification import Classification
 from pac.guardrail.domain.decision import Decision, Verdict
 from pac.guardrail.domain.events import ClassificationRequest, Session, TraceEvent
 from pac.monitoring.domain.drift import MAJOR_PSI, Profile, compare, psi, smoothed_shares
-from pac.monitoring.domain.features import Observation, bucket, observe, script_of
+from pac.monitoring.domain.features import (
+    MODEL_FEATURES,
+    Observation,
+    bucket,
+    observe,
+    observe_expected,
+    script_of,
+)
 
 
 def _result(verdict: Verdict = "allow", *, error: str | None = None) -> Classification:
@@ -113,3 +120,22 @@ def test_psi_and_smoothing() -> None:
     assert set(ref) == set(cur) == {"a", "b"}
     assert sum(ref.values()) == pytest.approx(1.0)
     assert ref["b"] > 0
+
+
+def test_an_expected_answer_has_no_model_features() -> None:
+    request = ClassificationRequest(event=TraceEvent(kind="user_input", content="hi"))
+    expected = observe_expected(request, "violation", ("R13",))
+    assert expected.values["verdict"] == ("violation",)
+    assert expected.values["gate"] == ("block",)
+    assert expected.values["rules"] == ("R13",)
+    assert not set(MODEL_FEATURES) & set(expected.values)
+
+
+def test_features_the_reference_lacks_are_not_compared() -> None:
+    reference = Profile.of([_obs(verdict="allow")] * 200)
+    current = Profile.of([_obs(verdict="allow", latency="0.5-2s")] * 200)
+    report = compare(reference, current)
+    by_name = {f.feature: f.status for f in report.features}
+    assert by_name["latency"] == "not_compared"
+    assert by_name["verdict"] == "stable"
+    assert report.status == "stable"

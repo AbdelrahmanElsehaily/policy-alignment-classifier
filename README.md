@@ -94,8 +94,12 @@ describing it. Every event the LLM classifier judges is profiled:
 - **input:** event kind, tool, verified, text length, script (Latin, Arabic, …), history length;
 - **output:** verdict, gate, rules, confidence, errors, latency.
 
-A rolling window (last 500 events) is compared with a **reference profile** using the Population
-Stability Index:
+A rolling window (last 500 events) is compared with a **reference profile**: the traffic the
+classifier was evaluated on (the test split and the 191 recorded conversation events, 305 in all),
+judged one event at a time, with the **expected** verdicts and broken rules from their labels. It
+doesn't depend on any model, so switching models doesn't look like drift by itself. Confidence,
+errors and latency belong to the model and have no labelled value; they are counted but not
+compared. The comparison uses the Population Stability Index:
 - below 0.1 is stable, 0.1–0.25 moderate, 0.25 and above major;
 - rare categories are merged so small samples don't raise false alarms;
 - a category the reference never saw (a new language, tool or event kind) is always reported.
@@ -104,16 +108,16 @@ When a feature's status changes, it logs one `drift detected` warning, and one `
 when it recovers.
 
 ```bash
-uv run pac monitor reference 20261010T114413Z_qwen3.5_test   # "normal" = the test-split run
+uv run pac monitor reference                                 # expected traffic + gold labels
 uv run pac monitor compare 20261011T125927Z_qwen3.5_stress   # exits 4 on major drift (CI/cron)
 curl localhost:8000/api/monitoring                           # live counts and drift, as JSON
 curl localhost:8000/metrics                                  # the same for Prometheus
 ```
 
-The committed reference ([`results/monitoring/reference.json`](results/monitoring/reference.json))
-is the test-split run. Checked against it, the stress split shows what drift looks like: texts get
-longer (major, including a new 400–1,000-character band), Arabic appears (reported as new), refunds
-rise and the verdict mix shifts. The code is the `monitoring` context in
+`pac monitor reference RUN_ID` profiles a run's answers instead. Checked against the committed
+reference ([`results/monitoring/reference.json`](results/monitoring/reference.json)), the stress
+split drifts moderately, and the report names the families it was built to over-represent:
+refunds rise (`issue_refund` 7% → 15%) and so do broken secrets rules (R4 3% → 7%). The code is the `monitoring` context in
 [`src/pac/monitoring/`](src/pac/monitoring/).
 
 ## Logs
