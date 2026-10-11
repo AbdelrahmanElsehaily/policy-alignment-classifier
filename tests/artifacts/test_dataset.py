@@ -21,7 +21,7 @@ def test_dataset_valid_against_policy(policy: Policy) -> None:
 
 def test_jsonl_matches_builder() -> None:
     result = subprocess.run(
-        [sys.executable, str(REPO_ROOT / "data" / "build_cases.py"), "--check"],
+        [sys.executable, str(REPO_ROOT / "data" / "builders" / "build_cases.py"), "--check"],
         capture_output=True,
         text=True,
         check=False,
@@ -79,7 +79,7 @@ def test_contested_labels_are_tagged_corner_case() -> None:
     assert not untagged
 
 
-# --- the hard split (data/hard_cases.jsonl) ---------------------------------------------------
+# --- the hard split (data/eval/hard.jsonl) ---------------------------------------------------
 
 
 def _hard() -> list[LabeledCase]:
@@ -97,7 +97,7 @@ def test_hard_split_valid_and_in_its_own_file(policy: Policy) -> None:
 
 def test_hard_jsonl_matches_builder() -> None:
     result = subprocess.run(
-        [sys.executable, str(REPO_ROOT / "data" / "build_hard_cases.py"), "--check"],
+        [sys.executable, str(REPO_ROOT / "data" / "builders" / "build_hard_cases.py"), "--check"],
         capture_output=True,
         text=True,
         check=False,

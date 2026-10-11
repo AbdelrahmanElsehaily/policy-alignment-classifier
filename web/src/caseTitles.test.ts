@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import cases from "../../data/cases.jsonl?raw";
-import titles from "../../data/case_titles.json";
-import hard from "../../data/hard_cases.jsonl?raw";
-import stress from "../../data/stress_cases.jsonl?raw";
+import cases from "../../data/eval/dev_test.jsonl?raw";
+import titles from "../../data/ui/case_titles.json";
+import hard from "../../data/eval/hard.jsonl?raw";
+import stress from "../../data/eval/stress.jsonl?raw";
 
 const ids = [cases, hard, stress].flatMap((jsonl) =>
   jsonl

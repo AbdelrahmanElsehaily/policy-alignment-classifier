@@ -8,8 +8,8 @@ from pac.settings import REPO_ROOT
 
 
 def test_examples_resolve_and_cover_every_verdict() -> None:
-    cases = load_cases(REPO_ROOT / "data" / "cases.jsonl")
-    examples = load_examples(REPO_ROOT / "data" / "demo_examples.json", cases)
+    cases = load_cases(REPO_ROOT / "data" / "eval" / "dev_test.jsonl")
+    examples = load_examples(REPO_ROOT / "data" / "ui" / "demo_examples.json", cases)
     assert len(examples) >= 10
     assert {e.case.label for e in examples} == {"allow", "violation", "policy_silent"}
     assert {e.case.request.event.kind for e in examples} == {

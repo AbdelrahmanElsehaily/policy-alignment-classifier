@@ -21,7 +21,8 @@ class RunConfig(ValueObject):
     policy_version: str
     policy_sha256: str
     dataset_sha256: str
-    # The dataset file under data/, so a run can be replayed against the file it measured.
+    # The dataset's file name, so a run can be replayed against the file it measured. Runs made
+    # before data/ was reorganised record the former names; bootstrap.dataset_file maps them.
     dataset: str = "cases.jsonl"
     split: str
     n_cases: int

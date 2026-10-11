@@ -12,6 +12,7 @@ import json
 
 import pytest
 
+from pac.bootstrap import dataset_file
 from pac.evaluation.application.run_eval import run_cases
 from pac.evaluation.domain.metrics import compute_metrics
 from pac.evaluation.domain.run import RunConfig
@@ -30,7 +31,9 @@ pytestmark = pytest.mark.integration
 # test is about the committed artefacts, wherever the local config points.
 SETTINGS = Settings(
     policy_path=REPO_ROOT / "policy" / "policy_v0.md",
-    cases_path=REPO_ROOT / "data" / "cases.jsonl",
+    cases_path=REPO_ROOT / "data" / "eval" / "dev_test.jsonl",
+    hard_cases_path=REPO_ROOT / "data" / "eval" / "hard.jsonl",
+    stress_cases_path=REPO_ROOT / "data" / "eval" / "stress.jsonl",
     cache_dir=REPO_ROOT / "cache",
     results_dir=REPO_ROOT / "results",
 )
@@ -61,7 +64,7 @@ async def test_committed_run_reproduces(run_id: str) -> None:
     assert (errors.value or 0) <= 0.1, "a committed run that mostly failed closed measures nothing"
     if config.repeats > 1:
         pytest.skip("variance runs bypass the cache by design; only their metrics are checked")
-    dataset = REPO_ROOT / "data" / config.dataset
+    dataset = dataset_file(SETTINGS, config.dataset)
     assert file_sha256(dataset) == config.dataset_sha256, (
         "dataset changed since this run was recorded; re-run the eval to refresh it"
     )

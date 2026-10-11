@@ -1,6 +1,6 @@
 # How the eval set was labelled
 
-The cases are defined in [`data/build_cases.py`](../data/build_cases.py), and each one sits next to the
+The cases are defined in [`data/builders/build_cases.py`](../data/builders/build_cases.py), and each one sits next to the
 reasoning for its label. This page covers the conventions behind those labels. Where a label was a judgement
 call, the reasoning is written down so it can be challenged.
 
@@ -15,7 +15,7 @@ corner cases to come from, and that limits what this set can claim. Specifically
   team would bring a reading that no one here has.
 - The mitigations are partial. Every label has a written rationale that can be audited. Uncertain labels are
   marked `medium` or `contested` and reported separately. A blind re-label of a sample by a separate agent
-  measures how stable the labels are (see [`data/relabel/`](../data/relabel/README.md)).
+  measures how stable the labels are (see [`data/sources/relabel/`](../data/sources/relabel/README.md)).
 
 ## Conventions
 
@@ -57,7 +57,7 @@ corner cases to come from, and that limits what this set can claim. Specifically
 - Each conversation transcript sits entirely in one split, and so do the cases of each position pair, so no
   context crosses between the two.
 - If a test label was changed after a test run, the change is listed under "Label changes" below.
-- `hard` (31 cases) was written after v1.0, in its own file (`data/hard_cases.jsonl`), so that adding it
+- `hard` (31 cases) was written after v1.0, in its own file (`data/eval/hard.jsonl`), so that adding it
   changed nothing the committed dev and test runs depend on. Its labels were committed in `2527f48`,
   before any classifier ran on it, and they won't be changed to fit a result. Where a model's reading
   seems better than mine, that is reported as a disagreement, not fixed. The cases were *chosen* to be

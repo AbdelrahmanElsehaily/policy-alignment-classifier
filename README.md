@@ -76,7 +76,7 @@ uv run pac eval --split test --no-cache --repeats 3    # run-to-run variance
 uv run pac eval --split hard --with-history            # round 2: hard real-world cases
 ```
 
-The `hard` split (31 events, in `data/hard_cases.jsonl`) was written after v1.0 and labelled before any
+The `hard` split (31 events, in `data/eval/hard.jsonl`) was written after v1.0 and labelled before any
 model ran on it. It holds realistic events the policy mostly doesn't decide: a refund retried after a
 timeout, euros against a dollar cap, IMEIs that look like card numbers, gift card codes, publishable keys,
 and more. A few, such as planted key-shaped strings that trigger blocks, turned out to be decided by the
@@ -154,8 +154,9 @@ build.
 | [`policy/policy_v0.md`](policy/policy_v0.md) | The policy the classifier is measured against (frozen) |
 | [`policy/policy_v1_proposed.md`](policy/policy_v1_proposed.md) | Amendments the corner cases argue for |
 | [`prompts/`](prompts/) | Versioned classifier prompts (v1 kept for traceability; v2 is the default), and the simulated agent's instructions |
-| [`data/build_cases.py`](data/build_cases.py) | The eval set, with each label's reasoning; generates `data/cases.jsonl` |
-| [`data/build_hard_cases.py`](data/build_hard_cases.py) | The hard split (round 2), labelled before any model run; generates `data/hard_cases.jsonl` |
+| [`data/README.md`](data/README.md) | What each eval set is, where it lives, and how it was built |
+| [`data/builders/build_cases.py`](data/builders/build_cases.py) | The eval set, with each label's reasoning; generates `data/eval/dev_test.jsonl` |
+| [`data/builders/build_hard_cases.py`](data/builders/build_hard_cases.py) | The hard split (round 2), labelled before any model run; generates `data/eval/hard.jsonl` |
 | [`src/pac/guardrail/`](src/pac/guardrail/) | Core domain: judging one event. Domain model, the LLM classifier use case, model adapters, regex baseline |
 | [`src/pac/evaluation/`](src/pac/evaluation/) | Measuring a guardrail: labelled cases, metrics, eval use cases, run storage |
 | [`src/pac/simulation/`](src/pac/simulation/) | The live demo's stand-in agent: Lark played by an LLM, and its simulated back office |

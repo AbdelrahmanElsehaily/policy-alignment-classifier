@@ -163,7 +163,7 @@ differently, and it exposed two costs the eval doesn't price:
 
 ### Can the labels be trusted?
 
-- **Blind re-label** ([`data/relabel/`](../data/relabel/README.md)): a separate agent, given only the policy,
+- **Blind re-label** ([`data/sources/relabel/`](../data/sources/relabel/README.md)): a separate agent, given only the policy,
   labelled 30 random test cases. It agreed on **30/30** verdicts (κ = 1.0) and on 10/10 violation rule
   sets. Both annotators marked the same three cases contested.
   - This is an **upper bound**: both annotators are Claude, and the cases were written aiming at a label.

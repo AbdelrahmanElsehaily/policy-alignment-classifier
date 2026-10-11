@@ -3,10 +3,10 @@
     PAC_BACKEND=ollama PAC_MODEL=qwen3.5 uv run python scripts/record_conversations.py
     PAC_BACKEND=ollama PAC_MODEL=qwen3.5 uv run python scripts/record_conversations.py rec-pairing
 
-Reads data/recordings/briefs.json and writes data/recordings/<id>.json: the brief, the models,
-and every event with the session envelope it carried. No guardrail runs while recording, so the
-trace is what the agent does on its own. Labels are written by hand afterwards, in
-data/build_stress_cases.py, and recordings are never edited to fit them.
+Reads data/sources/recordings/briefs.json and writes data/sources/recordings/<id>.json: the
+brief, the models, and every event with the session envelope it carried. No guardrail runs while
+recording, so the trace is what the agent does on its own. Labels are written by hand afterwards, in
+data/builders/build_stress_cases.py, and recordings are never edited to fit them.
 """
 
 from __future__ import annotations
@@ -26,7 +26,7 @@ from pac.telemetry import configure_logging, log_context
 
 logger = logging.getLogger("pac.scripts.record_conversations")
 
-RECORDINGS = REPO_ROOT / "data" / "recordings"
+RECORDINGS = REPO_ROOT / "data" / "sources" / "recordings"
 
 
 async def record(brief: CustomerBrief, settings: Settings) -> Path:

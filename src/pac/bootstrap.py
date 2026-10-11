@@ -132,6 +132,23 @@ def dataset_path(settings: Settings, split: Split | None) -> Path:
     return settings.cases_path
 
 
+# Dataset file names recorded by runs made before data/ was reorganised.
+_FORMER_NAMES = {
+    "cases.jsonl": "dev_test.jsonl",
+    "hard_cases.jsonl": "hard.jsonl",
+    "stress_cases.jsonl": "stress.jsonl",
+}
+
+
+def dataset_file(settings: Settings, name: str) -> Path:
+    """The dataset a run measured, from the file name in its config (current or former)."""
+    wanted = _FORMER_NAMES.get(name, name)
+    for path in (settings.cases_path, settings.hard_cases_path, settings.stress_cases_path):
+        if path.name == wanted:
+            return path
+    raise FileNotFoundError(f"no dataset file named {name}")
+
+
 def load_all_cases(settings: Settings) -> list[LabeledCase]:
     """Every labelled case from every dataset file, with ids unique across files."""
     cases = load_cases(settings.cases_path)

@@ -1,8 +1,8 @@
 # ruff: noqa: E501 -- the translations and case text are prose; wrapping them mid-sentence hurts.
 """The stress split: about 300 hard cases, generated for variety, labelled by rule or by turn.
 
-    uv run python data/build_stress_cases.py          # regenerate data/stress_cases.jsonl
-    uv run python data/build_stress_cases.py --check  # CI: fail if the JSONL is stale
+    uv run python data/builders/build_stress_cases.py          # regenerate data/eval/stress.jsonl
+    uv run python data/builders/build_stress_cases.py --check  # CI: fail if the JSONL is stale
 
 Why. The 31 hand-written hard cases give intervals of about +-14 points, and 2-4 cases per
 corner case: anecdotes, not measurements. This split has two parts.
@@ -22,7 +22,7 @@ correlated. Every case is tagged ``family:<name>`` and ``tpl:<template>``. Repor
 per-family numbers and an accuracy interval from a bootstrap over templates
 (``accuracy_template_ci``), which is the honest headline, not the per-event Wilson interval.
 
-Same labelling conventions as data/build_cases.py and docs/LABELING.md: an event is judged on what
+Same labelling conventions as data/builders/build_cases.py and docs/LABELING.md: an event is judged on what
 it carries, and when a rule needs a fact the event lacks, the single-event label is
 ``policy_silent``, with ``label_with_history`` giving the answer once the history is visible.
 """
@@ -40,7 +40,7 @@ from pac.evaluation.domain.cases import LabelConfidence, LabeledCase
 from pac.guardrail.domain.decision import Verdict
 from pac.guardrail.domain.events import ClassificationRequest, Session, TraceEvent
 
-OUT = Path(__file__).with_name("stress_cases.jsonl")
+OUT = Path(__file__).parents[1] / "eval" / "stress.jsonl"
 
 Label = tuple[Verdict, tuple[str, ...], LabelConfidence]
 
@@ -1193,7 +1193,7 @@ def privacy() -> None:
 # turn, and some turns can only be judged with the history. Each turn is tagged ``turn:NN`` and
 # ``ctx:<bucket>`` (how many events precede it), so reports can show accuracy by context length.
 # Labels are hand-written per turn, following the same conventions as the transcripts in
-# data/build_cases.py. A conversation is one template: its turns are not independent.
+# data/builders/build_cases.py. A conversation is one template: its turns are not independent.
 # =============================================================================================
 
 Turn = tuple[Session, TraceEvent, Label, Label | None, str]
@@ -1701,13 +1701,13 @@ def windows() -> None:
 # =============================================================================================
 # F16. Recorded conversations: a simulated customer (playing a brief, not a script) talking to
 # Lark, recorded with no guardrail in the way (scripts/record_conversations.py). The events are
-# the system's, not mine: I wrote only the briefs (data/recordings/briefs.json) and, afterwards,
+# the system's, not mine: I wrote only the briefs (data/sources/recordings/briefs.json) and, afterwards,
 # a label for every turn, judged with everything before it. Recordings are never edited to fit
 # a label. Codes: A allow, S policy_silent, V:<rules> violation; /m medium, /c contested,
 # otherwise high. The second code is the label with history, when it differs.
 # =============================================================================================
 
-RECORDINGS = Path(__file__).with_name("recordings")
+RECORDINGS = Path(__file__).parents[1] / "sources" / "recordings"
 
 # id -> one (single-event label, label with history or None, why) per recorded event
 RECORDED_LABELS: dict[str, list[tuple[str, str | None, str]]] = {
@@ -2132,7 +2132,8 @@ def main(argv: list[str]) -> int:
     if "--check" in argv:
         if not OUT.exists() or OUT.read_text(encoding="utf-8") != content:
             print(
-                f"{OUT} is stale: run `uv run python data/build_stress_cases.py`", file=sys.stderr
+                f"{OUT} is stale: run `uv run python data/builders/build_stress_cases.py`",
+                file=sys.stderr,
             )
             return 1
         print(f"{OUT.name} is up to date ({len(CASES)} cases)")

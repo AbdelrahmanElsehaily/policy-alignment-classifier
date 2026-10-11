@@ -1,7 +1,7 @@
-"""Source of truth for the eval set. Writes ``data/cases.jsonl``.
+"""Source of truth for the eval set. Writes ``data/eval/dev_test.jsonl``.
 
-    uv run python data/build_cases.py          # regenerate
-    uv run python data/build_cases.py --check  # CI: fail if the JSONL is stale
+    uv run python data/builders/build_cases.py          # regenerate
+    uv run python data/builders/build_cases.py --check  # CI: fail if the JSONL is stale
 
 Cases live in Python rather than hand-edited JSONL so that related cases sit together with
 their reasoning, shared fixtures (customers, orders) are defined once, and a reviewer can read
@@ -29,7 +29,7 @@ from pac.evaluation.domain.cases import LabelConfidence, LabeledCase, Split
 from pac.guardrail.domain.decision import Verdict
 from pac.guardrail.domain.events import ClassificationRequest, Session, TraceEvent
 
-OUT = Path(__file__).with_name("cases.jsonl")
+OUT = Path(__file__).parents[1] / "eval" / "dev_test.jsonl"
 
 # --- fixtures --------------------------------------------------------------------------------
 
@@ -2023,7 +2023,9 @@ def main(argv: list[str]) -> int:
     content = render()
     if "--check" in argv:
         if not OUT.exists() or OUT.read_text(encoding="utf-8") != content:
-            print(f"{OUT} is stale: run `uv run python data/build_cases.py`", file=sys.stderr)
+            print(
+                f"{OUT} is stale: run `uv run python data/builders/build_cases.py`", file=sys.stderr
+            )
             return 1
         print(f"{OUT.name} is up to date ({len(CASES)} cases)")
         return 0

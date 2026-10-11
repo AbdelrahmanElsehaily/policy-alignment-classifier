@@ -21,8 +21,8 @@ is detecting it, or the decision is arguably wrong) are real findings, but not c
 kept under [Other findings](#other-findings-the-policy-decides-these) with their original numbers, so
 references elsewhere still hold.
 
-Case ids refer to [`data/build_cases.py`](../data/build_cases.py) and, for ids starting `h-`,
-[`data/build_hard_cases.py`](../data/build_hard_cases.py): the `hard` split, written after v1.0, with
+Case ids refer to [`data/builders/build_cases.py`](../data/builders/build_cases.py) and, for ids starting `h-`,
+[`data/builders/build_hard_cases.py`](../data/builders/build_hard_cases.py): the `hard` split, written after v1.0, with
 labels committed (`2527f48`) before any model saw it. Entries are numbered in reading order; the frozen
 datasets and older commits use the earlier numbers, which [Old numbers](#old-numbers) maps. How the classifier handled each case is in
 [`WRITEUP.md`](WRITEUP.md).
@@ -325,7 +325,7 @@ Noticed while drafting the policy and listed in
 ## Old numbers
 
 Until the reorder, entries were numbered in the order they were found. The frozen datasets (for example
-the rationales in `data/stress_cases.jsonl`) and older commits use those numbers.
+the rationales in `data/eval/stress.jsonl`) and older commits use those numbers.
 
 | Old | New | | Old | New | | Old | New |
 |---|---|---|---|---|---|---|---|

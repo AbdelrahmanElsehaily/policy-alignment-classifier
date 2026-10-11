@@ -20,7 +20,7 @@ from pac.settings import REPO_ROOT, Settings
 
 
 def _builder() -> ModuleType:
-    path = REPO_ROOT / "data" / "build_stress_cases.py"
+    path = REPO_ROOT / "data" / "builders" / "build_stress_cases.py"
     spec = importlib.util.spec_from_file_location("build_stress_cases", path)
     assert spec is not None
     assert spec.loader is not None

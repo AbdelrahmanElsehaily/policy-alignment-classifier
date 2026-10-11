@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import cases from "../../data/cases.jsonl?raw";
-import hard from "../../data/hard_cases.jsonl?raw";
-import stress from "../../data/stress_cases.jsonl?raw";
+import cases from "../../data/eval/dev_test.jsonl?raw";
+import hard from "../../data/eval/hard.jsonl?raw";
+import stress from "../../data/eval/stress.jsonl?raw";
 import { CORNER_CASES } from "./cornerCases";
 
 function ids(jsonl: string): string[] {

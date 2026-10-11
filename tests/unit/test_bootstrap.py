@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from pac.bootstrap import build_agent, build_classifier, dataset_path, load_all_cases
+from pac.bootstrap import build_agent, build_classifier, dataset_file, dataset_path, load_all_cases
 from pac.guardrail.application.ports import BackendError
 from pac.guardrail.infrastructure.llm.caching import CachingBackend
 from pac.guardrail.infrastructure.llm.ollama import OllamaBackend
@@ -69,3 +69,12 @@ def test_all_cases_spans_both_files_with_unique_ids() -> None:
     cases = load_all_cases(Settings())
     assert {c.split for c in cases} == {"dev", "test", "hard", "stress"}
     assert len({c.id for c in cases}) == len(cases)
+
+
+def test_runs_find_their_dataset_by_current_or_former_name() -> None:
+    settings = Settings()
+    assert dataset_file(settings, "dev_test.jsonl") == settings.cases_path
+    assert dataset_file(settings, "cases.jsonl") == settings.cases_path
+    assert dataset_file(settings, "stress_cases.jsonl") == settings.stress_cases_path
+    with pytest.raises(FileNotFoundError):
+        dataset_file(settings, "nope.jsonl")

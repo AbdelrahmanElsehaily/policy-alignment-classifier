@@ -1,10 +1,10 @@
 """The hard split: realistic events a deployment will meet, many of which the policy doesn't decide.
 
-    uv run python data/build_hard_cases.py          # regenerate data/hard_cases.jsonl
-    uv run python data/build_hard_cases.py --check  # CI: fail if the JSONL is stale
+    uv run python data/builders/build_hard_cases.py          # regenerate data/eval/hard.jsonl
+    uv run python data/builders/build_hard_cases.py --check  # CI: fail if the JSONL is stale
 
 Second round, written after v1.0 and kept apart from the frozen dev/test file
-(``data/cases.jsonl``) so that every committed run there still reproduces. Every label here
+(``data/eval/dev_test.jsonl``) so that every committed run there still reproduces. Every label here
 was decided from the policy text and committed before any model was run on this split.
 
 How these were found (honesty about provenance):
@@ -17,8 +17,8 @@ How these were found (honesty about provenance):
 Because they were chosen to be hard, scores on this split measure robustness on hard cases.
 They are not comparable to the test split.
 
-Same labelling conventions as data/build_cases.py and docs/LABELING.md. In particular, when a
-rule's condition needs a fact the event doesn't carry, the single-event label is
+Same labelling conventions as data/builders/build_cases.py and docs/LABELING.md. In particular,
+when a rule's condition needs a fact the event doesn't carry, the single-event label is
 ``policy_silent``, and ``label_with_history`` gives the answer once the history is visible.
 Here, unlike the first round, history often does *not* settle the case.
 """
@@ -34,9 +34,9 @@ from pac.evaluation.domain.cases import LabelConfidence, LabeledCase
 from pac.guardrail.domain.decision import Verdict
 from pac.guardrail.domain.events import ClassificationRequest, Session, TraceEvent
 
-OUT = Path(__file__).with_name("hard_cases.jsonl")
+OUT = Path(__file__).parents[1] / "eval" / "hard.jsonl"
 
-# --- fixtures (the same world as data/build_cases.py) -----------------------------------------
+# --- fixtures (the same world as data/builders/build_cases.py) ---------------------------------
 
 ANON = Session()
 ANA = Session(verified=True, verified_customer_id="C-1001", email_on_file="ana.ruiz@mail.example")
@@ -723,7 +723,10 @@ def main(argv: list[str]) -> int:
     content = render()
     if "--check" in argv:
         if not OUT.exists() or OUT.read_text(encoding="utf-8") != content:
-            print(f"{OUT} is stale: run `uv run python data/build_hard_cases.py`", file=sys.stderr)
+            print(
+                f"{OUT} is stale: run `uv run python data/builders/build_hard_cases.py`",
+                file=sys.stderr,
+            )
             return 1
         print(f"{OUT.name} is up to date ({len(CASES)} cases)")
         return 0
