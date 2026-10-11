@@ -13,7 +13,7 @@ from types import ModuleType
 
 import pytest
 
-from pac.evaluation.domain.cases import check_against_policy
+from pac.evaluation.domain.cases import LabeledCase, check_against_policy
 from pac.evaluation.infrastructure.case_store import load_cases
 from pac.guardrail.domain.policy import Policy
 from pac.settings import REPO_ROOT, Settings
@@ -109,19 +109,37 @@ def test_split_refund(total: float, first: float, second: float, verdict: str) -
 def test_stress_split_valid_and_tagged(policy: Policy) -> None:
     cases = load_cases(Settings().stress_cases_path)
     check_against_policy(cases, policy)
-    assert len(cases) >= 500
+    assert 280 <= len(cases) <= 360
     assert {c.split for c in cases} == {"stress"}
     for c in cases:
         assert sum(t.startswith("family:") for t in c.tags) == 1, c.id
         assert sum(t.startswith("tpl:") for t in c.tags) == 1, c.id
 
 
-def test_every_family_is_big_enough_to_measure() -> None:
+def test_variety_over_volume() -> None:
     cases = load_cases(Settings().stress_cases_path)
+    templates = {next(t for t in c.tags if t.startswith("tpl:")) for c in cases}
     families = Counter(next(t for t in c.tags if t.startswith("family:")) for c in cases)
-    small = {f: n for f, n in families.items() if n < 24 and f != "family:privacy"}
-    assert small == {}
-    assert len({next(t for t in c.tags if t.startswith("tpl:")) for c in cases}) >= 150
+    assert len(templates) >= 150  # about two cases per template: variety, not repetition
+    assert len(families) >= 15
+    assert all(n >= 6 for n in families.values())
+
+
+def test_conversations_grow_turn_by_turn() -> None:
+    cases = [c for c in load_cases(Settings().stress_cases_path) if "family:conversation" in c.tags]
+    by_conversation: dict[str, list[LabeledCase]] = {}
+    for c in cases:
+        by_conversation.setdefault(next(t for t in c.tags if t.startswith("tpl:")), []).append(c)
+    assert len(by_conversation) >= 10
+    for turns in by_conversation.values():
+        for i, case in enumerate(turns):
+            assert len(case.request.history) == i
+            if i:
+                previous = turns[i - 1]
+                expected = (*previous.request.history, previous.request.event)
+                assert case.request.history == expected
+    long_context = [c for c in cases if len(c.request.history) >= 10]
+    assert len(long_context) >= 20
 
 
 def test_stress_jsonl_matches_builder() -> None:
