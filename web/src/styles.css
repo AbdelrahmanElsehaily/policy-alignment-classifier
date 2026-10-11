@@ -175,3 +175,30 @@ button.chip.active-chip { background: var(--accent); color: var(--bg); border-co
 .segmented .segment.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
 .tryit-result { margin-top: 1rem; }
 button.chip.more-chip { border-style: dashed; color: var(--muted); }
+
+/* Findings */
+.corner-list { display: flex; flex-direction: column; gap: 0.5rem; }
+details.corner { border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
+details.corner > summary {
+  cursor: pointer;
+  padding: 0.6rem 0.8rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  list-style: none;
+}
+details.corner > summary::-webkit-details-marker { display: none; }
+details.corner > summary .corner-title::before { content: "▸ "; color: var(--muted); }
+details.corner[open] > summary .corner-title::before { content: "▾ "; }
+details.corner[open] > summary { border-bottom: 1px solid var(--border); }
+.corner-title { font-weight: 600; }
+.corner-kind { white-space: nowrap; }
+.corner-body { padding: 0.2rem 0.9rem 0.7rem; }
+
+/* Eval results: mistakes as rows */
+.mistakes-table { width: 100%; }
+.mistake-row td:first-child { white-space: nowrap; }
+.mistake-open td { background: var(--surface); }
+.mistake-detail pre.event { margin-top: 0; }
+details.section-fold { margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1rem; }
+details.section-fold > summary { cursor: pointer; font-weight: 600; font-size: 1.1rem; }

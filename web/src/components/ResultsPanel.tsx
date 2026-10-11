@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 
 import { api } from "../api";
 import { describeEvent, ms } from "../format";
@@ -244,18 +244,9 @@ function BreakdownTable({ predictions }: { predictions: Prediction[] }) {
   );
 }
 
-function MistakeCard({ p, c }: { p: Prediction; c: LabeledCase | undefined }) {
-  const kind = mistakeOf(p);
+function MistakeDetail({ p, c }: { p: Prediction; c: LabeledCase | undefined }) {
   return (
-    <div className={`card mistake mistake-${kind ?? "none"}`}>
-      <div className="card-head">
-        <span className="small">
-          <code>{p.kind}</code> · {contextOf(c)}
-        </span>
-        <span className="small">
-          {kind ? MISTAKES[kind].label : "correct"} · <code>{p.case_id}</code>
-        </span>
-      </div>
+    <div className="mistake-detail">
       <pre className="event">{c ? describeEvent(c.request.event) : "(event not found)"}</pre>
       <div className="two-col">
         <div>
@@ -285,6 +276,14 @@ function Mistakes({ predictions, caseById }: { predictions: Prediction[]; caseBy
   const [shown, setShown] = useState<MistakeKind | "all">("all");
   const current = shown === "all" || counts.get(shown) ? shown : "all";
   const [limit, setLimit] = useState(25);
+  const [expanded, setExpanded] = useState<ReadonlySet<string>>(new Set());
+  function toggle(id: string) {
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (!next.delete(id)) next.add(id);
+      return next;
+    });
+  }
   const severity = Object.keys(MISTAKES) as MistakeKind[]; // costliest first
   const rows = predictions
     .filter((p) => {
@@ -294,7 +293,8 @@ function Mistakes({ predictions, caseById }: { predictions: Prediction[]; caseBy
     .sort((a, b) => severity.indexOf(mistakeOf(a)!) - severity.indexOf(mistakeOf(b)!));
   return (
     <div>
-      <h3>Its mistakes, one by one</h3>
+      <h3>Its mistakes</h3>
+      <p className="small">One row per mistake, costliest first. Click a row to see the event and both explanations.</p>
       {kinds.length === 0 ? (
         <p className="hint">No mistakes on this set.</p>
       ) : (
@@ -310,11 +310,54 @@ function Mistakes({ predictions, caseById }: { predictions: Prediction[]; caseBy
             ))}
           </div>
           {current !== "all" && <p className="small">{MISTAKES[current].explain}</p>}
-          <div className="mistakes">
-            {rows.slice(0, limit).map((p) => (
-              <MistakeCard key={p.case_id} p={p} c={caseById.get(p.case_id)} />
-            ))}
-          </div>
+          <table className="mistakes-table">
+            <thead>
+              <tr>
+                <th>Case</th>
+                <th>Event</th>
+                <th>Right answer</th>
+                <th>Classifier said</th>
+                <th>Mistake</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.slice(0, limit).map((p) => {
+                const isOpen = expanded.has(p.case_id);
+                const kind = mistakeOf(p);
+                const c = caseById.get(p.case_id);
+                return (
+                  <Fragment key={p.case_id}>
+                    <tr
+                      className={`clickable-row mistake-row mistake-${kind ?? "none"}${isOpen ? " selected-row" : ""}`}
+                      onClick={() => toggle(p.case_id)}
+                      title="Click to see the event and both explanations"
+                    >
+                      <td>
+                        {isOpen ? "▾" : "▸"} <code>{p.case_id}</code>
+                      </td>
+                      <td className="small">
+                        <code>{p.kind}</code> · {contextOf(c)}
+                      </td>
+                      <td>
+                        <VerdictBadge verdict={p.gold} />
+                      </td>
+                      <td>
+                        <VerdictBadge verdict={p.result.decision.verdict} error={p.result.error} />
+                      </td>
+                      <td className="small">{kind ? MISTAKES[kind].label : "correct"}</td>
+                    </tr>
+                    {isOpen && (
+                      <tr className="mistake-open">
+                        <td colSpan={5}>
+                          <MistakeDetail p={p} c={c} />
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
+                );
+              })}
+            </tbody>
+          </table>
           {rows.length > limit && (
             <button className="secondary" onClick={() => setLimit(limit + 25)}>
               Show more ({rows.length - limit} left)

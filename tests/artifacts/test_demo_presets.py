@@ -21,11 +21,12 @@ def _script() -> ModuleType:
 
 def test_presets_match_the_ui_source() -> None:
     script = _script()
-    position_demo = (REPO_ROOT / "web/src/components/PositionDemo.tsx").read_text()
-    classify_panel = (REPO_ROOT / "web/src/components/ClassifyPanel.tsx").read_text()
+    try_it = (REPO_ROOT / "web/src/components/TryItPanel.tsx").read_text()
     for preset in script.POSITION_PRESETS:
-        assert json.dumps(preset) in position_demo
-    assert json.dumps(script.CLASSIFY_DEFAULT) in classify_panel
+        assert json.dumps(preset) in try_it
+    # The editor opens on the first position text, so replay mode has an answer for it.
+    assert "content: POSITION_TEXTS[0]" in try_it
+    assert script.POSITION_PRESETS[0] == script.CLASSIFY_DEFAULT
 
 
 def test_tool_response_uses_compact_json_like_the_browser() -> None:

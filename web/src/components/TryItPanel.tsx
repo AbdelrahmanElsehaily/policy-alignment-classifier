@@ -53,7 +53,14 @@ function Mark({ result, expected }: { result?: Classification; expected?: string
   );
 }
 
-export function TryItPanel({ cases, health }: { cases: LabeledCase[]; health: Health | null }) {
+interface Props {
+  cases: LabeledCase[];
+  health: Health | null;
+  /** A case another tab wants opened here. */
+  request?: { id: string; n: number } | null;
+}
+
+export function TryItPanel({ cases, health, request }: Props) {
   const [examples, setExamples] = useState<DemoExample[]>([]);
   const [draft, setDraft] = useState<Draft>(START);
   const [sessionKey, setSessionKey] = useState("verified as Ana (C-1001)");
@@ -71,14 +78,10 @@ export function TryItPanel({ cases, health }: { cases: LabeledCase[]; health: He
       .catch((e: Error) => setError(e.message));
   }, []);
 
-  const grouped = useMemo(() => {
-    const groups = new Map<string, LabeledCase[]>();
-    for (const c of cases) {
-      const group = c.tags.includes("corner-case") ? "corner cases" : (c.tags[0] ?? "other");
-      groups.set(group, [...(groups.get(group) ?? []), c]);
-    }
-    return [...groups.entries()].sort(([a], [b]) => a.localeCompare(b));
-  }, [cases]);
+  useEffect(() => {
+    if (request && cases.length > 0) load(`case:${request.id}`);
+    // load() reads the latest cases; re-run only for a new request or once cases arrive.
+  }, [request, cases.length]);
 
   const built = useMemo((): { event: TraceEvent | null; error?: string } => {
     if (draft.kind === "tool_call") {
@@ -181,15 +184,9 @@ export function TryItPanel({ cases, health }: { cases: LabeledCase[]; health: He
                 </option>
               ))}
             </optgroup>
-            {grouped.map(([group, items]) => (
-              <optgroup key={group} label={`Eval cases: ${group}`}>
-                {items.map((c) => (
-                  <option key={c.id} value={`case:${c.id}`}>
-                    {c.id}
-                  </option>
-                ))}
-              </optgroup>
-            ))}
+            {loaded && !examples.some((e) => e.case.id === loaded.case.id) && (
+              <option value={`case:${loaded.case.id}`}>Eval case {loaded.case.id}</option>
+            )}
           </select>
         </label>
         {loaded?.lookFor && <p className="small">{loaded.lookFor}</p>}

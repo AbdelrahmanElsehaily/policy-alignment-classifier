@@ -1,4 +1,4 @@
-import { type JSX, useEffect, useState } from "react";
+import { type JSX, useEffect, useMemo, useState } from "react";
 
 import { api, isStalePage, isStaleServer } from "./api";
 import { ConversationPanel } from "./components/ConversationPanel";
@@ -8,7 +8,7 @@ import { ResultsPanel } from "./components/ResultsPanel";
 import { TryItPanel } from "./components/TryItPanel";
 import type { Health, LabeledCase } from "./types";
 
-const TABS = ["Try it", "Live conversation", "Results & findings"] as const;
+const TABS = ["Try it", "Live conversation", "Findings", "Eval results"] as const;
 type Tab = (typeof TABS)[number];
 
 export function App() {
@@ -19,6 +19,9 @@ export function App() {
   const [health, setHealth] = useState<Health | null>(null);
   const [cases, setCases] = useState<LabeledCase[]>([]);
   const [error, setError] = useState<string | null>(null);
+  // A case another tab asked Try it to open; the counter makes a repeat request count.
+  const [toTry, setToTry] = useState<{ id: string; n: number } | null>(null);
+  const known = useMemo(() => new Set(cases.map((c) => c.id)), [cases]);
 
   useEffect(() => {
     api.health().then(setHealth).catch((e: Error) => setError(e.message));
@@ -30,19 +33,20 @@ export function App() {
     setOpened((prev) => (prev.has(next) ? prev : new Set(prev).add(next)));
   }
 
+  function tryCase(id: string) {
+    setToTry((prev) => ({ id, n: (prev?.n ?? 0) + 1 }));
+    open("Try it");
+  }
+
   const panels: Record<Tab, JSX.Element> = {
-    "Try it": <TryItPanel cases={cases} health={health} />,
+    "Try it": <TryItPanel cases={cases} health={health} request={toTry} />,
     "Live conversation": <ConversationPanel />,
-    "Results & findings": (
+    Findings: <CornerCases known={known} onTry={tryCase} />,
+    "Eval results": (
       <>
-        <h2>Corner cases: where the policy does not decide</h2>
-        <CornerCases />
-        <h2>Eval results</h2>
         <ResultsPanel cases={cases} />
         <details className="section-fold">
-          <summary>
-            <h2>Monitoring (production drift)</h2>
-          </summary>
+          <summary>Monitoring: is live traffic drifting from what was evaluated?</summary>
           <MonitoringPanel />
         </details>
       </>
