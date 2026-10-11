@@ -25,12 +25,54 @@ The optimisers never saw the test or stress splits. These are the numbers that c
 
 Validation is what each optimiser selected on, so these numbers are optimistic.
 
+## Run-to-run noise: why single runs can't rank these prompts
+
+No temperature is set for MiniMax-M3, so it samples, and the same prompt gives different answers on
+different runs. v2 was run on test three times (the run above, plus `--repeats 2 --no-cache`):
+
+| v2 on test | Correct of 114 |
+|---|---|
+| Run in the table above | 99 (86.8%) |
+| Repeat 1 | 97 (85.1%) |
+| Repeat 2 | 94 (82.5%) |
+
+Between any two v2 runs, 9 to 13 cases switch between right and wrong; 16 cases are right in some v2
+runs and wrong in others. Each optimised prompt differs from v2's run by 13 to 16 cases, which is about
+the same amount. So the optimised prompts' 93 to 95 on test sits inside v2's own range, and the
+stress differences are inside it too.
+
+The validation scores have the same problem, made worse by selection: each optimiser kept the best of
+many candidates scored once on 65 cases, so the winner is partly the luckiest draw. That explains much
+of the drop from 98.5% on validation to 81.6% on test.
+
+## What the optimised prompts learned
+
+Reading the prompts shows rules written for families of training cases rather than for the policy:
+
+- The Claude-reflection GEPA prompt adds "before choosing `allow`, look for a genuine concern", a
+  rule to treat claims of actions Lark has no tool for as concerns, and character-by-character name
+  comparison. On test, these lines account for at least 5 of its 11 losses against v2 (for example,
+  `t2-address-change-02`, `r3-ask-last-four` and `r7-plus-address`). It also says to treat the history as
+  background only, which would undo the stateful guardrail if it were used with history.
+- The MIPROv2 prompt names a training template outright ("t-lookup read-only slices").
+- The MiniMax-reflection GEPA prompt adds a rule about Lark having no tool to delete accounts, from one
+  family of training cases.
+- The training split is 31% `policy_silent` and test is 18%, which pushes the prompts toward
+  `policy_silent`.
+
+The guard against copied training data checks identifiers only (order ids, emails, amounts), so it
+didn't catch any of these.
+
 ## Reading it
 
-- **No optimised prompt beats v2 on test.** Each one is 4 to 5 points lower. The test gap is about 5 cases out of 114, so this is suggestive, not conclusive.
-- **On stress, the optimised prompts are ahead of v2 by 0 to 4 points**, but every interval overlaps v2's. The best, GEPA with MiniMax reflection, is 3.7 points ahead.
-- **Validation gains don't carry over.** The Claude-reflection prompt gains 7.7 points on validation over v2, then loses 5.2 points on test. The optimisers chose their prompts on the same 65 cases they were judged on, so this is overfitting to the selection set.
-- **Changing the reflection model made no difference.** GEPA with Claude reflection did no better than with MiniMax reflection, on either split.
+- **These runs can't tell the four prompts apart.** The differences between them are about the size of
+  v2's own run-to-run variation.
+- **There's no evidence that any optimised prompt is better**, and some of the rules they added
+  demonstrably cause wrong verdicts. Keep `classifier_v2.md`.
+- **Changing the reflection model made no measurable difference.**
+- **To compare prompts properly:** fix the sampling (temperature 0, if the provider allows it), or run
+  each prompt several times and compare per-case majority verdicts. Select on data other than the
+  generated train split.
 
 ## Cost of each optimisation
 
@@ -44,4 +86,6 @@ Each eval run is about 114 (test) or 355 (stress) MiniMax calls, less cache hits
 
 ## What to do next
 
-Keep `prompts/classifier_v2.md` as the production prompt. The optimised prompts don't justify replacing it. Any future change should be selected on data other than the generated train split, and judged only on test and stress, once.
+Keep `prompts/classifier_v2.md` as the production prompt. Before optimising again, make scoring
+repeatable (fixed temperature or repeated runs), and select on natural data rather than the generated
+train split.
