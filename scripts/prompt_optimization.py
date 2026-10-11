@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
@@ -116,9 +117,41 @@ def render_demos(demos: Sequence[Demo]) -> str:
     return "\n\n".join(parts)
 
 
+_HEADING = re.compile(r"^(#{1,6})\s+(.*)$")
+# Sections a candidate may not carry: the fixed tail owns the output format, and worked
+# examples come only from the train split, at most MAX_DEMOS of them.
+_FORBIDDEN_SECTION = re.compile(
+    r"^\W*(output|answer|response|return|example|worked example|illustrat)", re.IGNORECASE
+)
+
+
+def sanitise_instructions(text: str) -> str:
+    """Drop any section of proposed instructions that is an output format or examples.
+
+    A section is a markdown heading and everything under it up to the next heading of the
+    same or a higher level. Applied to every candidate before it is scored, so what is
+    selected is what gets exported. The first optimisation run selected instructions that
+    embedded three made-up examples (one teaching the wrong convention) and a second output
+    format contradicting the fixed one; this is the guard against that.
+    """
+    kept: list[str] = []
+    dropping_level: int | None = None
+    for line in text.strip().splitlines():
+        heading = _HEADING.match(line)
+        if heading:
+            level = len(heading.group(1))
+            if dropping_level is not None and level <= dropping_level:
+                dropping_level = None
+            if dropping_level is None and _FORBIDDEN_SECTION.match(heading.group(2)):
+                dropping_level = level
+        if dropping_level is None:
+            kept.append(line)
+    return "\n".join(kept).strip()
+
+
 def assemble(frame: Frame, instructions: str, demos: Sequence[Demo] = ()) -> str:
     """The prompt template text for a candidate: fixed head, its instructions and demos, tail."""
-    middle = escape_template(instructions.strip())
+    middle = escape_template(sanitise_instructions(instructions))
     if demos:
         middle += "\n\n" + escape_template(render_demos(demos))
     return f"{frame.head}{middle}\n\n{frame.tail}"

@@ -359,11 +359,13 @@ def _eval_cases() -> list[LabeledCase]:
 
 PROPOSER_CONTEXT = """\
 Context for anyone writing instructions for this classifier. Its prompt is assembled as: a fixed
-role sentence; the policy below, verbatim; THE INSTRUCTIONS BEING WRITTEN; optional worked
-examples; and a fixed output section that requires one JSON object with the keys rationale,
-verdict (allow | violation | policy_silent), rule_ids and confidence. So the instructions must
-not restate, paraphrase, renumber or invent rules (refer to them by the ids the policy defines),
-and must not specify any output format. The policy:
+role sentence; the policy below, verbatim; THE INSTRUCTIONS BEING WRITTEN; up to four worked
+examples, chosen separately from labelled data; and a fixed output section that requires one
+JSON object with the keys rationale, verdict (allow | violation | policy_silent), rule_ids and
+confidence. So the instructions must not restate, paraphrase, renumber or invent rules (refer
+to them by the ids the policy defines), must not specify any output format, and must not
+contain examples of their own (sections headed as output formats or examples are removed).
+The policy:
 
 <policy>
 {policy}
@@ -431,6 +433,8 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--skip-train-eval", action="store_true", help="save ~400 calls")
     parser.add_argument("--dry-run", action="store_true", help="print the split; no model calls")
     args = parser.parse_args(argv)
+    args.out = args.out.resolve()
+    args.report_dir = args.report_dir.resolve()
     logging.basicConfig(
         level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s"
     )
@@ -486,7 +490,9 @@ def main(argv: list[str]) -> int:
         "candidates": [
             {
                 "validation_metric": c["score"],
-                "instructions": c["program"].predict.signature.instructions,
+                "instructions": po.sanitise_instructions(
+                    c["program"].predict.signature.instructions
+                ),
                 "demos": len(c["program"].predict.demos),
             }
             for c in getattr(best, "candidate_programs", [])
