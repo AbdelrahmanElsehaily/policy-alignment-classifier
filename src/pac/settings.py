@@ -26,6 +26,9 @@ class Settings(BaseSettings):
 
     anthropic_api_key: SecretStr | None = Field(default=None, validation_alias="ANTHROPIC_API_KEY")
     minimax_api_key: SecretStr | None = Field(default=None, validation_alias="MINIMAX_API_KEY")
+    openrouter_api_key: SecretStr | None = Field(
+        default=None, validation_alias="OPENROUTER_API_KEY"
+    )
     minimax_base_url: str = "https://api.minimax.io/v1"
     # Thinking off by default: a guardrail on the request path cannot wait for long reasoning.
     minimax_thinking: Literal["disabled", "adaptive"] = "disabled"
@@ -62,7 +65,7 @@ class Settings(BaseSettings):
     max_output_tokens: int = 1024
     concurrency: int = 4
 
-    @field_validator("anthropic_api_key", "minimax_api_key", mode="after")
+    @field_validator("anthropic_api_key", "minimax_api_key", "openrouter_api_key", mode="after")
     @classmethod
     def _blank_key_is_no_key(cls, value: SecretStr | None) -> SecretStr | None:
         # `MINIMAX_API_KEY=` in a copied .env must read as "not configured", not as a key.

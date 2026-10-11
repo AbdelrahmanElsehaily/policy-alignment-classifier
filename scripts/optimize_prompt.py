@@ -68,6 +68,9 @@ from pac.settings import REPO_ROOT, Settings
 logger = logging.getLogger("optimize_prompt")
 
 MODEL = "MiniMax-M3"
+# Reflection and proposal may go to Claude through OpenRouter; judging always stays on MiniMax.
+ROUTED_PREFIX = "openrouter/"
+DEFAULT_REFLECTION = "minimax"
 EXTRA_BODY = {"thinking": {"type": "disabled"}, "reasoning_split": True}
 CACHE_DIR = REPO_ROOT / "results" / "scratch" / "dspy_cache"
 RATE_LIMIT_WAIT_S = 60.0
@@ -88,6 +91,13 @@ class BudgetExhausted(RuntimeError):
     """Raised before a call that would take the job past its MiniMax budget."""
 
 
+def _is_routed(model: Any, kwargs: Any) -> bool:
+    """True for a call to OpenRouter. LiteLLM may report the model without its ``openrouter/``
+    prefix, so the provider it resolved to is checked as well."""
+    provider = ((kwargs or {}).get("litellm_params") or {}).get("custom_llm_provider")
+    return str(model).startswith(ROUTED_PREFIX) or provider == "openrouter"
+
+
 class CallLedger(CustomLogger):  # type: ignore[misc]
     """Counts every request LiteLLM sends to the provider, in a file that outlives the run.
 
@@ -95,7 +105,7 @@ class CallLedger(CustomLogger):  # type: ignore[misc]
     attempt that does reach the provider is, including retries after a 429.
     """
 
-    def __init__(self, path: Path, budget: int) -> None:
+    def __init__(self, path: Path, budget: int, routed_budget: int = 60) -> None:
         super().__init__()
         self._path = path
         self._lock = threading.Lock()
@@ -104,6 +114,9 @@ class CallLedger(CustomLogger):  # type: ignore[misc]
         self.sent: int = state.get("sent", 0)
         self.failed: int = state.get("failed", 0)
         self.by_phase: dict[str, int] = state.get("by_phase", {})
+        # OpenRouter reflection calls: counted and capped apart from the MiniMax budget.
+        self.routed: int = state.get("routed", 0)
+        self.routed_budget = routed_budget
         self.phase = "setup"
         # Set once the budget has stopped a call: the search's scores are then meaningless.
         self.exhausted = False
@@ -111,7 +124,10 @@ class CallLedger(CustomLogger):  # type: ignore[misc]
 
     def log_pre_api_call(self, model: Any, messages: Any, kwargs: Any) -> None:
         with self._lock:
-            self.sent += 1
+            if _is_routed(model, kwargs):
+                self.routed += 1
+            else:
+                self.sent += 1
             self.by_phase[self.phase] = self.by_phase.get(self.phase, 0) + 1
             self._save()
 
@@ -128,12 +144,18 @@ class CallLedger(CustomLogger):  # type: ignore[misc]
             raise BudgetExhausted(
                 f"MiniMax budget of {self.budget} calls reached ({self.sent} sent)"
             )
+        if self.routed >= self.routed_budget:
+            self.exhausted = True
+            raise BudgetExhausted(
+                f"OpenRouter budget of {self.routed_budget} calls reached ({self.routed} sent)"
+            )
 
     def _save(self) -> None:
         self._path.parent.mkdir(parents=True, exist_ok=True)
         state = {
             "model": MODEL,
             "sent": self.sent,
+            "routed": self.routed,
             "failed": self.failed,
             "by_phase": self.by_phase,
         }
@@ -476,12 +498,22 @@ def _labelled(phase: str | None) -> Iterator[None]:
 
 
 def configure(
-    ledger_path: Path, budget: int, threads: int, policy: Policy, optimizer: str
+    ledger_path: Path,
+    budget: int,
+    threads: int,
+    policy: Policy,
+    optimizer: str,
+    reflection_model: str = DEFAULT_REFLECTION,
 ) -> tuple[dspy.LM, PolicyAwareLM]:
-    """(task model, reflection or proposal model): both MiniMax-M3; the second sees the policy."""
+    """(task model, reflection or proposal model). The task model is always MiniMax-M3; the
+    reflection model is MiniMax-M3 too, or ``openrouter/<provider>/<model>``. The second sees
+    the policy either way."""
     settings = Settings()
     if settings.minimax_api_key is None:
         raise SystemExit("MINIMAX_API_KEY is not set (put it in .env)")
+    routed = reflection_model.startswith(ROUTED_PREFIX)
+    if routed and settings.openrouter_api_key is None:
+        raise SystemExit("OPENROUTER_API_KEY is not set (put it in .env)")
     RUNTIME.calls = CallLedger(ledger_path, budget)
     litellm.callbacks = [RUNTIME.calls]
     dspy.configure_cache(
@@ -496,13 +528,27 @@ def configure(
     }
     lm = dspy.LM(f"openai/{MODEL}", max_tokens=settings.max_output_tokens, **common)
     gepa = optimizer == "gepa"
-    proposer = PolicyAwareLM(
-        f"openai/{MODEL}",
-        max_tokens=PROPOSER_MAX_TOKENS,
-        context=(GEPA_CONTEXT if gepa else PROPOSER_CONTEXT).format(policy=policy.text.strip()),
-        phase="gepa-reflection" if gepa else "miprov2-proposer",
-        **common,
-    )
+    context = (GEPA_CONTEXT if gepa else PROPOSER_CONTEXT).format(policy=policy.text.strip())
+    phase = "gepa-reflection" if gepa else "miprov2-proposer"
+    if routed:
+        assert settings.openrouter_api_key is not None
+        proposer = PolicyAwareLM(
+            reflection_model,
+            max_tokens=PROPOSER_MAX_TOKENS,
+            context=context,
+            phase=phase,
+            engine="litellm",
+            api_key=settings.openrouter_api_key.get_secret_value(),
+            num_retries=4,
+        )
+    else:
+        proposer = PolicyAwareLM(
+            f"openai/{MODEL}",
+            max_tokens=PROPOSER_MAX_TOKENS,
+            context=context,
+            phase=phase,
+            **common,
+        )
     dspy.configure(lm=lm, num_threads=threads, max_errors=50)
     return lm, proposer
 
@@ -618,6 +664,12 @@ def _stop_if_exhausted(calls: CallLedger) -> None:
 def _parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--optimizer", choices=OPTIMIZERS, default="miprov2")
+    parser.add_argument(
+        "--reflection-model",
+        default=DEFAULT_REFLECTION,
+        help="'minimax' (default), or an OpenRouter model such as "
+        "openrouter/anthropic/claude-opus-5.5",
+    )
     parser.add_argument("--out", type=Path, default=None, help="prompt file to write")
     parser.add_argument("--report-dir", type=Path, default=None)
     parser.add_argument(
@@ -708,7 +760,12 @@ def _finish(
         report["v2_train"] = evaluate(baseline, trainset, threads)
         report["v3_train"] = evaluate(best, trainset, threads)
     _stop_if_exhausted(calls)
-    report["calls"] = {"sent": calls.sent, "failed": calls.failed, "by_phase": calls.by_phase}
+    report["calls"] = {
+        "sent": calls.sent,
+        "routed": calls.routed,
+        "failed": calls.failed,
+        "by_phase": calls.by_phase,
+    }
     (args.report_dir / "report.json").write_text(
         json.dumps(report, indent=1, ensure_ascii=False) + "\n"
     )
@@ -764,6 +821,7 @@ def main(argv: list[str]) -> int:
         min(args.threads, 2),
         policy,
         args.optimizer,
+        args.reflection_model,
     )
     calls = RUNTIME.get_calls()
     trainset, valset = [to_example(c) for c in train], [to_example(c) for c in val]

@@ -11,6 +11,7 @@ import importlib.util
 import re
 import sys
 from collections import Counter
+from pathlib import Path
 from types import ModuleType
 
 import pytest
@@ -295,3 +296,28 @@ def test_feedback_excerpts_long_rationales() -> None:
     labelled = text.splitlines()[-1]
     assert labelled.endswith("...")
     assert len(labelled) < len(long)
+
+
+def _optimize_prompt() -> ModuleType:
+    path = REPO_ROOT / "scripts" / "optimize_prompt.py"
+    spec = importlib.util.spec_from_file_location("optimize_prompt", path)
+    assert spec is not None
+    assert spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_openrouter_calls_are_counted_apart_from_minimax(tmp_path: Path) -> None:
+    """LiteLLM may report an OpenRouter model without its prefix, so the provider counts too."""
+    optimize = _optimize_prompt()
+    ledger = optimize.CallLedger(tmp_path / "calls.json", budget=10, routed_budget=2)
+    ledger.log_pre_api_call("openrouter/anthropic/claude-opus-5.5", None, {})
+    routed = {"litellm_params": {"custom_llm_provider": "openrouter"}}
+    ledger.log_pre_api_call("anthropic/claude-opus-5.5", None, routed)
+    minimax = {"litellm_params": {"custom_llm_provider": "openai"}}
+    ledger.log_pre_api_call("openai/MiniMax-M3", None, minimax)
+    assert (ledger.sent, ledger.routed) == (1, 2)
+    with pytest.raises(optimize.BudgetExhausted, match="OpenRouter budget"):
+        ledger.check()
