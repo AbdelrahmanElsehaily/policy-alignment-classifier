@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import asyncio
 import time
+from collections.abc import Awaitable, Callable
 from typing import Any
 
 import httpx
@@ -30,9 +32,13 @@ class OpenAICompatibleBackend:
         extra_body: dict[str, Any] | None = None,
         timeout_s: float = 60.0,
         client: httpx.AsyncClient | None = None,
+        max_rate_limit_retries: int = 5,
+        sleep: Callable[[float], Awaitable[None]] = asyncio.sleep,
     ) -> None:
         self._model = model
         self._extra_body = extra_body or {}
+        self._max_rate_limit_retries = max_rate_limit_retries
+        self._sleep = sleep
         self._client = client or httpx.AsyncClient(
             base_url=base_url.rstrip("/"),
             timeout=timeout_s,
@@ -53,9 +59,17 @@ class OpenAICompatibleBackend:
             ],
             **self._extra_body,
         }
-        started = time.perf_counter()
+        for attempt in range(self._max_rate_limit_retries + 1):
+            # Timed per attempt, so waiting out a rate limit never counts as model latency.
+            started = time.perf_counter()
+            try:
+                response = await self._client.post("/chat/completions", json=payload)
+            except httpx.HTTPError as exc:
+                raise BackendError(f"{self._model} request failed: {exc!r}") from exc
+            if response.status_code != 429 or attempt == self._max_rate_limit_retries:
+                break
+            await self._sleep(_backoff(response, attempt))
         try:
-            response = await self._client.post("/chat/completions", json=payload)
             response.raise_for_status()
             body = response.json()
         except httpx.HTTPStatusError as exc:
@@ -89,3 +103,14 @@ class OpenAICompatibleBackend:
                 cache_read_input_tokens=int(cached_tokens),
             ),
         )
+
+
+def _backoff(response: httpx.Response, attempt: int) -> float:
+    """Seconds to wait after a 429: the server's Retry-After, else 2, 4, 8, ... (max 60)."""
+    retry_after = response.headers.get("retry-after")
+    if retry_after is not None:
+        try:
+            return min(max(float(retry_after), 0.0), 60.0)
+        except ValueError:
+            pass
+    return float(min(2 ** (attempt + 1), 60))

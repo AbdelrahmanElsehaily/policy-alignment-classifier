@@ -261,6 +261,50 @@ async def test_openai_compatible_failures(response: httpx.Response, message: str
         await _minimax().complete(REQUEST)
 
 
+OK_BODY = {"choices": [{"message": {"content": '{"a": 1}'}, "finish_reason": "stop"}]}
+RATE_LIMITED = httpx.Response(429, json={"error": {"type": "rate_limit_error"}})
+
+
+@respx.mock
+async def test_openai_compatible_waits_out_a_rate_limit() -> None:
+    waits: list[float] = []
+
+    async def sleep(seconds: float) -> None:
+        waits.append(seconds)
+
+    respx.post("http://minimax.test/v1/chat/completions").mock(
+        side_effect=[
+            httpx.Response(429, headers={"Retry-After": "3"}),
+            RATE_LIMITED,
+            httpx.Response(200, json=OK_BODY),
+        ]
+    )
+    backend = OpenAICompatibleBackend(
+        "MiniMax-M3", base_url="http://minimax.test/v1", api_key="k", sleep=sleep
+    )
+    completion = await backend.complete(REQUEST)
+    assert completion.text == '{"a": 1}'
+    assert waits == [3.0, 4.0]  # the server's Retry-After, then exponential backoff
+
+
+@respx.mock
+async def test_openai_compatible_gives_up_after_its_retries() -> None:
+    async def sleep(_: float) -> None:
+        return None
+
+    route = respx.post("http://minimax.test/v1/chat/completions").mock(return_value=RATE_LIMITED)
+    backend = OpenAICompatibleBackend(
+        "MiniMax-M3",
+        base_url="http://minimax.test/v1",
+        api_key="k",
+        sleep=sleep,
+        max_rate_limit_retries=2,
+    )
+    with pytest.raises(BackendError, match="HTTP 429"):
+        await backend.complete(REQUEST)
+    assert route.call_count == 3
+
+
 def test_factory_builds_minimax(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("MINIMAX_API_KEY", "k")
     backend = build_backend(Settings(backend="minimax", model="MiniMax-M3", cache_dir=tmp_path))
