@@ -142,3 +142,21 @@ button.chip.active-chip { background: var(--accent); color: var(--bg); border-co
   .two-col { grid-template-columns: 1fr; }
   .mistakes { grid-template-columns: 1fr; }
 }
+
+/* Monitoring */
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin: 12px 0; }
+.stat { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+.stat-value { font-size: 1.4em; font-weight: 700; margin-bottom: 4px; }
+.badge.drift-stable { color: var(--allow); }
+.badge.drift-moderate { color: var(--silent); }
+.badge.drift-major { color: var(--violation); }
+.badge.drift-insufficient { color: var(--muted); border-style: dashed; }
+.drift-table td { vertical-align: middle; }
+.drift-row-major td:first-child { border-left: 3px solid var(--violation); }
+.drift-row-moderate td:first-child { border-left: 3px solid var(--silent); }
+.psi-bar { position: relative; height: 8px; width: 140px; max-width: 100%; border-radius: 999px; background: var(--bg); border: 1px solid var(--border); overflow: hidden; display: inline-block; vertical-align: middle; margin-right: 8px; }
+.psi-fill { height: 100%; background: var(--accent); }
+.drift-row-major .psi-fill { background: var(--violation); }
+.drift-row-moderate .psi-fill { background: var(--silent); }
+.psi-mark { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--muted); }
+.new-tag { display: inline-block; font-size: 0.8em; font-weight: 700; color: var(--silent); border: 1px solid currentColor; border-radius: 4px; padding: 0 5px; margin-right: 6px; }

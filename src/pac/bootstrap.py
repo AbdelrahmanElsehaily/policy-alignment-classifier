@@ -21,6 +21,8 @@ from pac.guardrail.infrastructure.llm.ollama import OllamaBackend
 from pac.guardrail.infrastructure.llm.openai_compatible import OpenAICompatibleBackend
 from pac.guardrail.infrastructure.regex_classifier import RegexBaseline
 from pac.monitoring.application.monitor import Monitor
+from pac.monitoring.domain.drift import Profile
+from pac.monitoring.domain.features import observe
 from pac.monitoring.infrastructure.exporters import load_profile
 from pac.settings import Settings
 from pac.simulation.application.agent import SimulatedAgent
@@ -146,4 +148,19 @@ def build_monitor(settings: Settings) -> Monitor:
         load_profile(settings.monitoring_reference_path),
         window=settings.monitoring_window,
         min_events=settings.monitoring_min_events,
+    )
+
+
+def profile_of_run(settings: Settings, run_id: str) -> Profile:
+    """The monitoring profile of a committed run: what it saw and what it said.
+
+    Raises ``RunNotFound`` for an unknown run.
+    """
+    saved = build_run_store(settings).load(run_id)
+    by_id = {c.id: c for c in load_all_cases(settings)}
+    with_history = saved.config.with_history
+    return Profile.of(
+        observe(by_id[p.case_id].request_for(with_history=with_history), p.result)
+        for p in saved.predictions
+        if p.repeat == 0 and p.case_id in by_id
     )

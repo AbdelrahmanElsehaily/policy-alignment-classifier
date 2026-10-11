@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { API_VERSION, isStaleServer } from "./api";
+import { API_VERSION, isStalePage, isStaleServer } from "./api";
 import type { Health } from "./types";
 
 const health = (api_version?: number): Health => ({
@@ -17,5 +17,11 @@ describe("server version check", () => {
     expect(isStaleServer(health(API_VERSION))).toBe(false);
     expect(isStaleServer(health(API_VERSION - 1))).toBe(true);
     expect(isStaleServer(health(undefined))).toBe(true);
+  });
+
+  it("tells an outdated page from an outdated server", () => {
+    expect(isStalePage(health(API_VERSION + 1))).toBe(true);
+    expect(isStaleServer(health(API_VERSION + 1))).toBe(false);
+    expect(isStalePage(health(API_VERSION))).toBe(false);
   });
 });

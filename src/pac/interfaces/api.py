@@ -21,6 +21,7 @@ from pac.bootstrap import (
     build_policy,
     build_run_store,
     load_all_cases,
+    profile_of_run,
 )
 from pac.evaluation.application.ports import RunNotFound, RunStore
 from pac.evaluation.domain.cases import LabeledCase
@@ -40,7 +41,8 @@ from pac.interfaces.live_conversation import (
     TurnRequest,
 )
 from pac.monitoring.application.monitor import Monitor, MonitoredClassifier, MonitoringSnapshot
-from pac.monitoring.infrastructure.exporters import prometheus_text
+from pac.monitoring.domain.drift import DriftReport, compare
+from pac.monitoring.infrastructure.exporters import load_profile, prometheus_text
 from pac.settings import Settings, get_settings
 from pac.simulation.application.agent import SimulatedAgent
 from pac.simulation.application.conversation import GuardedConversation, executed_calls
@@ -52,7 +54,7 @@ logger = logging.getLogger(__name__)
 # Bump when a request or response shape the web app relies on changes. The app is read from disk
 # on every page load but the server's code only at startup, so a server started before a change can
 # end up serving a newer page; the page compares versions and asks for a restart.
-API_VERSION = 3
+API_VERSION = 4
 
 
 class Health(BaseModel):
@@ -265,18 +267,7 @@ def create_app(
 
         return StreamingResponse(lines(), media_type="application/x-ndjson")
 
-    @app.get("/api/monitoring")
-    def monitoring() -> MonitoringSnapshot:
-        """Live counts and drift of the traffic this server has judged, against the reference."""
-        return services.monitor.snapshot()
-
-    @app.get("/metrics", include_in_schema=False)
-    def metrics() -> PlainTextResponse:
-        """The same, in Prometheus' text format, for scraping."""
-        return PlainTextResponse(
-            prometheus_text(services.monitor.snapshot()),
-            media_type="text/plain; version=0.0.4",
-        )
+    _monitoring_routes(app, services)
 
     @app.get("/api/runs")
     def runs() -> list[RunSummary]:
@@ -323,6 +314,38 @@ def create_app(
 
     _mount_frontend(app, services.settings)
     return app
+
+
+def _monitoring_routes(app: FastAPI, services: _Services) -> None:
+    """Live drift of judged traffic, a recorded run's drift, and Prometheus metrics."""
+
+    @app.get("/api/monitoring")
+    def monitoring() -> MonitoringSnapshot:
+        """Live counts and drift of the traffic this server has judged, against the reference."""
+        return services.monitor.snapshot()
+
+    @app.get("/api/monitoring/runs/{run_id}")
+    def run_drift(run_id: str) -> DriftReport:
+        """How far a recorded run's traffic is from the reference profile."""
+        reference = load_profile(services.settings.monitoring_reference_path)
+        if reference is None:
+            raise HTTPException(
+                status_code=404,
+                detail="No reference profile yet. Build one: uv run pac monitor reference RUN_ID",
+            )
+        try:
+            current = profile_of_run(services.settings, run_id)
+        except RunNotFound as exc:
+            raise HTTPException(status_code=404, detail=str(exc)) from exc
+        return compare(reference, current, min_events=services.settings.monitoring_min_events)
+
+    @app.get("/metrics", include_in_schema=False)
+    def metrics() -> PlainTextResponse:
+        """The same, in Prometheus' text format, for scraping."""
+        return PlainTextResponse(
+            prometheus_text(services.monitor.snapshot()),
+            media_type="text/plain; version=0.0.4",
+        )
 
 
 def _trace_requests(app: FastAPI) -> None:

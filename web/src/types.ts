@@ -221,3 +221,37 @@ export type TurnUpdate =
   | { type: "gate"; index: number; gate: Gate }
   | { type: "stopped"; reason: string }
   | { type: "done" };
+
+// Drift monitoring (src/pac/monitoring)
+
+export type DriftStatus = "stable" | "moderate" | "major" | "insufficient";
+
+export interface FeatureDrift {
+  feature: string;
+  group: "input" | "output";
+  psi: number | null;
+  status: DriftStatus;
+  movers: [string, number, number][];
+  new: string[];
+}
+
+export interface DriftReport {
+  reference_events: number;
+  current_events: number;
+  status: DriftStatus;
+  features: FeatureDrift[];
+}
+
+export interface MonitoringSnapshot {
+  totals: {
+    events: number;
+    by_verdict: Record<string, number>;
+    by_kind: Record<string, number>;
+    errors: number;
+    latency_ms_sum: number;
+  };
+  window_events: number;
+  window_size: number;
+  has_reference: boolean;
+  drift: DriftReport | null;
+}

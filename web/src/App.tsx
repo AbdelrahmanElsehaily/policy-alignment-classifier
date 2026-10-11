@@ -1,14 +1,22 @@
 import { type JSX, useEffect, useState } from "react";
 
-import { api, isStaleServer } from "./api";
+import { api, isStalePage, isStaleServer } from "./api";
 import { ClassifyPanel } from "./components/ClassifyPanel";
 import { ConversationPanel } from "./components/ConversationPanel";
 import { ExamplesPanel } from "./components/ExamplesPanel";
+import { MonitoringPanel } from "./components/MonitoringPanel";
 import { PositionDemo } from "./components/PositionDemo";
 import { ResultsPanel } from "./components/ResultsPanel";
 import type { Health, LabeledCase } from "./types";
 
-const TABS = ["Examples", "Live conversation", "Classify an event", "Position demo", "Eval results"] as const;
+const TABS = [
+  "Examples",
+  "Live conversation",
+  "Classify an event",
+  "Position demo",
+  "Eval results",
+  "Monitoring",
+] as const;
 type Tab = (typeof TABS)[number];
 
 export function App() {
@@ -36,6 +44,7 @@ export function App() {
     "Classify an event": <ClassifyPanel cases={cases} />,
     "Position demo": <PositionDemo />,
     "Eval results": <ResultsPanel cases={cases} />,
+    Monitoring: <MonitoringPanel />,
   };
 
   return (
@@ -66,6 +75,12 @@ export function App() {
         <p className="error">
           The server is older than this page (API version {health.api_version ?? 1}, page expects a newer one), so
           some requests will fail. Restart <code>pac serve</code>.
+        </p>
+      )}
+      {health && isStalePage(health) && (
+        <p className="error">
+          This page is older than the server (it was loaded before the server was updated), so some requests will
+          fail. Reload the page.
         </p>
       )}
       {error && <p className="error">{error}</p>}

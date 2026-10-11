@@ -2,15 +2,18 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
 
+from pac.bootstrap import profile_of_run
 from pac.evaluation.application.run_eval import record_run, run_cases
 from pac.evaluation.domain.cases import LabeledCase
 from pac.evaluation.domain.run import RunConfig
+from pac.evaluation.infrastructure.case_store import load_cases
 from pac.evaluation.infrastructure.run_store import FileRunStore
 from pac.guardrail.application.llm_classifier import LLMClassifier
 from pac.guardrail.application.ports import LLMRequest
@@ -18,6 +21,7 @@ from pac.guardrail.application.prompting import PromptTemplate
 from pac.guardrail.domain.events import ClassificationRequest, TraceEvent
 from pac.guardrail.domain.policy import Policy
 from pac.interfaces.api import API_VERSION, create_app
+from pac.monitoring.infrastructure.exporters import save_profile
 from pac.settings import Settings
 from tests.support.builders import decision_json
 from tests.support.fakes import FakeBackend
@@ -220,3 +224,33 @@ def test_monitoring_counts_what_the_classifier_judged(client: TestClient) -> Non
     metrics = client.get("/metrics")
     assert metrics.headers["content-type"].startswith("text/plain")
     assert 'pac_classifications_total{verdict="violation"} 1' in metrics.text
+
+
+def test_drift_of_a_recorded_run(
+    settings: Settings, client: TestClient, policy: Policy, prompt: PromptTemplate
+) -> None:
+    assert client.get("/api/monitoring/runs/anything").status_code == 404  # no reference yet
+    cases = [c for c in load_cases(settings.cases_path) if c.split == "test"][:3]
+    classifier = LLMClassifier(FakeBackend(_responder), policy, prompt)
+    predictions = asyncio.run(run_cases(classifier, cases))
+    config = RunConfig(
+        run_id="r1",
+        created_at="2026-10-11T00:00:00+00:00",
+        classifier="fake",
+        backend="fake",
+        prompt_version=prompt.version,
+        policy_version="v0",
+        policy_sha256=policy.sha256,
+        dataset_sha256="0" * 64,
+        split="test",
+        n_cases=3,
+        repeats=1,
+        with_history=False,
+    )
+    record_run(FileRunStore(settings.results_dir / "runs"), config, predictions)
+    save_profile(profile_of_run(settings, "r1"), settings.monitoring_reference_path)
+
+    report = client.get("/api/monitoring/runs/r1").json()
+    assert report["current_events"] == 3
+    assert report["status"] == "insufficient"  # 3 events is too few to judge
+    assert client.get("/api/monitoring/runs/nope").status_code == 404

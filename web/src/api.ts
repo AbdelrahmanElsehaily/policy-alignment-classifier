@@ -4,9 +4,11 @@ import type {
   ClassificationRequest,
   ConversationSetup,
   DemoExample,
+  DriftReport,
   Engine,
   Health,
   LabeledCase,
+  MonitoringSnapshot,
   RunDetail,
   RunSummary,
   TurnRequest,
@@ -36,11 +38,16 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 export type { Engine };
 
 /** Must match API_VERSION in src/pac/interfaces/api.py. */
-export const API_VERSION = 3;
+export const API_VERSION = 4;
 
 /** A server started before the last API change, still running, serving this newer page. */
 export function isStaleServer(health: Health): boolean {
-  return health.api_version !== API_VERSION;
+  return (health.api_version ?? 1) < API_VERSION;
+}
+
+/** A page loaded before the server was updated (an open tab, or a cached page). */
+export function isStalePage(health: Health): boolean {
+  return (health.api_version ?? 1) > API_VERSION;
 }
 
 export const api = {
@@ -55,6 +62,8 @@ export const api = {
       body: JSON.stringify(body),
     }),
   conversation: () => request<ConversationSetup>("/api/conversation"),
+  monitoring: () => request<MonitoringSnapshot>("/api/monitoring"),
+  runDrift: (id: string) => request<DriftReport>(`/api/monitoring/runs/${encodeURIComponent(id)}`),
   /** One live turn; ``onUpdate`` sees each event and verdict as the server streams it. */
   turn: async (body: TurnRequest, onUpdate: (update: TurnUpdate) => void, signal?: AbortSignal) => {
     const response = await fetch("/api/conversation/turn", {

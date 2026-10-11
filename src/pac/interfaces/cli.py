@@ -21,9 +21,9 @@ from pac.bootstrap import (
     build_baseline,
     build_classifier,
     build_policy,
-    build_run_store,
     dataset_path,
     load_all_cases,
+    profile_of_run,
 )
 from pac.evaluation.application.ports import RunNotFound
 from pac.evaluation.application.reporting import fmt_rate
@@ -45,7 +45,6 @@ from pac.guardrail.domain.classification import EventClassifier
 from pac.guardrail.domain.events import ClassificationRequest
 from pac.guardrail.domain.policy import Policy
 from pac.monitoring.domain.drift import Profile, compare
-from pac.monitoring.domain.features import observe
 from pac.monitoring.infrastructure.exporters import load_profile, save_profile
 from pac.settings import BackendName, Settings
 from pac.telemetry import configure_logging, log_context
@@ -334,19 +333,10 @@ DRIFT_EXIT_CODE = 4
 
 
 def _profile_of_run(settings: Settings, run_id: str) -> Profile:
-    """The monitoring profile of a committed run: what it saw and what it said."""
-    store = build_run_store(settings)
     try:
-        saved = store.load(run_id)
+        return profile_of_run(settings, run_id)
     except RunNotFound as exc:
         raise _fail(str(exc)) from exc
-    by_id = {c.id: c for c in load_all_cases(settings)}
-    with_history = saved.config.with_history
-    return Profile.of(
-        observe(by_id[p.case_id].request_for(with_history=with_history), p.result)
-        for p in saved.predictions
-        if p.repeat == 0 and p.case_id in by_id
-    )
 
 
 @monitor_app.command("reference")
