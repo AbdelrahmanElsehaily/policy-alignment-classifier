@@ -241,7 +241,10 @@ before reading anything into it, I measured how much v2 disagrees with itself.
 - Every MiniMax number reported before this stage is one sampled run and carries a few points of
   run-to-run spread beyond its interval. The qwen numbers are repeatable.
 - Comparisons on MiniMax use repeated runs (`--repeats 3`) and report the spread, never a single
-  run. The first of these is MiniMax on test with history, three runs.
+  run. The first of these, MiniMax on test with history, scored **97, 96 and 97** of 114
+  (`20261011T214211Z_minimax-m3_test_history`): about the same accuracy as event-only (94–99), and
+  steadier across runs. With history, more labels are decided, so only 11 stay `policy_silent`, and
+  the model leaves 2 of those undecided.
 - A difference of a few points between two prompts or settings is not read as a result unless it
   holds across repeats.
 
