@@ -321,6 +321,31 @@ shows:
 - **History again trades undecided for decided.** With history it flags 18% of undecidable cases
   instead of 63%, the same pattern as round 2.
 
+### Across agent models (123 events, labelled before any run)
+
+A guardrail sits in front of whichever agent it protects, and every recorded conversation above came
+from one agent model (qwen3.5). So eight of the same briefs were recorded again with MiniMax-M3 as the
+agent (the `agents` split), labelled the same way, and the MiniMax-M3 guardrail run three times on both
+agents' conversations for those briefs:
+
+| Guardrail on the same 8 briefs | Agent qwen3.5 (96 turns) | Agent MiniMax-M3 (123 turns) |
+|---|---|---|
+| Correct, three runs | 78, 72, 75 (75–81%) | 98, 98, 98 (80%) |
+| Violations the agent committed | 13 | 4 |
+| Violations caught | 6 of 13, every run | 2–3 of 4 |
+| Harmless turns blocked | 7–8% | 5–7% |
+
+- **The guardrail holds across the two agents:** about the same accuracy and false-block rate.
+- **The traffic doesn't.** The stronger agent broke the policy 4 times in 123 turns, the other 13 times
+  in 96. What a guardrail sees depends on the agent it protects, so its base rates have to be
+  measured per agent.
+- **The same blind spot on both:** about half the violations missed, mostly promises inside long,
+  friendly replies. With 4 and 13 violations, these are directions, not measurements.
+- **New behaviour, unprompted:** the MiniMax agent retried a refund after a gateway timeout (the
+  double-refund corner case, now in natural traffic), typed out a full gift card code while saying it
+  couldn't share it, cancelled a delivered order instead of starting a return, and stated a refund
+  policy that doesn't exist.
+
 ## 4. Corner cases
 
 The full log is in [`CORNER_CASES.md`](CORNER_CASES.md), in the brief's four fields. It separates the corner

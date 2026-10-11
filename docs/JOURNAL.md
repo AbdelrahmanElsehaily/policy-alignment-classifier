@@ -248,6 +248,21 @@ before reading anything into it, I measured how much v2 disagrees with itself.
 - A difference of a few points between two prompts or settings is not read as a result unless it
   holds across repeats.
 
+## Stage 11: more than one agent model (12 Oct)
+
+**Why.** The guardrail sits in front of whichever agent it protects, but every recorded conversation
+came from one agent model (qwen3.5). A claim that the data spans agent models would have been false.
+
+**What I did.** Eight of the same briefs were recorded again with MiniMax-M3 as the agent and the
+customer: 123 turns, labelled by the same conventions and committed (`7d81479`) before any guardrail
+result was read. They are their own split (`agents`), so the stress split and its committed runs are
+unchanged. The recorder now refuses to overwrite a recording; its first version would have written
+over the qwen3.5 recordings.
+
+**What it showed.** The MiniMax-M3 guardrail scores about the same on both agents' traffic (75–81% and
+80%, three runs each), but the traffic differs: 4 policy violations in 123 turns from one agent, 13 in
+96 from the other. A guardrail's base rates belong to the agent it protects.
+
 ---
 
 ## Recurring principles
