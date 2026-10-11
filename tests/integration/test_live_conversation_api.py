@@ -67,6 +67,8 @@ def test_setup_lists_customers_and_suggestions(client: TestClient) -> None:
     customers = {c["customer_id"] for c in setup["customers"]}
     assert len(setup["suggestions"]) >= 8
     assert all(s["verify_as"] in customers | {None} for s in setup["suggestions"])
+    # A short featured set up front; the rest are one click away.
+    assert 4 <= sum(s["featured"] for s in setup["suggestions"]) <= 8
 
 
 def test_a_turn_streams_events_verdicts_and_gates(client: TestClient) -> None:

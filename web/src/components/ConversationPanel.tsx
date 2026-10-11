@@ -66,6 +66,7 @@ export function ConversationPanel() {
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showAll, setShowAll] = useState(false);
   const abort = useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -113,6 +114,12 @@ export function ConversationPanel() {
     setNotice(null);
     setError(null);
   }
+
+  const all = setup?.suggestions ?? [];
+  const featured = all.filter((s) => s.featured);
+  // An older server marks none as featured: show them all rather than nothing.
+  const shown = showAll || featured.length === 0 ? all : featured;
+  const hidden = featured.length === 0 ? 0 : all.length - featured.length;
 
   function start(suggestion: Suggestion) {
     reset();
@@ -169,11 +176,16 @@ export function ConversationPanel() {
       </p>
 
       <div className="suggestions">
-        {setup?.suggestions.map((s) => (
+        {shown.map((s) => (
           <button key={s.label} className="chip" title={s.exercises} onClick={() => start(s)} disabled={busy}>
             {s.label}
           </button>
         ))}
+        {hidden > 0 && (
+          <button className="chip more-chip" onClick={() => setShowAll((v) => !v)}>
+            {showAll ? "Fewer scenarios" : `More scenarios (${hidden})`}
+          </button>
+        )}
       </div>
 
       <div className="transcript">

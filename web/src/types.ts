@@ -187,6 +187,8 @@ export interface Suggestion {
   message: string;
   verify_as: string | null;
   exercises: string;
+  /** Missing on older servers, which then show every scenario. */
+  featured?: boolean;
 }
 
 export interface ConversationSetup {
