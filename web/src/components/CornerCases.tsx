@@ -1,3 +1,4 @@
+import { titleOf } from "../caseTitles";
 import { CORNER_CASES } from "../cornerCases";
 
 interface Props {
@@ -41,15 +42,17 @@ export function CornerCases({ known, onTry }: Props) {
               </p>
               <div className="row compact">
                 <span className="small">
-                  <code>docs/CORNER_CASES.md</code> #{c.id} · Eval cases:
+                  Eval cases:
                 </span>
                 {c.cases.map((id) =>
                   known.has(id) ? (
                     <button key={id} className="chip" onClick={() => onTry(id)} title="Open it in Try it">
-                      {id} ▸
+                      {titleOf(id)} ▸
                     </button>
                   ) : (
-                    <code key={id}>{id}</code>
+                    <span key={id} className="small">
+                      {titleOf(id)}
+                    </span>
                   ),
                 )}
               </div>

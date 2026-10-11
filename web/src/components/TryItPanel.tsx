@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { api } from "../api";
+import { titleOf } from "../caseTitles";
 import { SESSIONS, eventForKind, parseArguments, sessionName } from "../format";
 import { KIND_LABELS, type Draft, draftOf, expectedFor, notRecorded, positionText } from "../tryit";
 import {
@@ -185,7 +186,9 @@ export function TryItPanel({ cases, health, request }: Props) {
               ))}
             </optgroup>
             {loaded && !examples.some((e) => e.case.id === loaded.case.id) && (
-              <option value={`case:${loaded.case.id}`}>Eval case {loaded.case.id}</option>
+              <option value={`case:${loaded.case.id}`}>
+                {titleOf(loaded.case.id)}
+              </option>
             )}
           </select>
         </label>

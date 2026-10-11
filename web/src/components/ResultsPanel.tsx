@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useMemo, useState } from "react";
 
 import { api } from "../api";
+import { titleOf } from "../caseTitles";
 import { describeEvent, ms } from "../format";
 import {
   contextOf,
@@ -333,7 +334,7 @@ function Mistakes({ predictions, caseById }: { predictions: Prediction[]; caseBy
                       title="Click to see the event and both explanations"
                     >
                       <td>
-                        {isOpen ? "▾" : "▸"} <code>{p.case_id}</code>
+                        {isOpen ? "▾" : "▸"} {titleOf(p.case_id)}
                       </td>
                       <td className="small">
                         <code>{p.kind}</code> · {contextOf(c)}
