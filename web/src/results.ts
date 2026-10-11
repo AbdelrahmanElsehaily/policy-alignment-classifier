@@ -34,9 +34,16 @@ export const SPLITS: Record<string, SplitInfo> = {
     comparable:
       "Chosen to be hard and mostly natural traffic. Related cases share a template, so the honest range is the template range.",
   },
+  agents: {
+    title: "Other agent",
+    about:
+      "8 of the same briefs, recorded with a different agent model (MiniMax-M3) playing the support agent, so the guardrail is measured on more than one agent's traffic.",
+    comparable:
+      "Compare with the same briefs in Stress (recorded with qwen3.5 as the agent). Events within a conversation are related.",
+  },
 };
 
-export const SPLIT_ORDER = ["test", "dev", "hard", "stress"];
+export const SPLIT_ORDER = ["test", "dev", "hard", "stress", "agents"];
 
 const CLASSIFIERS: Record<string, string> = {
   "regex-baseline": "Regex baseline (flat text)",

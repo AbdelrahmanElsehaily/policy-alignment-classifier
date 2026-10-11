@@ -11,6 +11,7 @@ data/builders/build_stress_cases.py, and recordings are never edited to fit them
 
 from __future__ import annotations
 
+import argparse
 import asyncio
 import json
 import logging
@@ -29,13 +30,13 @@ logger = logging.getLogger("pac.scripts.record_conversations")
 RECORDINGS = REPO_ROOT / "data" / "sources" / "recordings"
 
 
-async def record(brief: CustomerBrief, settings: Settings) -> Path:
+async def record(brief: CustomerBrief, settings: Settings, out_dir: Path) -> Path:
     agent = build_agent(settings)
     customer = SimulatedCustomer(build_backend(settings, use_cache=False))
     office = BackOffice.seeded()
     emails = {c.customer_id: c.email for c in office.customers()}
     recording = await record_conversation(brief, customer, agent, office, emails)
-    out = RECORDINGS / f"{brief.id}.json"
+    out = out_dir / f"{brief.id}.json"
     payload = {
         "brief": {
             "id": brief.id,
@@ -59,7 +60,7 @@ async def record(brief: CustomerBrief, settings: Settings) -> Path:
     return out
 
 
-async def main(ids: list[str]) -> None:
+async def main(ids: list[str], out_dir: Path, *, force: bool = False) -> None:
     settings = Settings(live=True)
     briefs = [
         CustomerBrief(**b) for b in json.loads((RECORDINGS / "briefs.json").read_text("utf-8"))
@@ -67,8 +68,12 @@ async def main(ids: list[str]) -> None:
     for brief in briefs:
         if ids and brief.id not in ids:
             continue
+        if (out_dir / f"{brief.id}.json").exists() and not force:
+            # Recordings are evidence: labelled data is built from them, so never overwrite one.
+            logger.warning("already recorded; skipped", extra={"recording": brief.id})
+            continue
         with log_context(recording=brief.id):
-            out = await record(brief, settings)
+            out = await record(brief, settings, out_dir)
             raw = json.loads(out.read_text("utf-8"))
             logger.info(
                 "recorded",
@@ -81,5 +86,17 @@ async def main(ids: list[str]) -> None:
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Record conversations from the briefs.")
+    parser.add_argument("ids", nargs="*", help="brief ids (default: all)")
+    parser.add_argument(
+        "--out-dir",
+        type=Path,
+        default=RECORDINGS,
+        help="where to write (e.g. a folder per agent model)",
+    )
+    parser.add_argument("--force", action="store_true", help="overwrite existing recordings")
+    args = parser.parse_args(sys.argv[1:])
     configure_logging(Settings().log_level, Settings().log_format)
-    asyncio.run(main(sys.argv[1:]))
+    out_dir = args.out_dir.resolve()
+    out_dir.mkdir(parents=True, exist_ok=True)
+    asyncio.run(main(args.ids, out_dir, force=args.force))

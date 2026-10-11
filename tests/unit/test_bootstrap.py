@@ -75,7 +75,7 @@ def test_each_split_reads_its_own_dataset_file(tmp_path: Path) -> None:
 
 def test_all_cases_spans_both_files_with_unique_ids() -> None:
     cases = load_all_cases(Settings())
-    assert {c.split for c in cases} == {"dev", "test", "hard", "stress"}
+    assert {c.split for c in cases} == {"dev", "test", "hard", "stress", "agents"}
     assert len({c.id for c in cases}) == len(cases)
 
 

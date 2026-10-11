@@ -51,6 +51,7 @@ class Settings(BaseSettings):
     cases_path: Path = REPO_ROOT / "data" / "eval" / "dev_test.jsonl"
     hard_cases_path: Path = REPO_ROOT / "data" / "eval" / "hard.jsonl"
     stress_cases_path: Path = REPO_ROOT / "data" / "eval" / "stress.jsonl"
+    agents_cases_path: Path = REPO_ROOT / "data" / "eval" / "agents.jsonl"
     examples_path: Path = REPO_ROOT / "data" / "ui" / "demo_examples.json"
     # The live conversation's simulated agent: its instructions, and an optional different
     # model to play it (same backend). Unset, the classifier's model plays both roles.

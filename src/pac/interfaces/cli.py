@@ -98,6 +98,7 @@ class SplitOption(StrEnum):
     test = "test"
     hard = "hard"
     stress = "stress"
+    agents = "agents"
     all = "all"  # dev + test (hard and stress are run on their own)
 
 
@@ -248,6 +249,7 @@ _SPLITS: dict[SplitOption, Split] = {
     SplitOption.test: "test",
     SplitOption.hard: "hard",
     SplitOption.stress: "stress",
+    SplitOption.agents: "agents",
 }
 
 
@@ -323,7 +325,7 @@ def check_data() -> None:
     by_split = Counter(c.split for c in cases)
     typer.echo(
         f"OK: {len(cases)} cases ({by_split['dev']} dev, {by_split['test']} test, "
-        f"{by_split['hard']} hard, {by_split['stress']} stress)"
+        f"{by_split['hard']} hard, {by_split['stress']} stress, {by_split['agents']} agents)"
     )
 
 

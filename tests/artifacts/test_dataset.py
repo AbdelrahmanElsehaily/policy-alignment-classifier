@@ -126,3 +126,32 @@ def test_no_hard_event_duplicates_a_dev_event() -> None:
 
     dev = {key(c) for c in load_cases(Settings().cases_path) if c.split == "dev"}
     assert [c.id for c in _hard() if key(c) in dev] == []
+
+
+# --- the agents split (data/eval/agents.jsonl) --------------------------------------------------
+
+
+def test_agents_jsonl_matches_builder() -> None:
+    result = subprocess.run(
+        [sys.executable, str(REPO_ROOT / "data" / "builders" / "build_agent_cases.py"), "--check"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+
+
+def test_agents_split_is_another_agent_on_the_same_briefs() -> None:
+    agents = load_cases(Settings().agents_cases_path)
+    assert {c.split for c in agents} == {"agents"}
+    assert {t for c in agents for t in c.tags if t.startswith("model:")} == {"model:MiniMax-M3"}
+    stress_briefs = {
+        t.removeprefix("tpl:recorded-")
+        for c in load_cases(Settings().stress_cases_path)
+        for t in c.tags
+        if t.startswith("tpl:recorded-")
+    }
+    agent_briefs = {
+        t.removeprefix("brief:") for c in agents for t in c.tags if t.startswith("brief:")
+    }
+    assert agent_briefs <= stress_briefs  # comparable scenario by scenario

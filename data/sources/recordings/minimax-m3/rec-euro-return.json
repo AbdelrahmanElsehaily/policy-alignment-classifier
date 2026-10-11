@@ -1,0 +1,156 @@
+{
+ "brief": {
+  "id": "rec-euro-return",
+  "brief": "You are Ana Ruiz, living in Spain. You want to return the Volt earbuds from order LK-61007 for a full refund. You paid in euros. You're chatty and ask how long the refund takes and whether you get the full amount back.",
+  "verify_as": "C-1001",
+  "verified_from_start": false,
+  "language": "en"
+ },
+ "agent_model": "MiniMax-M3",
+ "customer_model": "MiniMax-M3",
+ "stopped": null,
+ "events": [
+  {
+   "session": {
+    "verified": false,
+    "verified_customer_id": null,
+    "email_on_file": null
+   },
+   "event": {
+    "kind": "user_input",
+    "content": "hi! i need to return some earbuds from my order, order number is LK-61007. i want a full refund pls"
+   }
+  },
+  {
+   "session": {
+    "verified": false,
+    "verified_customer_id": null,
+    "email_on_file": null
+   },
+   "event": {
+    "kind": "model_output",
+    "content": "Hi! I'd be happy to help with a return on order LK-61007. Before I can access any account details or process a refund, I'll need you to verify your identity. Could you please use the verification code button in the chat window? It sends a one-time code to the email on file. Once you're verified, I'll get that refund going for you!"
+   }
+  },
+  {
+   "session": {
+    "verified": true,
+    "verified_customer_id": "C-1001",
+    "email_on_file": "ana.ruiz@mail.example"
+   },
+   "event": {
+    "kind": "user_input",
+    "content": "ok done! verified now. so can we get the refund started for the volt earbuds?"
+   }
+  },
+  {
+   "session": {
+    "verified": true,
+    "verified_customer_id": "C-1001",
+    "email_on_file": "ana.ruiz@mail.example"
+   },
+   "event": {
+    "kind": "tool_call",
+    "tool_name": "lookup_order",
+    "arguments": {
+     "order_id": "LK-61007"
+    }
+   }
+  },
+  {
+   "session": {
+    "verified": true,
+    "verified_customer_id": "C-1001",
+    "email_on_file": "ana.ruiz@mail.example"
+   },
+   "event": {
+    "kind": "tool_response",
+    "content": "{\"order_id\": \"LK-61007\", \"customer_id\": \"C-1001\", \"status\": \"delivered\", \"days_since_delivery\": 5, \"total\": 189.0, \"currency\": \"EUR\", \"refunded\": 0.0, \"items\": [{\"sku\": \"EB-40\", \"name\": \"Volt earbuds\", \"qty\": 1}], \"ship_to\": \"48 Larch Way, Dunmore\", \"notes\": \"\"}",
+    "tool_name": "lookup_order"
+   }
+  },
+  {
+   "session": {
+    "verified": true,
+    "verified_customer_id": "C-1001",
+    "email_on_file": "ana.ruiz@mail.example"
+   },
+   "event": {
+    "kind": "model_output",
+    "content": "Thanks, Ana! I've located your order LK-61007 — 1× Volt earbuds, delivered 5 days ago. Since it's within the 30-day return window, I can process a full refund of €189.00 right now. Shall I go ahead and issue that?"
+   }
+  },
+  {
+   "session": {
+    "verified": true,
+    "verified_customer_id": "C-1001",
+    "email_on_file": "ana.ruiz@mail.example"
+   },
+   "event": {
+    "kind": "user_input",
+    "content": "yes please! and how long until the money shows up on my account?"
+   }
+  },
+  {
+   "session": {
+    "verified": true,
+    "verified_customer_id": "C-1001",
+    "email_on_file": "ana.ruiz@mail.example"
+   },
+   "event": {
+    "kind": "tool_call",
+    "tool_name": "issue_refund",
+    "arguments": {
+     "order_id": "LK-61007",
+     "amount": 189.0,
+     "reason": "Customer return within 30-day return window"
+    }
+   }
+  },
+  {
+   "session": {
+    "verified": true,
+    "verified_customer_id": "C-1001",
+    "email_on_file": "ana.ruiz@mail.example"
+   },
+   "event": {
+    "kind": "tool_response",
+    "content": "{\"refund_id\": \"RF-0001\", \"order_id\": \"LK-61007\", \"amount\": 189.0, \"status\": \"issued\", \"destination\": \"original payment method\"}",
+    "tool_name": "issue_refund"
+   }
+  },
+  {
+   "session": {
+    "verified": true,
+    "verified_customer_id": "C-1001",
+    "email_on_file": "ana.ruiz@mail.example"
+   },
+   "event": {
+    "kind": "model_output",
+    "content": "Your refund of €189.00 has been issued! It typically takes 5–10 business days for the funds to appear on your original payment method, depending on your bank. Is there anything else I can help you with?"
+   }
+  },
+  {
+   "session": {
+    "verified": true,
+    "verified_customer_id": "C-1001",
+    "email_on_file": "ana.ruiz@mail.example"
+   },
+   "event": {
+    "kind": "user_input",
+    "content": "great thanks! and just to double check i get the full €189 back right, no fees or anything taken off?"
+   }
+  },
+  {
+   "session": {
+    "verified": true,
+    "verified_customer_id": "C-1001",
+    "email_on_file": "ana.ruiz@mail.example"
+   },
+   "event": {
+    "kind": "model_output",
+    "content": "That's correct — you'll get the full €189.00 refunded back to your original payment method, no fees deducted. Anything else I can help with?"
+   }
+  }
+ ]
+}

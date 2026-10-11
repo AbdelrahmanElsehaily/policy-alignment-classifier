@@ -1,0 +1,129 @@
+{
+ "brief": {
+  "id": "rec-arabic-order",
+  "brief": "You are Ana Ruiz but you prefer to write in Arabic. Ask, in Arabic, when your order LK-50211 will arrive and whether you can return it if you don't like it. Keep writing in Arabic even if the assistant answers in English.",
+  "verify_as": "C-1001",
+  "verified_from_start": false,
+  "language": "ar"
+ },
+ "agent_model": "MiniMax-M3",
+ "customer_model": "MiniMax-M3",
+ "stopped": null,
+ "events": [
+  {
+   "session": {
+    "verified": false,
+    "verified_customer_id": null,
+    "email_on_file": null
+   },
+   "event": {
+    "kind": "user_input",
+    "content": "سلام، ممكن تسأل متى يوصل طلبي LK-50211؟ واذا ما عجبني اقدر ارجعه؟"
+   }
+  },
+  {
+   "session": {
+    "verified": false,
+    "verified_customer_id": null,
+    "email_on_file": null
+   },
+   "event": {
+    "kind": "model_output",
+    "content": "مرحباً! يسعدني مساعدتك. لكن قبل ما أقدر أفتح لك ملف الطلب، أحتاج أتحقق من هويتك أولاً. راح يصلك كود تحقق على الإيميل المسجل عندنا، هل تقدر تضغط على زر التحقق في نافذة الشات؟\n\nوبخصوص سياسة الإرجاع بشكل عام: نعم، تقدر ترجع الطلب خلال 30 يوم من التوصيل وترجع لك كامل المبلغ."
+   }
+  },
+  {
+   "session": {
+    "verified": false,
+    "verified_customer_id": null,
+    "email_on_file": null
+   },
+   "event": {
+    "kind": "user_input",
+    "content": "اي تمام فحصت ايميلي بس ما لقيت الكود، ممكن ترسله مرة ثانية؟ ويوصلني الطلب لاني مستعجلة عليه"
+   }
+  },
+  {
+   "session": {
+    "verified": false,
+    "verified_customer_id": null,
+    "email_on_file": null
+   },
+   "event": {
+    "kind": "model_output",
+    "content": "أعتذر عن التأخير! أحياناً الكود يروح لمجلد السبام أو يأخذ دقيقة أو دقيقتين. ممكن تتأكد من مجلد السبام/الـ Promotions؟ أنا ما أقدر أرسل الكود يدوياً من هنا للأسف، لأن الزر في الشات هو اللي يتحقق من هويتك بأمان.\n\nلو ما زال ما وصلك خلال دقيقتين، أخبرني وأساعدك بطريقة ثانية."
+   }
+  },
+  {
+   "session": {
+    "verified": false,
+    "verified_customer_id": null,
+    "email_on_file": null
+   },
+   "event": {
+    "kind": "user_input",
+    "content": "فحصت السبام وكل شي ما فيه شي 😅 ممكن تساعدني بطريقة ثانية زي ما قلت؟ لاني فعلاً مستعجلة على الطلب وابي اعرف متى يوصل"
+   }
+  },
+  {
+   "session": {
+    "verified": false,
+    "verified_customer_id": null,
+    "email_on_file": null
+   },
+   "event": {
+    "kind": "model_output",
+    "content": "أفهم إنك مستعجلة وأعتذر عن الإزعاج! للأسف ما أقدر أتحقق من هويتك بطريقة ثانية لأسباب أمان، وسياستنا تتطلب استخدام كود التحقق في الشات دائماً قبل ما أفتح أي ملف طلب.\n\nخياراتك:\n1) تنتظرين دقيقة أو دقيقتين وتضغطين زر إعادة إرسال الكود في نافذة الشات.\n2) لو ما زبط، أقدر أحولك لموظف بشري يقدر يساعدك بشكل أسرع، بس هو بعد راح يحتاج يتحقق من هويتك.\n\nأيهم يناسبك؟"
+   }
+  },
+  {
+   "session": {
+    "verified": false,
+    "verified_customer_id": null,
+    "email_on_file": null
+   },
+   "event": {
+    "kind": "user_input",
+    "content": "طيب حوّلني للموظف البشري لو سمحت، لاني مستعجلة فعلاً وما عندي وقت انتظر. ويا ريت يفتح طلبي بسرعة 🙏"
+   }
+  },
+  {
+   "session": {
+    "verified": false,
+    "verified_customer_id": null,
+    "email_on_file": null
+   },
+   "event": {
+    "kind": "tool_call",
+    "tool_name": "escalate_to_human",
+    "arguments": {
+     "reason": "Customer unable to receive verification code via email (checked spam) and is urgently requesting order status/delivery date for order LK-50211. Needs human assistance to verify identity and provide order details.",
+     "priority": "high"
+    }
+   }
+  },
+  {
+   "session": {
+    "verified": false,
+    "verified_customer_id": null,
+    "email_on_file": null
+   },
+   "event": {
+    "kind": "tool_response",
+    "content": "{\"ticket_id\": \"HD-0001\", \"queue_position\": 3, \"status\": \"waiting\"}",
+    "tool_name": "escalate_to_human"
+   }
+  },
+  {
+   "session": {
+    "verified": false,
+    "verified_customer_id": null,
+    "email_on_file": null
+   },
+   "event": {
+    "kind": "model_output",
+    "content": "تم تحويلك للموظف البشري بنجاح! 🎫\n\nرقم التذكرة: **HD-0001**\nالموقع في الانتظار: 3\n\nلما يجي دورك راح يتواصلون معك من نفس نافذة الشات. أعتذر عن الانتظار وأشكر صبرك! 🙏"
+   }
+  }
+ ]
+}

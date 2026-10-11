@@ -145,11 +145,13 @@ def build_agent(settings: Settings) -> SimulatedAgent:
 
 
 def dataset_path(settings: Settings, split: Split | None) -> Path:
-    """The file holding a split: hard and stress have their own; dev and test share one."""
+    """The file holding a split: dev and test share one; every later split has its own."""
     if split == "hard":
         return settings.hard_cases_path
     if split == "stress":
         return settings.stress_cases_path
+    if split == "agents":
+        return settings.agents_cases_path
     return settings.cases_path
 
 
@@ -164,7 +166,12 @@ _FORMER_NAMES = {
 def dataset_file(settings: Settings, name: str) -> Path:
     """The dataset a run measured, from the file name in its config (current or former)."""
     wanted = _FORMER_NAMES.get(name, name)
-    for path in (settings.cases_path, settings.hard_cases_path, settings.stress_cases_path):
+    for path in (
+        settings.cases_path,
+        settings.hard_cases_path,
+        settings.stress_cases_path,
+        settings.agents_cases_path,
+    ):
         if path.name == wanted:
             return path
     raise FileNotFoundError(f"no dataset file named {name}")
@@ -173,7 +180,7 @@ def dataset_file(settings: Settings, name: str) -> Path:
 def load_all_cases(settings: Settings) -> list[LabeledCase]:
     """Every labelled case from every dataset file, with ids unique across files."""
     cases = load_cases(settings.cases_path)
-    for extra in (settings.hard_cases_path, settings.stress_cases_path):
+    for extra in (settings.hard_cases_path, settings.stress_cases_path, settings.agents_cases_path):
         if extra.exists():
             cases += load_cases(extra)
     ensure_unique_ids(cases)
