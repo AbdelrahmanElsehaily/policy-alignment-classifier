@@ -117,6 +117,7 @@ build.
 | [`results/runs/`](results/runs/) | Committed eval runs |
 | [`web/`](web/) | One-page React app |
 | [`docs/WRITEUP.md`](docs/WRITEUP.md) | Reasoning, assumptions, results, limitations |
+| [`docs/JOURNAL.md`](docs/JOURNAL.md) | How the classifier and its evaluation evolved, stage by stage, including reversals |
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Where the guardrail sits (man in the middle), bounded contexts, layers, enforced dependency rules |
 | [`docs/CORNER_CASES.md`](docs/CORNER_CASES.md) | What the policy does not decide, and what to do about it |
 | [`docs/LABELING.md`](docs/LABELING.md) | Labelling conventions and who labelled |

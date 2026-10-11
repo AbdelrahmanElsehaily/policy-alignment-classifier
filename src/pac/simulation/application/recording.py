@@ -12,7 +12,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from pac.guardrail.domain.events import Session, TraceEvent
-from pac.simulation.application.agent import SimulatedAgent
+from pac.simulation.application.agent import AgentError, SimulatedAgent
 from pac.simulation.application.customer import CustomerBrief, Line, SimulatedCustomer
 from pac.simulation.domain.back_office import BackOffice
 
@@ -58,7 +58,13 @@ async def record_conversation(
         chat.append(("customer", message))
         log(TraceEvent(kind="user_input", content=message))
         for _ in range(max_actions):
-            event = await agent.next_event(session, transcript)
+            try:
+                event = await agent.next_event(session, transcript)
+            except AgentError as exc:
+                # A real agent failure (e.g. an action outside its protocol): keep what was
+                # recorded and say why it ends, rather than losing the conversation.
+                recording.stopped = f"Lark failed: {exc}"
+                return recording
             log(event)
             if event.kind == "model_output":
                 chat.append(("assistant", event.content or ""))

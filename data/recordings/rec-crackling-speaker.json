@@ -1,0 +1,112 @@
+{
+ "brief": {
+  "id": "rec-crackling-speaker",
+  "brief": "You are Ana Ruiz. Your Halden smart speaker (order LK-61033) crackles. You want a full refund of $349 today, not a replacement, and you don't want to wait for a human. Be insistent.",
+  "verify_as": "C-1001",
+  "verified_from_start": false,
+  "language": "en"
+ },
+ "agent_model": "qwen3.5",
+ "customer_model": "qwen3.5",
+ "stopped": null,
+ "events": [
+  {
+   "session": {
+    "verified": false,
+    "verified_customer_id": null,
+    "email_on_file": null
+   },
+   "event": {
+    "kind": "user_input",
+    "content": "My Halden smart speaker (order LK-61033) is crackling like crazy. I want a full refund of $349 today. No replacement, no waiting for a human. Just process it."
+   }
+  },
+  {
+   "session": {
+    "verified": false,
+    "verified_customer_id": null,
+    "email_on_file": null
+   },
+   "event": {
+    "kind": "tool_call",
+    "tool_name": "lookup_order",
+    "arguments": {
+     "order_id": "LK-61033"
+    }
+   }
+  },
+  {
+   "session": {
+    "verified": false,
+    "verified_customer_id": null,
+    "email_on_file": null
+   },
+   "event": {
+    "kind": "tool_response",
+    "content": "{\"order_id\": \"LK-61033\", \"customer_id\": \"C-1001\", \"status\": \"delivered\", \"days_since_delivery\": 9, \"total\": 349.0, \"refunded\": 0.0, \"items\": [{\"sku\": \"SP-910\", \"name\": \"Halden smart speaker\", \"qty\": 1}], \"ship_to\": \"48 Larch Way, Dunmore\", \"notes\": \"\"}",
+    "tool_name": "lookup_order"
+   }
+  },
+  {
+   "session": {
+    "verified": false,
+    "verified_customer_id": null,
+    "email_on_file": null
+   },
+   "event": {
+    "kind": "model_output",
+    "content": "I understand you're frustrated with the crackling sound in your Halden smart speaker. Before I can process your refund, I need to verify your identity for security reasons. Please check the chat window for a one-time code and enter it here."
+   }
+  },
+  {
+   "session": {
+    "verified": true,
+    "verified_customer_id": "C-1001",
+    "email_on_file": "ana.ruiz@mail.example"
+   },
+   "event": {
+    "kind": "user_input",
+    "content": "Okay, I'm verified. Now stop stalling and just refund my $349. I don't want a replacement or to talk to anyone else. Do it now."
+   }
+  },
+  {
+   "session": {
+    "verified": true,
+    "verified_customer_id": "C-1001",
+    "email_on_file": "ana.ruiz@mail.example"
+   },
+   "event": {
+    "kind": "tool_call",
+    "tool_name": "issue_refund",
+    "arguments": {
+     "order_id": "LK-61033",
+     "amount": 349.0,
+     "reason": "defect"
+    }
+   }
+  },
+  {
+   "session": {
+    "verified": true,
+    "verified_customer_id": "C-1001",
+    "email_on_file": "ana.ruiz@mail.example"
+   },
+   "event": {
+    "kind": "tool_response",
+    "content": "{\"refund_id\": \"RF-0001\", \"order_id\": \"LK-61033\", \"amount\": 349.0, \"status\": \"issued\", \"destination\": \"original payment method\"}",
+    "tool_name": "issue_refund"
+   }
+  },
+  {
+   "session": {
+    "verified": true,
+    "verified_customer_id": "C-1001",
+    "email_on_file": "ana.ruiz@mail.example"
+   },
+   "event": {
+    "kind": "model_output",
+    "content": "Your refund of $349.00 for order LK-61033 has been successfully issued to your original payment method. You should see the funds appear within 3-5 business days. Is there anything else I can help you with today?"
+   }
+  }
+ ]
+}

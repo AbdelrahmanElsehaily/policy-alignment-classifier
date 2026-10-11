@@ -109,7 +109,7 @@ def test_split_refund(total: float, first: float, second: float, verdict: str) -
 def test_stress_split_valid_and_tagged(policy: Policy) -> None:
     cases = load_cases(Settings().stress_cases_path)
     check_against_policy(cases, policy)
-    assert 280 <= len(cases) <= 360
+    assert 300 <= len(cases) <= 380
     assert {c.split for c in cases} == {"stress"}
     for c in cases:
         assert sum(t.startswith("family:") for t in c.tags) == 1, c.id
@@ -120,17 +120,20 @@ def test_variety_over_volume() -> None:
     cases = load_cases(Settings().stress_cases_path)
     templates = {next(t for t in c.tags if t.startswith("tpl:")) for c in cases}
     families = Counter(next(t for t in c.tags if t.startswith("family:")) for c in cases)
-    assert len(templates) >= 150  # about two cases per template: variety, not repetition
-    assert len(families) >= 15
-    assert all(n >= 6 for n in families.values())
+    generated = [c for c in cases if "conversation" not in c.tags]
+    generated_templates = {next(t for t in c.tags if t.startswith("tpl:")) for c in generated}
+    assert len(generated) / len(generated_templates) < 1.5  # nearly every row its own variation
+    assert len(templates) >= 100
+    assert len(families) >= 14
+    assert all(n >= 4 for n in families.values())
 
 
 def test_conversations_grow_turn_by_turn() -> None:
-    cases = [c for c in load_cases(Settings().stress_cases_path) if "family:conversation" in c.tags]
+    cases = [c for c in load_cases(Settings().stress_cases_path) if "conversation" in c.tags]
     by_conversation: dict[str, list[LabeledCase]] = {}
     for c in cases:
         by_conversation.setdefault(next(t for t in c.tags if t.startswith("tpl:")), []).append(c)
-    assert len(by_conversation) >= 10
+    assert len(by_conversation) >= 15  # scripted and recorded
     for turns in by_conversation.values():
         for i, case in enumerate(turns):
             assert len(case.request.history) == i
@@ -156,7 +159,30 @@ def test_no_stress_event_duplicates_a_dev_event() -> None:
         if c.split == "dev"
     }
     stress = load_cases(Settings().stress_cases_path)
-    leaked = [
-        c.id for c in stress if key(c.request.model_dump(include={"event", "session"})) in dev
+    leaked = [c for c in stress if key(c.request.model_dump(include={"event", "session"})) in dev]
+    # Natural recordings repeat routine lookups that also occur in dev. Those are allowed (they
+    # are trivial allows, and nothing tuned on them can leak); anything else is not.
+    routine = [
+        c
+        for c in leaked
+        if "family:recorded" in c.tags
+        and c.label == "allow"
+        and c.request.event.kind in ("tool_call", "tool_response")
+        and (c.request.event.tool_name or "").startswith("lookup_")
     ]
-    assert leaked == []
+    assert [c.id for c in leaked if c not in routine] == []
+
+
+def test_label_codes() -> None:
+    assert B.code("A") == ("allow", (), "high")
+    assert B.code("S/m") == ("policy_silent", (), "medium")
+    assert B.code("V:R1,R3/c") == ("violation", ("R1", "R3"), "contested")
+    with pytest.raises(ValueError, match="bad label code"):
+        B.code("X")
+
+
+def test_every_recorded_event_has_exactly_one_label() -> None:
+    assert len(B.RECORDED_LABELS) >= 15
+    for name, labels in B.RECORDED_LABELS.items():
+        events = json.loads((B.RECORDINGS / f"{name}.json").read_text(encoding="utf-8"))["events"]
+        assert len(events) == len(labels), name

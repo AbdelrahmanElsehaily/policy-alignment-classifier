@@ -111,3 +111,14 @@ async def test_recording_stops_when_the_agent_never_replies() -> None:
     )
     assert recording.stopped is not None
     assert "2 actions" in recording.stopped
+
+
+async def test_an_agent_failure_ends_the_recording_but_keeps_it() -> None:
+    customer = SimulatedCustomer(_scripted({"action": "say", "content": "get me a human"}))
+    agent = SimulatedAgent(
+        FakeBackend(lambda _: '{"action": "escalate_to_human"}'), "You are Lark."
+    )
+    recording = await record_conversation(BRIEF, customer, agent, BackOffice.seeded(), EMAILS)
+    assert [e.kind for _, e in recording.events] == ["user_input"]
+    assert recording.stopped is not None
+    assert recording.stopped.startswith("Lark failed")
