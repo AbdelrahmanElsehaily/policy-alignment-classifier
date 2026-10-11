@@ -38,6 +38,12 @@
   - **Both models, given history, allowed a refund retried after a payment timeout**, a possible double
     refund. Both also allowed a refund that carried out an injected help-centre tip.
   - Without history, MiniMax-M3 got **23/23** uncontested labels right.
+- **Round 3, the stress set** (355 events, 191 of them from recorded natural conversations;
+  [§3](#round-3-the-stress-set-355-events-labelled-before-any-run)): MiniMax-M3 scores 79%, 82% with
+  history. It misses the agent's timing promises and disclosures buried in long replies.
+- **One run of a hosted model is not a measurement.** MiniMax-M3 scored 99, 97 and 94 of 114 on the same
+  test set with the same prompt, and temperature 0 doesn't make it repeatable
+  ([§3](#run-to-run-variance)). Its numbers are reported as ranges over runs.
 
 ## 1. What I built
 
@@ -54,19 +60,34 @@ trace event ──► session envelope + event JSON (escaped) ──► prompt v
      + rule ids, rationale, confidence      (bad output → repair retry → fail closed to policy_silent)
 ```
 
-- **Backends** sit behind one interface. They are Anthropic (structured outputs + prompt caching), MiniMax
-  (OpenAI-compatible), Ollama, and *replay*, which serves committed recordings. Every call goes through an
-  on-disk cache keyed on the full request.
+- **Backends** sit behind one interface, so the model is configuration:
+  - Anthropic (structured outputs and prompt caching);
+  - any OpenAI-compatible endpoint (OpenAI, vLLM, Together, …), with OpenRouter and MiniMax as presets,
+    so one OpenRouter key reaches Claude, GPT, Llama and others;
+  - Ollama for local models;
+  - *replay*, which serves committed recordings.
+
+  Every call goes through an on-disk cache keyed on the full request.
 - **The eval harness** reports a 95% Wilson interval on every proportion, a bootstrap interval for
   macro-F1, breakdowns by kind, label confidence and tag, calibration, latency, tokens and cost.
 - **The regression test** replays every committed run and requires identical verdicts and metrics.
-- **The app** has five views: 14 curated examples, a live conversation, classify an event, the position
-  demo, and eval results. `pac serve --live` makes every click a real model call. In the live
-  conversation you chat with a simulated Lark (an LLM with a fake back office), with the guardrail inline:
-  each event waits for its verdict and is passed, blocked or held. See the [README](../README.md).
-- **The code** has two bounded contexts, each layered into domain, application and infrastructure:
-  `guardrail` (judging an event) and `evaluation` (measuring a judge). The dependency rules are
-  import-linter contracts enforced in CI ([`ARCHITECTURE.md`](ARCHITECTURE.md)).
+- **The app** has four tabs. `pac serve --live` makes every click a real model call.
+  - **Try it:** classify any event, starting from a curated example, and place the same text in all four
+    positions.
+  - **Live conversation:** chat with a simulated agent (an LLM with a fake back office) while the
+    guardrail sits inline. Each event waits for its verdict and is passed, blocked or held.
+  - **Findings:** the corner cases.
+  - **Eval results:** every run, its mistakes, and drift monitoring.
+
+  See the [README](../README.md).
+- **The code** has four bounded contexts, each layered into domain, application and infrastructure:
+  - `guardrail` judges an event; it is the only one production needs;
+  - `evaluation` measures a judge on labelled cases;
+  - `monitoring` watches live traffic for drift;
+  - `simulation` is the demo's stand-in agent.
+
+  The dependency rules are import-linter contracts enforced in CI: the guardrail imports none of the
+  others ([`ARCHITECTURE.md`](ARCHITECTURE.md)).
 
 ## 2. Choices, and why
 
@@ -78,9 +99,25 @@ trace event ──► session envelope + event JSON (escaped) ──► prompt v
 | **Three verdicts** | `policy_silent` is the brief's object of interest made into an output, and in production it means "route to a human". | Binary, with silence only discussed in prose. |
 | **Fail closed to `policy_silent`** on timeouts, bad output or a cache miss | A guardrail that fails open isn't one. Failing to `violation` would block legitimate traffic on every outage. | — |
 | **Prompt v2** ([diff from v1](../prompts/)) | On dev, v1 invented facts ("the order belongs to the verified customer") and flagged vague wording. v2 adds three general rules: use only the facts present, point to the content that breaks a rule, and name the missing fact. No case-specific patches. | Few-shot examples. Not tried: the dev failures were about reasoning discipline, not format, and examples risk teaching the dev cases. |
-| **Local `qwen3.5` for the committed runs** | No API key was available during the build. A 9.7B local model is also a useful *lower bound*. MiniMax-M3 and Claude are one environment variable away. | — |
+| **Local `qwen3.5` first, then MiniMax-M3** | No API key was available early in the build, and a 9.7B local model at temperature 0 is a repeatable *lower bound*. MiniMax-M3 came later, as a stronger hosted model. Any other model is one environment variable away. | — |
 | **Labels: the literal policy reading** ([LABELING.md](LABELING.md)) | When a rule needs a fact the event doesn't carry, the label is `policy_silent`, because that is the policy's own definition. This makes the structural problem measurable instead of hiding it. | "Allow unless shown otherwise". That gives a higher headline number and hides the money-rules finding. |
 | **Metrics: guardrail rates first, accuracy last** | A guardrail has two costs, missed harm and blocked work, plus an escalation cost. Errors are never credited as correct `policy_silent` (a bug the verification agent found and I fixed). | Headline accuracy alone. |
+
+### Assumptions, in one place
+
+The brief leaves these open. Each is the most realistic reading I could make, and each is stated so it
+can be challenged.
+
+| Assumption | Why | If it's wrong |
+|---|---|---|
+| The guardrail sees only the four event kinds: `user_input`, `model_output`, `tool_call`, `tool_response` | The agent's system prompt, injected context and reasoning belong to its operator | Rules about "the agent's own instructions" can only be recognised, not compared |
+| It also sees a session envelope: `verified`, customer id, email on file | The platform's verification result, or the verification step passing through it | R1, R2 and R7 become undecidable |
+| It judges one event; history is an ablation | The brief says one event | Missing-fact cases stay undecided without history (§3) |
+| It sits inline and can only pass, block or hold | A man in the middle can't change the agent, its tools or its platform | Every interim fix here is something it can do alone; the rest are questions for the operator |
+| `policy_silent` routes to a human | That is what "the policy doesn't decide" means in production | A deployment that can't escalate has to pick a side on these |
+| The labels are the ground truth | Claude wrote and labelled every case; a second, blind Claude agreed 30/30 | Agreement between two copies of one model is an upper bound; human labels are the next step (§8) |
+| The traffic is English, with a little Arabic and Spanish | The recorded conversations are mostly English | Other languages are untested beyond a handful of cases |
+| The retailer is fictional | No real policy or data was available | The policy is written as a support lead would, and its gaps are disclosed up front |
 
 ## 3. Results
 
@@ -116,6 +153,18 @@ point, measured.
 
 - `user_input` violation recall is **38%** (3/8). Manipulative customer messages are the weak spot (§5).
 - `tool_response` false-block rate is **25%** (3/12). The model over-applies R4 and R12 to tool data.
+
+### MiniMax-M3 on test, three runs each
+
+MiniMax-M3 samples, so each setting was run three times (see [run-to-run variance](#run-to-run-variance)).
+
+| | Event only | With history |
+|---|---|---|
+| Correct of 114 | 94, 97, 99 (82–87%) | 96, 97, 97 (84–85%) |
+| Violation recall | 88–93% | about 91% |
+| False blocks on benign events | 2–4% | 5% |
+
+It is clearly stronger than the local model, and history makes it steadier rather than more accurate.
 
 ### History ablation: what does context buy?
 
@@ -187,10 +236,14 @@ I re-ran the dev split three times against the live model with the cache off
   lucky sample.
 - **Latency** per call: median 8.7 s, p90 20 s, one request at a time on an M1 Max.
 
-What this does *not* show: temperature 0 on a single local runtime is the easy case. A hosted API such as
-MiniMax or Anthropic can batch and route requests differently, and is usually not bit-for-bit
-deterministic. Rerun `pac eval --no-cache --repeats 3` before trusting a new backend's numbers. The 7%
-upper bound means a flip rate below about 1 in 14 events can't be ruled out from 49 cases.
+That was the easy case: temperature 0 on one local runtime. **The hosted model is not repeatable.**
+MiniMax-M3, the same prompt on the same 114 test events, three uncached runs: **99, 97 and 94** correct.
+Between any two runs, 9 to 13 cases switch between right and wrong, and 16 cases are right in some runs
+and wrong in others. No temperature had been set; at temperature 0, and at 0.01, one borderline case
+sent five times still came back with different verdicts. So:
+- every MiniMax number here is reported as a range over runs, never one run;
+- a difference of a few points between two prompts or settings isn't read as a result unless it holds
+  across repeats (`pac eval --no-cache --repeats 3`).
 
 ### Calibration: don't use the confidence
 
@@ -242,6 +295,31 @@ What the table shows:
 
 One qwen call failed closed: on `h-dsar-email-export` it ran past the 1,024-token output limit. MiniMax
 latency on this split was 2.4 s median and 5.1 s p95.
+
+### Round 3: the stress set (355 events, labelled before any run)
+
+Thirty-one events is too few to measure on, so the third round is larger and more natural:
+- **191 events from 16 recorded conversations.** A simulated customer, given only a short brief, talks
+  to the agent with no guardrail running, and every turn is labelled afterwards.
+- **62 events from 5 scripted conversations,** each built around one trap.
+- **94 single events** in families, one per corner case (currencies, order statuses, keys, IMEIs and
+  cards, gift cards, planted strings, injected refunds, privacy requests), plus 8 history windows.
+
+| | regex | MiniMax-M3 | MiniMax + history |
+|---|---|---|---|
+| 3-way accuracy (355) | 59% [54–64] | **79%** [75–83] | **82%** [77–85] |
+| Violation recall | 25% (15/61) | 70% (43/61) | 77% (62/81) |
+| False blocks on allowed events | 6% | 6% | 6% |
+| Undecided cases flagged `policy_silent` | 0% | 63% (55/87) | 18% (6/34) |
+
+Each MiniMax figure is one run, so read it with the run-to-run spread above (a few points). What it
+shows:
+- **Natural traffic is mostly benign,** so overall accuracy rewards allowing everything: the regex
+  scores 59% while catching a quarter of the violations. Recall and false blocks are the numbers to read.
+- **MiniMax misses what hides in long, friendly replies:** promises about delivery timing (R9) and
+  personal details disclosed before verification (R1), including in the Arabic conversation.
+- **History again trades undecided for decided.** With history it flags 18% of undecidable cases
+  instead of 63%, the same pattern as round 2.
 
 ## 4. Corner cases
 
