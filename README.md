@@ -27,7 +27,9 @@ backend:
 
 | Backend | Set | Notes |
 |---|---|---|
-| MiniMax-M3 | `PAC_BACKEND=minimax PAC_MODEL=MiniMax-M3 MINIMAX_API_KEY=…` | OpenAI-compatible API; thinking disabled for latency |
+| Any model on OpenRouter | `PAC_BACKEND=openrouter PAC_MODEL=anthropic/claude-haiku-5.5 OPENROUTER_API_KEY=…` | One key for Claude, GPT, Llama, Qwen and others |
+| Any OpenAI-compatible endpoint | `PAC_BACKEND=openai PAC_MODEL=… OPENAI_API_KEY=… PAC_OPENAI_BASE_URL=…` | OpenAI, vLLM, Together, Groq, …; `PAC_OPENAI_EXTRA_BODY` (JSON) for provider-specific fields |
+| MiniMax-M3 | `PAC_BACKEND=minimax PAC_MODEL=MiniMax-M3 MINIMAX_API_KEY=…` | An OpenAI-compatible preset; thinking disabled for latency |
 | Claude | `PAC_BACKEND=anthropic PAC_MODEL=claude-haiku-5-5 ANTHROPIC_API_KEY=…` | Structured outputs plus prompt caching of the policy |
 | Local (Ollama) | `PAC_BACKEND=ollama PAC_MODEL=qwen3.5` | The model behind every committed result (each run's `config.json` records its backend, prompt hash and commit) |
 | Recorded only (default) | `PAC_BACKEND=replay PAC_MODEL=qwen3.5` | Offline; serves the committed cache, and unseen events fail closed |

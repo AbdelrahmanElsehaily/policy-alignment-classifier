@@ -322,3 +322,35 @@ async def test_ollama_non_object_body() -> None:
     respx.post("http://ollama.test/api/chat").respond(json=[1, 2])
     with pytest.raises(BackendError, match="not a JSON object"):
         await OllamaBackend("m", host="http://ollama.test").complete(REQUEST)
+
+
+@pytest.mark.parametrize(
+    ("backend", "key_var", "base_url"),
+    [
+        ("openrouter", "OPENROUTER_API_KEY", "https://openrouter.ai/api/v1"),
+        ("openai", "OPENAI_API_KEY", "https://api.openai.com/v1"),
+    ],
+)
+def test_factory_builds_any_openai_compatible_provider(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, backend: str, key_var: str, base_url: str
+) -> None:
+    monkeypatch.setenv(key_var, "k")
+    built = build_backend(
+        Settings(backend=backend, model="some/model", cache_dir=tmp_path), use_cache=False
+    )
+    assert isinstance(built, OpenAICompatibleBackend)
+    assert built.model == "some/model"
+    assert str(built._client.base_url).rstrip("/") == base_url
+
+
+def test_generic_provider_takes_extra_request_fields(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("OPENAI_API_KEY", "k")
+    monkeypatch.setenv("PAC_OPENAI_BASE_URL", "http://vllm.test/v1")
+    monkeypatch.setenv("PAC_OPENAI_EXTRA_BODY", '{"reasoning_effort": "low"}')
+    built = build_backend(Settings(backend="openai", cache_dir=tmp_path), use_cache=False)
+    assert isinstance(built, OpenAICompatibleBackend)
+    assert built._extra_body == {"reasoning_effort": "low"}
+    with pytest.raises(BackendError, match="OPENROUTER_API_KEY"):
+        build_backend(Settings(backend="openrouter", cache_dir=tmp_path))

@@ -1,4 +1,4 @@
-"""Any provider exposing the OpenAI chat-completions API; configured for MiniMax by default."""
+"""Any provider exposing the OpenAI chat-completions API: OpenAI, OpenRouter, MiniMax, vLLM, ..."""
 
 from __future__ import annotations
 
@@ -21,9 +21,9 @@ class OpenAICompatibleBackend:
 
     The output schema is stated in the system prompt rather than sent as ``response_format``,
     because support for JSON-schema constrained decoding varies across providers (MiniMax does
-    not document it). ``extra_body`` carries provider-specific switches; for MiniMax-M3 these
-    disable thinking (latency on the request path) and split any reasoning into its own field
-    so it never pollutes the JSON answer.
+    not document it). ``extra_body`` carries provider-specific switches, set by the composition
+    root: for MiniMax-M3 they disable thinking (latency on the request path) and split any
+    reasoning into its own field so it never pollutes the JSON answer.
     """
 
     def __init__(

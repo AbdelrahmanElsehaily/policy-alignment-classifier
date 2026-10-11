@@ -7,6 +7,9 @@ layer reads configuration or picks concrete adapters.
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
+
+from pydantic import SecretStr
 
 from pac.evaluation.domain.cases import LabeledCase, Split, ensure_unique_ids
 from pac.evaluation.infrastructure.case_store import load_cases
@@ -49,17 +52,15 @@ def build_backend(settings: Settings, *, use_cache: bool = True) -> LLMBackend:
             effort=settings.anthropic_effort,
             timeout_s=settings.timeout_s,
         )
-    elif settings.backend == "minimax":
-        if settings.minimax_api_key is None:
-            raise BackendError("MINIMAX_API_KEY is not set.")
+    elif settings.backend in ("openai", "minimax", "openrouter"):
+        base_url, key, key_name, extra_body = _openai_compatible(settings)
+        if key is None:
+            raise BackendError(f"{key_name} is not set.")
         inner = OpenAICompatibleBackend(
             settings.model,
-            base_url=settings.minimax_base_url,
-            api_key=settings.minimax_api_key.get_secret_value(),
-            extra_body={
-                "thinking": {"type": settings.minimax_thinking},
-                "reasoning_split": True,
-            },
+            base_url=base_url,
+            api_key=key.get_secret_value(),
+            extra_body=extra_body,
             timeout_s=settings.timeout_s,
         )
     else:
@@ -68,6 +69,25 @@ def build_backend(settings: Settings, *, use_cache: bool = True) -> LLMBackend:
         )
 
     return CachingBackend(settings.cache_dir, inner=inner) if use_cache else inner
+
+
+def _openai_compatible(
+    settings: Settings,
+) -> tuple[str, SecretStr | None, str, dict[str, Any]]:
+    """Base URL, API key, the key's variable name, and extra request fields for an
+    OpenAI-compatible provider. Only the presets know provider-specific switches."""
+    if settings.backend == "minimax":
+        # Thinking off (latency on the request path); any reasoning kept out of the answer.
+        thinking = {"thinking": {"type": settings.minimax_thinking}, "reasoning_split": True}
+        return settings.minimax_base_url, settings.minimax_api_key, "MINIMAX_API_KEY", thinking
+    if settings.backend == "openrouter":
+        return settings.openrouter_base_url, settings.openrouter_api_key, "OPENROUTER_API_KEY", {}
+    return (
+        settings.openai_base_url,
+        settings.openai_api_key,
+        "OPENAI_API_KEY",
+        settings.openai_extra_body,
+    )
 
 
 def build_policy(settings: Settings) -> Policy:
@@ -82,7 +102,8 @@ def build_classifier(settings: Settings, backend: LLMBackend | None = None) -> L
     if backend is None and settings.live:
         if settings.backend == "replay":
             raise BackendError(
-                "Live mode needs a real model: set PAC_BACKEND to ollama, minimax or anthropic."
+                "Live mode needs a real model: set PAC_BACKEND to ollama, openai, openrouter, "
+                "minimax or anthropic."
             )
         backend = build_backend(settings, use_cache=False)
     policy = build_policy(settings)
@@ -112,7 +133,7 @@ def build_agent(settings: Settings) -> SimulatedAgent:
     if not settings.live or settings.backend == "replay":
         raise BackendError(
             "The live conversation needs a real model in live mode: set PAC_BACKEND to "
-            "ollama, minimax or anthropic and start with `pac serve --live`."
+            "ollama, openai, openrouter, minimax or anthropic and start with `pac serve --live`."
         )
     if settings.agent_model is not None:
         settings = settings.model_copy(update={"model": settings.agent_model})

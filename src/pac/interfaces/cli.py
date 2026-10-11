@@ -102,7 +102,10 @@ class SplitOption(StrEnum):
 
 
 BackendOpt = Annotated[
-    str | None, typer.Option(help="anthropic | minimax | ollama | replay (default: PAC_BACKEND)")
+    str | None,
+    typer.Option(
+        help="anthropic | openai | openrouter | minimax | ollama | replay (default: PAC_BACKEND)"
+    ),
 ]
 ModelOpt = Annotated[str | None, typer.Option(help="Model id (default: PAC_MODEL)")]
 

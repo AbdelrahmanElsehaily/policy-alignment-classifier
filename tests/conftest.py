@@ -20,6 +20,8 @@ def _isolated_settings(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
         "PAC_MODEL",
         "ANTHROPIC_API_KEY",
         "MINIMAX_API_KEY",
+        "OPENROUTER_API_KEY",
+        "OPENAI_API_KEY",
         "PAC_CACHE_DIR",
     ):
         monkeypatch.delenv(var, raising=False)
