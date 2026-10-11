@@ -3,27 +3,21 @@ import { type JSX, useEffect, useState } from "react";
 import { api, isStalePage, isStaleServer } from "./api";
 import { ClassifyPanel } from "./components/ClassifyPanel";
 import { ConversationPanel } from "./components/ConversationPanel";
+import { CornerCases } from "./components/CornerCases";
 import { ExamplesPanel } from "./components/ExamplesPanel";
 import { MonitoringPanel } from "./components/MonitoringPanel";
 import { PositionDemo } from "./components/PositionDemo";
 import { ResultsPanel } from "./components/ResultsPanel";
 import type { Health, LabeledCase } from "./types";
 
-const TABS = [
-  "Examples",
-  "Live conversation",
-  "Classify an event",
-  "Position demo",
-  "Eval results",
-  "Monitoring",
-] as const;
+const TABS = ["Try it", "Live conversation", "Results & findings"] as const;
 type Tab = (typeof TABS)[number];
 
 export function App() {
-  const [tab, setTab] = useState<Tab>("Examples");
+  const [tab, setTab] = useState<Tab>("Try it");
   // Panels stay mounted once opened and are only hidden when inactive, so switching tabs keeps
   // their state: a conversation, example results, a half-edited event, a selected run.
-  const [opened, setOpened] = useState<ReadonlySet<Tab>>(() => new Set<Tab>(["Examples"]));
+  const [opened, setOpened] = useState<ReadonlySet<Tab>>(() => new Set<Tab>(["Try it"]));
   const [health, setHealth] = useState<Health | null>(null);
   const [cases, setCases] = useState<LabeledCase[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -39,12 +33,31 @@ export function App() {
   }
 
   const panels: Record<Tab, JSX.Element> = {
-    Examples: <ExamplesPanel health={health} />,
+    "Try it": (
+      <>
+        <h2>Curated examples</h2>
+        <ExamplesPanel health={health} />
+        <h2>Classify your own event</h2>
+        <ClassifyPanel cases={cases} />
+        <h2>The same text in each position</h2>
+        <PositionDemo />
+      </>
+    ),
     "Live conversation": <ConversationPanel />,
-    "Classify an event": <ClassifyPanel cases={cases} />,
-    "Position demo": <PositionDemo />,
-    "Eval results": <ResultsPanel cases={cases} />,
-    Monitoring: <MonitoringPanel />,
+    "Results & findings": (
+      <>
+        <h2>Corner cases: where the policy does not decide</h2>
+        <CornerCases />
+        <h2>Eval results</h2>
+        <ResultsPanel cases={cases} />
+        <details className="section-fold">
+          <summary>
+            <h2>Monitoring (production drift)</h2>
+          </summary>
+          <MonitoringPanel />
+        </details>
+      </>
+    ),
   };
 
   return (
