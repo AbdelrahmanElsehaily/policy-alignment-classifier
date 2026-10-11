@@ -73,7 +73,14 @@ uv run pac eval --split test                           # the reported numbers
 uv run pac eval --split test --classifier baseline     # flat-text regex baseline
 uv run pac eval --split test --with-history            # ablation: give the classifier prior events
 uv run pac eval --split test --no-cache --repeats 3    # run-to-run variance
+uv run pac eval --split hard --with-history            # round 2: hard real-world cases
 ```
+
+The `hard` split (31 events, in `data/hard_cases.jsonl`) was written after v1.0 and labelled before any
+model ran on it. It holds the cases a real deployment meets and the policy doesn't decide: a refund
+retried after a timeout, euros against a dollar cap, IMEIs that look like card numbers, gift card codes,
+publishable keys, planted strings that trigger blocks, and more. See
+[`docs/CORNER_CASES.md`](docs/CORNER_CASES.md#round-2-the-hard-split-after-v10).
 
 Each run writes `results/runs/<run_id>/` containing `config.json` (prompt, policy and dataset hashes, git
 commit), `predictions.jsonl`, `metrics.json` and a readable `report.md`. Every proportion carries a 95%
@@ -101,6 +108,7 @@ build.
 | [`policy/policy_v1_proposed.md`](policy/policy_v1_proposed.md) | Amendments the corner cases argue for |
 | [`prompts/`](prompts/) | Versioned classifier prompts (v1 kept for traceability; v2 is the default), and the simulated agent's instructions |
 | [`data/build_cases.py`](data/build_cases.py) | The eval set, with each label's reasoning; generates `data/cases.jsonl` |
+| [`data/build_hard_cases.py`](data/build_hard_cases.py) | The hard split (round 2), labelled before any model run; generates `data/hard_cases.jsonl` |
 | [`src/pac/guardrail/`](src/pac/guardrail/) | Core domain: judging one event. Domain model, the LLM classifier use case, model adapters, regex baseline |
 | [`src/pac/evaluation/`](src/pac/evaluation/) | Measuring a guardrail: labelled cases, metrics, eval use cases, run storage |
 | [`src/pac/simulation/`](src/pac/simulation/) | The live demo's stand-in agent: Lark played by an LLM, and its simulated back office |
