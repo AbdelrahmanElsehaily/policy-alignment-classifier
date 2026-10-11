@@ -86,6 +86,23 @@ Each run writes `results/runs/<run_id>/` containing `config.json` (prompt, polic
 commit), `predictions.jsonl`, `metrics.json` and a readable `report.md`. Every proportion carries a 95%
 Wilson interval.
 
+## Logs
+
+Logs go to stderr and results to stdout, so `pac classify … | jq` stays clean. Every line carries
+correlation ids, so one grep finds everything about one API request (`request=`, also returned as
+the `X-Request-ID` header, or yours if you send one), eval run (`run=`), case (`case=`) or
+conversation turn (`turn=`):
+
+```text
+16:42:17.385 WARNING guardrail.llm.caching [request=debug-123] no recording for this request model=qwen3.5
+16:42:17.385 ERROR   guardrail.llm_classifier [request=debug-123] failed closed: held for a human kind=user_input reason="…"
+16:42:17.385 INFO    interfaces.api [request=debug-123] POST /api/classify 200 ms=1
+```
+
+`PAC_LOG_LEVEL=DEBUG` (or `pac --log-level DEBUG …`) adds every classification and cache hit.
+`PAC_LOG_FORMAT=json` writes one JSON object per line, for a log pipeline. The code is in
+[`src/pac/telemetry.py`](src/pac/telemetry.py).
+
 ## Develop
 
 ```bash

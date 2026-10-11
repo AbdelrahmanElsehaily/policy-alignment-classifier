@@ -53,6 +53,10 @@ class Settings(BaseSettings):
     # sweet spot for that workload on current Claude models.
     anthropic_effort: Literal["low", "medium", "high"] = "low"
 
+    # Logging: level (DEBUG shows every classification) and text or one-JSON-object-per-line.
+    log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
+    log_format: Literal["text", "json"] = "text"
+
     timeout_s: float = 60.0
     max_output_tokens: int = 1024
     concurrency: int = 4

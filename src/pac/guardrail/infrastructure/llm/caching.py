@@ -7,6 +7,7 @@ byte-for-byte, and lets a colleague without an API key replay the eval and use t
 from __future__ import annotations
 
 import json
+import logging
 import re
 from pathlib import Path
 
@@ -24,6 +25,9 @@ class CacheMiss(NonRetryableBackendError):
 
 def _safe(model: str) -> str:
     return re.sub(r"[^A-Za-z0-9._-]", "_", model)
+
+
+logger = logging.getLogger(__name__)
 
 
 class CachingBackend:
@@ -53,15 +57,20 @@ class CachingBackend:
         if path.exists():
             try:
                 record = json.loads(path.read_text(encoding="utf-8"))
-                return Completion.model_validate(record["completion"]).model_copy(
-                    update={"cached": True}
-                )
+                completion = Completion.model_validate(record["completion"])
+                logger.debug("cache hit", extra={"key": key[:12]})
+                return completion.model_copy(update={"cached": True})
             except (ValueError, KeyError, TypeError) as exc:
+                logger.warning(
+                    "corrupt cache entry", extra={"path": str(path), "error": str(exc)[:200]}
+                )
                 if self._inner is None:
                     raise CacheMiss(f"corrupt cache entry {path.name}: {exc}") from exc
                 path.unlink()  # re-record below
         if self._inner is None:
+            logger.warning("no recording for this request", extra={"model": self._model})
             raise CacheMiss(f"no recorded completion for this request under model {self._model}")
+        logger.debug("cache miss; calling the model", extra={"key": key[:12]})
 
         completion = await self._inner.complete(request)
         path.parent.mkdir(parents=True, exist_ok=True)

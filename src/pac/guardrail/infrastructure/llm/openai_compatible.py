@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 import time
 from collections.abc import Awaitable, Callable
 from typing import Any
@@ -11,6 +12,8 @@ import httpx
 
 from pac.guardrail.application.ports import BackendError, Completion, LLMRequest
 from pac.guardrail.domain.classification import Usage
+
+logger = logging.getLogger(__name__)
 
 
 class OpenAICompatibleBackend:
@@ -68,7 +71,12 @@ class OpenAICompatibleBackend:
                 raise BackendError(f"{self._model} request failed: {exc!r}") from exc
             if response.status_code != 429 or attempt == self._max_rate_limit_retries:
                 break
-            await self._sleep(_backoff(response, attempt))
+            wait = _backoff(response, attempt)
+            logger.warning(
+                "rate limited; waiting",
+                extra={"model": self._model, "wait_s": wait, "retry": attempt + 1},
+            )
+            await self._sleep(wait)
         try:
             response.raise_for_status()
             body = response.json()

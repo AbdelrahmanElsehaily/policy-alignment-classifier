@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import sys
 from pathlib import Path
 
@@ -21,6 +22,9 @@ from pac.settings import REPO_ROOT, Settings
 from pac.simulation.application.customer import CustomerBrief, SimulatedCustomer
 from pac.simulation.application.recording import record_conversation
 from pac.simulation.domain.back_office import BackOffice
+from pac.telemetry import configure_logging, log_context
+
+logger = logging.getLogger("pac.scripts.record_conversations")
 
 RECORDINGS = REPO_ROOT / "data" / "recordings"
 
@@ -63,10 +67,19 @@ async def main(ids: list[str]) -> None:
     for brief in briefs:
         if ids and brief.id not in ids:
             continue
-        out = await record(brief, settings)
-        events = json.loads(out.read_text("utf-8"))["events"]
-        print(f"{brief.id}: {len(events)} events -> {out.relative_to(REPO_ROOT)}", flush=True)
+        with log_context(recording=brief.id):
+            out = await record(brief, settings)
+            raw = json.loads(out.read_text("utf-8"))
+            logger.info(
+                "recorded",
+                extra={
+                    "events": len(raw["events"]),
+                    "stopped": raw["stopped"] or "-",
+                    "path": str(out.relative_to(REPO_ROOT)),
+                },
+            )
 
 
 if __name__ == "__main__":
+    configure_logging(Settings().log_level, Settings().log_format)
     asyncio.run(main(sys.argv[1:]))

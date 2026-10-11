@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 
 import pytest
@@ -178,3 +179,26 @@ def test_examples_and_live_flag(client: TestClient) -> None:
     assert len(examples) >= 10
     assert {"title", "look_for", "case"} <= set(examples[0])
     assert client.get("/api/health").json()["live"] is False
+
+
+def test_every_request_gets_a_trackable_id(
+    client: TestClient, caplog: pytest.LogCaptureFixture
+) -> None:
+    with caplog.at_level(logging.INFO, logger="pac"):
+        fresh = client.get("/api/health")
+        echoed = client.get("/api/health", headers={"X-Request-ID": "from-caller"})
+    assert len(fresh.headers["X-Request-ID"]) == 8
+    assert echoed.headers["X-Request-ID"] == "from-caller"
+    assert sum(r.getMessage() == "GET /api/health 200" for r in caplog.records) == 2
+
+
+def test_an_unreadable_run_is_skipped_not_fatal(
+    settings: Settings, client: TestClient, caplog: pytest.LogCaptureFixture
+) -> None:
+    broken = settings.results_dir / "runs" / "20260101T000000Z_broken_test"
+    broken.mkdir(parents=True)
+    (broken / "config.json").write_text("{not json")
+    with caplog.at_level(logging.WARNING, logger="pac"):
+        response = client.get("/api/runs")
+    assert response.status_code == 200
+    assert any(r.getMessage() == "skipping unreadable run" for r in caplog.records)

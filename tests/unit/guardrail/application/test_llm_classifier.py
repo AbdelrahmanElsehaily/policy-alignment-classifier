@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 from pathlib import Path
+
+import pytest
 
 from pac.guardrail.application.llm_classifier import LLMClassifier
 from pac.guardrail.application.ports import BackendError, LLMRequest
@@ -169,3 +172,37 @@ async def test_corrupt_cache_entry(
     rerecorded = await _classifier(recorder, policy, prompt).classify(refund_request)
     assert rerecorded.error is None
     assert not rerecorded.cached
+
+
+async def test_logs_retries_and_failing_closed(
+    policy: Policy,
+    prompt: PromptTemplate,
+    refund_request: ClassificationRequest,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    def down(_: LLMRequest) -> Exception:
+        return BackendError("HTTP 503")
+
+    with caplog.at_level(logging.DEBUG, logger="pac"):
+        await _classifier(FakeBackend(down), policy, prompt).classify(refund_request)
+
+    messages = [(r.levelname, r.getMessage()) for r in caplog.records]
+    assert ("WARNING", "attempt failed; retrying") in messages
+    assert ("WARNING", "attempt failed") in messages
+    assert ("ERROR", "failed closed: held for a human") in messages
+    failed = next(r for r in caplog.records if r.levelname == "ERROR")
+    assert failed.reason == "HTTP 503"  # type: ignore[attr-defined]
+
+
+async def test_logs_each_classification_at_debug(
+    policy: Policy,
+    prompt: PromptTemplate,
+    refund_request: ClassificationRequest,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    fake = FakeBackend(lambda _: decision_json("violation", ["R5"]))
+    with caplog.at_level(logging.DEBUG, logger="pac"):
+        await _classifier(fake, policy, prompt).classify(refund_request)
+    [record] = [r for r in caplog.records if r.getMessage() == "classified"]
+    assert record.verdict == "violation"  # type: ignore[attr-defined]
+    assert record.rules == "R5"  # type: ignore[attr-defined]

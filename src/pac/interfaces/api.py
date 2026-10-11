@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
-from collections.abc import AsyncIterator
+import logging
+import time
+from collections.abc import AsyncIterator, Awaitable, Callable
 from functools import cached_property
 from typing import Annotated, Any, Literal
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Request, Response
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -40,6 +42,9 @@ from pac.settings import Settings, get_settings
 from pac.simulation.application.agent import SimulatedAgent
 from pac.simulation.application.conversation import GuardedConversation, executed_calls
 from pac.simulation.domain.back_office import BackOffice
+from pac.telemetry import current_context, log_context, new_id
+
+logger = logging.getLogger(__name__)
 
 # Bump when a request or response shape the web app relies on changes. The app is read from disk
 # on every page load but the server's code only at startup, so a server started before a change can
@@ -163,6 +168,8 @@ def create_app(
     services = _Services(settings or get_settings(), classifier, agent)
     app = FastAPI(title="Policy alignment classifier", version="0.1.0")
 
+    _trace_requests(app)
+
     @app.get("/api/health")
     def health() -> Health:
         error = services.classifier_error
@@ -228,7 +235,15 @@ def create_app(
         office = BackOffice.seeded()
         office.replay(executed_calls(turn.history))
 
+        ids = {**current_context(), "turn": new_id()}
+
         async def lines() -> AsyncIterator[str]:
+            # The body streams after this handler returns, so re-enter the request's ids here.
+            with log_context(**ids):
+                async for line in _stream():
+                    yield line
+
+        async def _stream() -> AsyncIterator[str]:
             async for update in conversation.turn(
                 office,
                 turn.session,
@@ -244,7 +259,11 @@ def create_app(
     def runs() -> list[RunSummary]:
         summaries = []
         for run_id in services.runs.list_ids():
-            saved = services.runs.load(run_id)
+            try:
+                saved = services.runs.load(run_id)
+            except Exception:  # one bad run file mustn't hide all the others
+                logger.warning("skipping unreadable run", extra={"run_id": run_id}, exc_info=True)
+                continue
             config, metrics = saved.config, saved.metrics
             summaries.append(
                 RunSummary(
@@ -281,6 +300,37 @@ def create_app(
 
     _mount_frontend(app, services.settings)
     return app
+
+
+def _trace_requests(app: FastAPI) -> None:
+    """Give every API request an id (or keep the caller's X-Request-ID), log it, return it.
+
+    The id is in the log context while the request is handled, so every line it causes, down to
+    the classifier, carries ``request=<id>``.
+    """
+
+    @app.middleware("http")
+    async def trace_requests(
+        request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
+        request_id = request.headers.get("x-request-id") or new_id()
+        started = time.perf_counter()
+        with log_context(request=request_id):
+            try:
+                response = await call_next(request)
+            except Exception:
+                logger.exception("request failed", extra={"path": request.url.path})
+                raise
+            if request.url.path.startswith("/api/"):
+                logger.info(
+                    "%s %s %s",
+                    request.method,
+                    request.url.path,
+                    response.status_code,
+                    extra={"ms": round((time.perf_counter() - started) * 1000)},
+                )
+        response.headers["X-Request-ID"] = request_id
+        return response
 
 
 def _mount_frontend(app: FastAPI, settings: Settings) -> None:

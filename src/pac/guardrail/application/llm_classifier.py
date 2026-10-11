@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 import time
 
 from pydantic import ValidationError
@@ -18,6 +19,8 @@ from pac.guardrail.domain.classification import Classification, Usage
 from pac.guardrail.domain.decision import Decision
 from pac.guardrail.domain.events import ClassificationRequest
 from pac.guardrail.domain.policy import Policy
+
+logger = logging.getLogger(__name__)
 
 
 class LLMClassifier:
@@ -62,7 +65,8 @@ class LLMClassifier:
         repair = False
         error = "no attempts made"
 
-        for _ in range(self._max_attempts):
+        kind = request.event.kind
+        for attempt in range(1, self._max_attempts + 1):
             llm_request = self._prompt.render(request, repair=repair)
             try:
                 completion: Completion = await asyncio.wait_for(
@@ -73,12 +77,15 @@ class LLMClassifier:
                 break
             except TimeoutError:
                 error = f"timed out after {self._timeout_s:.0f}s"
+                self._log_retry(attempt, error)
                 continue
             except BackendError as exc:
                 error = str(exc)
+                self._log_retry(attempt, error)
                 continue
             except Exception as exc:  # a guardrail must fail closed on anything
                 error = f"unexpected backend failure: {type(exc).__name__}: {exc}"[:300]
+                logger.exception("unexpected backend failure", extra={"attempt": attempt})
                 continue
 
             usage += completion.usage
@@ -89,9 +96,26 @@ class LLMClassifier:
             except (ValueError, ValidationError) as exc:
                 error = f"unparseable output: {_first_line(exc)}"
                 repair = True
+                self._log_retry(attempt, error)
                 continue
-            return self._result(decision, started, usage, model_latency_ms, cached=cached)
+            result = self._result(decision, started, usage, model_latency_ms, cached=cached)
+            logger.debug(
+                "classified",
+                extra={
+                    "kind": kind,
+                    "verdict": decision.verdict,
+                    "rules": ",".join(decision.rule_ids) or "-",
+                    "attempts": attempt,
+                    "model_ms": round(model_latency_ms),
+                    "cached": cached,
+                },
+            )
+            return result
 
+        logger.error(
+            "failed closed: held for a human",
+            extra={"kind": kind, "model": self._backend.model, "reason": error},
+        )
         return self._result(
             Decision.fail_closed(error),
             started,
@@ -99,6 +123,13 @@ class LLMClassifier:
             model_latency_ms,
             cached=cached,
             error=error,
+        )
+
+    def _log_retry(self, attempt: int, reason: str) -> None:
+        last = attempt >= self._max_attempts
+        logger.warning(
+            "attempt failed" + ("" if last else "; retrying"),
+            extra={"attempt": f"{attempt}/{self._max_attempts}", "reason": reason[:200]},
         )
 
     def _result(

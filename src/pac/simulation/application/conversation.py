@@ -14,6 +14,7 @@ they never gate.
 from __future__ import annotations
 
 import asyncio
+import logging
 from collections.abc import AsyncGenerator, Iterable, Sequence
 from typing import Literal
 
@@ -24,6 +25,8 @@ from pac.guardrail.domain.events import ClassificationRequest, Session, TraceEve
 from pac.guardrail.domain.value_object import ValueObject
 from pac.simulation.application.agent import AgentError, SimulatedAgent
 from pac.simulation.domain.back_office import BackOffice
+
+logger = logging.getLogger(__name__)
 
 GATEKEEPER = "llm"
 
@@ -167,11 +170,17 @@ class _Turn:
         self.observers: set[asyncio.Task[None]] = set()
 
     async def drive(self, message: str) -> None:
+        logger.info(
+            "turn started",
+            extra={"verified": self._session.verified, "history": len(self._entries)},
+        )
         try:
             await self._act(message)
         except AgentError as exc:
+            logger.warning("agent failed; turn stopped", extra={"reason": str(exc)[:200]})
             self.queue.put_nowait(TurnStopped(reason=f"The simulated agent failed: {exc}"))
         except Exception as exc:  # never leave the stream hanging on a bug
+            logger.exception("turn failed")
             self.queue.put_nowait(TurnStopped(reason=f"The turn failed: {exc!r}"))
         finally:
             while self.observers:
@@ -217,6 +226,17 @@ class _Turn:
             EventJudged(index=index, engine=GATEKEEPER, classification=classification)
         )
         gate = gate_for(classification.decision.verdict)
+        logger.info(
+            "event %s",
+            {"pass": "passed", "block": "blocked", "hold": "held for a human"}[gate],
+            extra={
+                "index": index,
+                "kind": event.kind,
+                "verdict": classification.decision.verdict,
+                "rules": ",".join(classification.decision.rule_ids) or "-",
+                "model_ms": round(classification.model_latency_ms),
+            },
+        )
         self._entries[index] = self._entries[index].model_copy(update={"gate": gate})
         self.queue.put_nowait(EventGated(index=index, gate=gate))
         if gate != "pass":

@@ -156,8 +156,9 @@ def test_classify_from_stdin_with_replay(tmp_path: Path, monkeypatch: pytest.Mon
     ).model_dump_json()
     result = runner.invoke(app, ["classify", "--backend", "replay", "--model", "m"], input=payload)
     assert result.exit_code == 1, result.output
-    printed = result.output[: result.output.rindex("}") + 1]
-    assert json.loads(printed)["decision"]["verdict"] == "policy_silent"
+    # The result is the only thing on stdout; logs (the failed-closed error) go to stderr.
+    assert json.loads(result.stdout)["decision"]["verdict"] == "policy_silent"
+    assert "failed closed" in result.stderr
 
 
 def test_unknown_backend(tmp_path: Path) -> None:

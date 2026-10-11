@@ -43,12 +43,44 @@ from pac.guardrail.domain.classification import EventClassifier
 from pac.guardrail.domain.events import ClassificationRequest
 from pac.guardrail.domain.policy import Policy
 from pac.settings import BackendName, Settings
+from pac.telemetry import configure_logging, log_context
 
 app = typer.Typer(
     help="Policy alignment classifier for AI agent trace events.",
     no_args_is_help=True,
     add_completion=False,
 )
+
+
+class LogLevel(StrEnum):
+    DEBUG = "DEBUG"
+    INFO = "INFO"
+    WARNING = "WARNING"
+    ERROR = "ERROR"
+
+
+class LogFormatOption(StrEnum):
+    text = "text"
+    json = "json"
+
+
+@app.callback()
+def main(
+    log_level: Annotated[
+        LogLevel | None,
+        typer.Option(help="DEBUG shows every classification (default: PAC_LOG_LEVEL or INFO)"),
+    ] = None,
+    log_format: Annotated[
+        LogFormatOption | None,
+        typer.Option(help="text, or one JSON object per line (default: PAC_LOG_FORMAT or text)"),
+    ] = None,
+) -> None:
+    """Logs go to stderr; results and progress for people go to stdout."""
+    settings = Settings()
+    configure_logging(
+        log_level.value if log_level else settings.log_level,
+        log_format.value if log_format else settings.log_format,
+    )
 
 
 class ClassifierKind(StrEnum):
@@ -153,20 +185,20 @@ def evaluate(
         settings, classifier_kind, cache=cache
     )
 
-    typer.echo(f"Running {classifier.name} on {len(cases)} {split.value} case(s)…", err=True)
-    predictions = asyncio.run(
-        run_cases(
-            classifier,
-            cases,
-            repeats=repeats,
-            concurrency=settings.concurrency,
-            with_history=with_history,
-            on_result=_progress_printer(len(cases) * repeats),
-        )
-    )
-
     run_id = new_run_id(classifier.name, split.value, history=with_history)
     run_dir = out_dir or settings.results_dir / "runs" / run_id
+    typer.echo(f"Running {classifier.name} on {len(cases)} {split.value} case(s)…", err=True)
+    with log_context(run=run_dir.name):
+        predictions = asyncio.run(
+            run_cases(
+                classifier,
+                cases,
+                repeats=repeats,
+                concurrency=settings.concurrency,
+                with_history=with_history,
+                on_result=_progress_printer(len(cases) * repeats),
+            )
+        )
     config = RunConfig(
         run_id=run_dir.name,
         created_at=datetime.now(UTC).isoformat(timespec="seconds"),
@@ -183,7 +215,8 @@ def evaluate(
         with_history=with_history,
         git_commit=git_commit(),
     )
-    metrics = record_run(FileRunStore(run_dir.parent), config, predictions).metrics
+    with log_context(run=run_dir.name):
+        metrics = record_run(FileRunStore(run_dir.parent), config, predictions).metrics
 
     typer.echo(f"\nWrote {run_dir}")
     typer.echo(f"  accuracy           {fmt_rate(metrics.accuracy)}")
@@ -315,7 +348,9 @@ def serve(
         f"Serving on http://{host}:{port}  "
         f"(backend={settings.backend}, model={settings.model}, {mode})"
     )
-    uvicorn.run(create_app(settings), host=host, port=port, log_level="info")
+    # uvicorn logs through pac's handler (configured in main); requests are logged, with their
+    # request id, by the API's own middleware.
+    uvicorn.run(create_app(settings), host=host, port=port, log_config=None, access_log=False)
 
 
 def _frontend_stale(dist: Path) -> bool:
