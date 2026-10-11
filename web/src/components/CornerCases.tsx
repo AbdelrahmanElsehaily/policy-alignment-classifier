@@ -15,9 +15,9 @@ export function CornerCases({ known, onTry }: Props) {
         itself in the meantime. Click a case id to open it in Try it.
       </p>
       <p className="small">
-        Not listed here, because the policy does decide them: events that lack the facts a rule needs, attacks that
-        only the history reveals, and side effects of blocking. Those are in <code>docs/CORNER_CASES.md</code> and the
-        write-up.
+        <code>docs/CORNER_CASES.md</code> has six shorter corner cases besides these, and, separately, findings where
+        the policy does decide the event: events that lack the facts a rule needs, attacks only the history reveals,
+        and side effects of blocking.
       </p>
       <div className="corner-list">
         {CORNER_CASES.map((c) => (

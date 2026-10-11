@@ -77,10 +77,10 @@ uv run pac eval --split hard --with-history            # round 2: hard real-worl
 ```
 
 The `hard` split (31 events, in `data/hard_cases.jsonl`) was written after v1.0 and labelled before any
-model ran on it. It holds the cases a real deployment meets and the policy doesn't decide: a refund
-retried after a timeout, euros against a dollar cap, IMEIs that look like card numbers, gift card codes,
-publishable keys, planted strings that trigger blocks, and more. See
-[`docs/CORNER_CASES.md`](docs/CORNER_CASES.md#round-2-the-hard-split-after-v10).
+model ran on it. It holds realistic events the policy mostly doesn't decide: a refund retried after a
+timeout, euros against a dollar cap, IMEIs that look like card numbers, gift card codes, publishable keys,
+and more. A few, such as planted key-shaped strings that trigger blocks, turned out to be decided by the
+policy and are listed as other findings. See [`docs/CORNER_CASES.md`](docs/CORNER_CASES.md).
 
 Each run writes `results/runs/<run_id>/` containing `config.json` (prompt, policy and dataset hashes, git
 commit), `predictions.jsonl`, `metrics.json` and a readable `report.md`. Every proportion carries a 95%

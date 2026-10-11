@@ -203,7 +203,7 @@ something else: agreement between two prompts or models, or the verdict itself.
 After v1.0, I wrote a second set: realistic events the policy mostly doesn't decide. They cover refunds
 retried after a timeout, euros against a dollar cap, IMEIs shaped like card numbers, gift card codes,
 publishable keys, planted key-shaped strings, refunds caused by an injection, history contamination,
-and Arabic ([`CORNER_CASES.md`](CORNER_CASES.md#round-2-the-hard-split-after-v10), #16–#24). The labels
+and Arabic ([`CORNER_CASES.md`](CORNER_CASES.md), #16–#24). The labels
 were committed in `2527f48` before any model saw them. The cases were *chosen* to be hard, so these
 numbers measure robustness on hard cases and can't be compared with the test split.
 
@@ -245,9 +245,12 @@ latency on this split was 2.4 s median and 5.1 s p95.
 
 ## 4. Corner cases
 
-The full log is in [`CORNER_CASES.md`](CORNER_CASES.md), in the brief's four fields. Each case is typed as
-structural, unanticipated, or anticipated (disclosed before labelling). The four worth the reader's time are
-summarised in "In one minute" above. How the classifier handled the corner cases:
+The full log is in [`CORNER_CASES.md`](CORNER_CASES.md), in the brief's four fields. It separates the corner
+cases proper, where the policy leaves the event undecided (silent, or its rules point both ways), from
+findings where the policy does decide but the guardrail still struggles: missing facts (#1), a decision that
+is arguably wrong (#3), the side effects of blocking (#17), detection that needs history (#22). Of the four
+findings in "In one minute" above, #2 and #4 are corner cases; #1 and #3 are of the second kind. How the
+classifier handled the cases tagged as corner cases:
 
 | Case | Gold | Model | Comment |
 |---|---|---|---|
