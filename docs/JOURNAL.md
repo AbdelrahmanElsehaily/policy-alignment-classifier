@@ -203,7 +203,7 @@ So now:
 
 | Part | Cases | Notes |
 |---|---|---|
-| Recorded conversations | 191 | 16 conversations; 145 allow, 35 violation, 11 policy_silent |
+| Recorded conversations | 191 | 16 conversations; 135 allow, 35 violation, 21 policy_silent (first written here as 145 / 35 / 11; corrected against the frozen file) |
 | Scripted conversations | 62 | 5 targeted probes |
 | Context windows | 8 | The same deciding event with partial history |
 | Single-event families | 94 | 12 families |
@@ -215,6 +215,36 @@ only 25% of violations. Natural traffic is mostly benign, so overall accuracy re
 everything. From here on, results are reported per family, alongside violation recall and false
 blocks, never as accuracy alone.
 
+## Stage 10: "is the difference real?", run-to-run noise on a hosted model (11–12 Oct)
+
+**Why it came up.** Prompt optimisation with DSPy (MIPROv2, then GEPA) produced prompts that scored
+95–98% on their validation set and then lower than v2 on test. The comparison didn't make sense, so
+before reading anything into it, I measured how much v2 disagrees with itself.
+
+**What I found:**
+- **MiniMax-M3 is not repeatable.** v2 on test, three uncached runs: **99, 97 and 94** of 114.
+  Between any two runs, 9 to 13 cases switch between right and wrong, and 16 cases are right in
+  some runs and wrong in others. That is as much as v2 differs from the optimised prompts.
+- **Temperature 0 doesn't fix it.** No temperature had been set for MiniMax (the local qwen runs
+  have always been pinned to 0, which is why Stage 5 found no flips). With an optional
+  `PAC_TEMPERATURE` (on the optimisation branch), one borderline case, five calls each: at 0 the
+  verdicts were violation, violation, allow, policy_silent, allow; at 0.01, four violations and one
+  allow. The rationales differed every time.
+- **So the optimisation result was noise.** The optimised prompts' 93–95 on test sit inside v2's
+  own range. The validation scores were inflated twice over: each optimiser kept the best of many
+  candidates, each scored once on 65 cases. There is no evidence either optimiser helped, and v2
+  stays (`COMPARISON.md` on the `dspy-prompt-optimization` branch).
+- **Reading the prompts confirmed it.** They had picked up rules from families of training cases
+  (one names a training template outright), and a few of those rules cause wrong verdicts on test.
+
+**What changes from here:**
+- Every MiniMax number reported before this stage is one sampled run and carries a few points of
+  run-to-run spread beyond its interval. The qwen numbers are repeatable.
+- Comparisons on MiniMax use repeated runs (`--repeats 3`) and report the spread, never a single
+  run. The first of these is MiniMax on test with history, three runs.
+- A difference of a few points between two prompts or settings is not read as a result unless it
+  holds across repeats.
+
 ---
 
 ## Recurring principles
@@ -224,3 +254,4 @@ blocks, never as accuracy alone.
 - **Every reported number is reproducible offline** from committed recordings, and CI replays it.
 - **Small numbers are reported as small,** with intervals that reflect how the data was built.
 - **Mistakes in the evaluation itself are logged here**, along with how they were caught.
+- **Before comparing two numbers, measure how much one of them varies on its own.**
