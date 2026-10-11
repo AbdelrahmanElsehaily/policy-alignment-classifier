@@ -215,6 +215,7 @@ def evaluate(
         repeats=repeats,
         with_history=with_history,
         git_commit=git_commit(),
+        temperature=None if backend_name == "regex" else settings.temperature,
     )
     with log_context(run=run_dir.name):
         metrics = record_run(FileRunStore(run_dir.parent), config, predictions).metrics

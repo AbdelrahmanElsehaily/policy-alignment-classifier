@@ -66,10 +66,17 @@ class PromptTemplate:
     system: str
     schema: dict[str, Any]
     max_tokens: int
+    temperature: float | None = None
 
     @classmethod
     def from_text(
-        cls, template: str, *, name: str, policy: Policy, max_tokens: int = 1024
+        cls,
+        template: str,
+        *,
+        name: str,
+        policy: Policy,
+        max_tokens: int = 1024,
+        temperature: float | None = None,
     ) -> PromptTemplate:
         """Bind ``template`` (with ``$policy`` and ``$schema`` slots) to ``policy``.
 
@@ -80,7 +87,13 @@ class PromptTemplate:
             policy=policy.text.strip(), schema=json.dumps(schema, indent=1)
         )
         digest = hashlib.sha256(template.encode()).hexdigest()[:8]
-        return cls(version=f"{name}@{digest}", system=system, schema=schema, max_tokens=max_tokens)
+        return cls(
+            version=f"{name}@{digest}",
+            system=system,
+            schema=schema,
+            max_tokens=max_tokens,
+            temperature=temperature,
+        )
 
     def render(self, request: ClassificationRequest, *, repair: bool = False) -> LLMRequest:
         parts = [f"<session>\n{to_tagged_json(request.session.model_dump())}\n</session>"]
@@ -101,6 +114,7 @@ class PromptTemplate:
             user="\n\n".join(parts),
             json_schema=self.schema,
             max_tokens=self.max_tokens,
+            temperature=self.temperature,
         )
 
 

@@ -63,6 +63,9 @@ class Settings(BaseSettings):
 
     timeout_s: float = 60.0
     max_output_tokens: int = 1024
+    # Sampling temperature for the classifier. Unset leaves the provider's default (MiniMax
+    # samples; Ollama is pinned to 0). Set it, e.g. PAC_TEMPERATURE=0, for repeatable runs.
+    temperature: float | None = None
     concurrency: int = 4
 
     @field_validator("anthropic_api_key", "minimax_api_key", "openrouter_api_key", mode="after")

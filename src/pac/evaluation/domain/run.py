@@ -28,6 +28,8 @@ class RunConfig(ValueObject):
     repeats: int
     with_history: bool
     git_commit: str | None = None
+    # The classifier's sampling temperature; None is the provider's default.
+    temperature: float | None = None
 
 
 @dataclass(frozen=True, slots=True)

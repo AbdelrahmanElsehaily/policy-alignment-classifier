@@ -82,7 +82,12 @@ def build_classifier(settings: Settings, backend: LLMBackend | None = None) -> L
             )
         backend = build_backend(settings, use_cache=False)
     policy = build_policy(settings)
-    prompt = load_prompt(settings.prompt_path, policy, max_tokens=settings.max_output_tokens)
+    prompt = load_prompt(
+        settings.prompt_path,
+        policy,
+        max_tokens=settings.max_output_tokens,
+        temperature=settings.temperature,
+    )
     return LLMClassifier(
         backend if backend is not None else build_backend(settings),
         policy,

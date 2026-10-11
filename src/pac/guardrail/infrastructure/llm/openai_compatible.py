@@ -62,6 +62,8 @@ class OpenAICompatibleBackend:
             ],
             **self._extra_body,
         }
+        if request.temperature is not None:
+            payload["temperature"] = request.temperature
         for attempt in range(self._max_rate_limit_retries + 1):
             # Timed per attempt, so waiting out a rate limit never counts as model latency.
             started = time.perf_counter()

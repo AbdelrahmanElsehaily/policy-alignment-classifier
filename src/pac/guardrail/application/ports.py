@@ -25,11 +25,15 @@ class LLMRequest(BaseModel):
     user: str
     json_schema: dict[str, Any]
     max_tokens: int
+    # None leaves sampling to the provider's default.
+    temperature: float | None = None
 
     def cache_key(self, model: str) -> str:
-        payload = json.dumps(
-            {"model": model, **self.model_dump()}, sort_keys=True, separators=(",", ":")
-        )
+        fields = self.model_dump(exclude={"temperature"})
+        # Only a set temperature joins the key, so recordings made without one keep their keys.
+        if self.temperature is not None:
+            fields["temperature"] = self.temperature
+        payload = json.dumps({"model": model, **fields}, sort_keys=True, separators=(",", ":"))
         return hashlib.sha256(payload.encode()).hexdigest()
 
 
