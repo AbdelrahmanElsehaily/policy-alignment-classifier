@@ -21,7 +21,7 @@ from pac.bootstrap import (
 )
 from pac.evaluation.application.ports import RunNotFound, RunStore
 from pac.evaluation.domain.cases import LabeledCase
-from pac.evaluation.domain.metrics import Metrics
+from pac.evaluation.domain.metrics import Metrics, Rate
 from pac.evaluation.domain.prediction import Prediction
 from pac.evaluation.domain.run import RunConfig
 from pac.guardrail.application.ports import BackendError
@@ -44,7 +44,7 @@ from pac.simulation.domain.back_office import BackOffice
 # Bump when a request or response shape the web app relies on changes. The app is read from disk
 # on every page load but the server's code only at startup, so a server started before a change can
 # end up serving a newer page; the page compares versions and asks for a restart.
-API_VERSION = 2
+API_VERSION = 3
 
 
 class Health(BaseModel):
@@ -65,17 +65,26 @@ class PolicyView(BaseModel):
 
 
 class RunSummary(BaseModel):
+    """One row of the results comparison: enough to compare runs without loading predictions."""
+
     run_id: str
     created_at: str
     classifier: str
     backend: str
     prompt_version: str
     split: str
+    dataset: str
     n_cases: int
+    repeats: int
     with_history: bool
-    accuracy: float | None
-    violation_recall: float | None
-    false_block_rate: float | None
+    accuracy: Rate
+    # For generated data: the accuracy interval when resampling whole templates.
+    accuracy_template_ci: tuple[float, float] | None
+    violation_recall: Rate
+    false_block_rate: Rate
+    silent_recall: Rate
+    classifier_errors: Rate
+    latency_p50_ms: float | None
 
 
 class RunDetail(BaseModel):
@@ -245,11 +254,17 @@ def create_app(
                     backend=config.backend,
                     prompt_version=config.prompt_version,
                     split=config.split,
+                    dataset=config.dataset,
                     n_cases=config.n_cases,
+                    repeats=config.repeats,
                     with_history=config.with_history,
-                    accuracy=metrics.accuracy.value,
-                    violation_recall=metrics.violation_recall.value,
-                    false_block_rate=metrics.false_block_rate.value,
+                    accuracy=metrics.accuracy,
+                    accuracy_template_ci=metrics.accuracy_template_ci,
+                    violation_recall=metrics.violation_recall,
+                    false_block_rate=metrics.false_block_rate,
+                    silent_recall=metrics.silent_recall,
+                    classifier_errors=metrics.operational.classifier_errors,
+                    latency_p50_ms=metrics.operational.model_latency_p50_ms,
                 )
             )
         return summaries

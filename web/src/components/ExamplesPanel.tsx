@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 
 import { api } from "../api";
-import { ms } from "../format";
-import type { Classification, DemoExample, Health, TraceEvent, Verdict } from "../types";
+import { describeEvent, ms } from "../format";
+import type { Classification, DemoExample, Health, Verdict } from "../types";
 import { VerdictBadge } from "./VerdictCard";
 
 interface Outcome {
@@ -12,11 +12,6 @@ interface Outcome {
   withHistory: boolean;
 }
 
-function describe(event: TraceEvent): string {
-  if (event.kind === "tool_call") return `${event.tool_name}(${JSON.stringify(event.arguments)})`;
-  if (event.kind === "tool_response") return `${event.tool_name} → ${event.content ?? ""}`;
-  return event.content ?? "";
-}
 
 function expected(example: DemoExample, withHistory: boolean): { verdict: Verdict; rules: string[] } {
   const c = example.case;
@@ -100,7 +95,7 @@ export function ExamplesPanel({ health }: { health: Health | null }) {
                   <code>{c.request.event.kind}</code> · {c.request.session.verified ? "verified" : "unverified"}
                 </span>
               </div>
-              <pre className="event">{describe(c.request.event)}</pre>
+              <pre className="event">{describeEvent(c.request.event)}</pre>
               <p className="small">{example.look_for}</p>
               <div className="row compact">
                 <span className="small">expected</span> <VerdictBadge verdict={c.label} />{" "}

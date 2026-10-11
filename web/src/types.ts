@@ -101,6 +101,8 @@ export interface Metrics {
   accuracy: Rate;
   macro_f1: number | null;
   macro_f1_ci: [number, number] | null;
+  n_templates?: number | null;
+  accuracy_template_ci?: [number, number] | null;
   confusion: Record<Verdict, Record<Verdict | "error", number>>;
   violation_recall: Rate;
   violation_caught_or_escalated: Rate;
@@ -129,11 +131,17 @@ export interface RunSummary {
   backend: string;
   prompt_version: string;
   split: string;
+  dataset: string;
   n_cases: number;
+  repeats: number;
   with_history: boolean;
-  accuracy: number | null;
-  violation_recall: number | null;
-  false_block_rate: number | null;
+  accuracy: Rate;
+  accuracy_template_ci: [number, number] | null;
+  violation_recall: Rate;
+  false_block_rate: Rate;
+  silent_recall: Rate;
+  classifier_errors: Rate;
+  latency_p50_ms: number | null;
 }
 
 export interface Prediction {
@@ -150,11 +158,15 @@ export interface Prediction {
 export interface RunDetail {
   config: {
     run_id: string;
+    created_at: string;
     classifier: string;
     backend: string;
     prompt_version: string;
     policy_version: string;
     split: string;
+    dataset: string;
+    dataset_sha256: string;
+    repeats: number;
     with_history: boolean;
     git_commit: string | null;
   };

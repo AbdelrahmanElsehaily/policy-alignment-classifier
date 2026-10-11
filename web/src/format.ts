@@ -1,5 +1,12 @@
 import type { EventKind, Rate, Session, TraceEvent } from "./types";
 
+/** One line for an event: what was said, or which tool was called with what. */
+export function describeEvent(event: TraceEvent): string {
+  if (event.kind === "tool_call") return `${event.tool_name}(${JSON.stringify(event.arguments)})`;
+  if (event.kind === "tool_response") return `${event.tool_name} → ${event.content ?? ""}`;
+  return event.content ?? "";
+}
+
 export function pct(value: number | null | undefined, digits = 0): string {
   return value == null ? "n/a" : `${(value * 100).toFixed(digits)}%`;
 }

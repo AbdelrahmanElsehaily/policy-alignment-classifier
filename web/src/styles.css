@@ -110,3 +110,35 @@ pre.tool-result { max-height: 160px; overflow: auto; white-space: pre-wrap; word
   .turn-row { grid-template-columns: 1fr; }
   .turn-row.kind-tool_call, .turn-row.kind-tool_response { margin-left: 12px; }
 }
+
+/* Eval results */
+.results .split-info { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; margin: 10px 0 14px; }
+.results .split-info p { margin: 4px 0; }
+.results-table td, .results-table th { white-space: nowrap; }
+.results-table td:first-child { white-space: normal; }
+.results-table th[title] { cursor: help; text-decoration: underline dotted; text-underline-offset: 3px; }
+.clickable-row { cursor: pointer; }
+.clickable-row:hover td { background: var(--bg); }
+.selected-row td { background: var(--bg); box-shadow: inset 0 0 0 9999px color-mix(in srgb, var(--accent) 8%, transparent); }
+.selected-row td:first-child { border-left: 3px solid var(--accent); }
+.how-to-read { margin: 10px 0 18px; }
+.how-to-read summary, .run-details summary { cursor: pointer; color: var(--accent); }
+.how-to-read ul { margin: 8px 0; padding-left: 20px; }
+.how-to-read li { margin: 4px 0; }
+.run-details { border-top: 1px solid var(--border); margin-top: 8px; padding-top: 4px; }
+.run-details .lead { font-size: 1.05em; }
+.confusion td { text-align: center; font-variant-numeric: tabular-nums; }
+.confusion td.diag { color: var(--allow); font-weight: 700; }
+.confusion td.costly { color: var(--violation); font-weight: 700; }
+button.chip.active-chip { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+.mistakes { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 10px; margin: 10px 0; }
+.card.mistake { margin-bottom: 0; border-left: 4px solid var(--border); }
+.card.mistake-missed, .card.mistake-false-block { border-left-color: var(--violation); }
+.card.mistake-undecided-decided, .card.mistake-over-cautious { border-left-color: var(--silent); }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 6px; }
+.two-col p { margin: 4px 0 0; }
+.mistake pre.event { max-height: 140px; overflow: auto; white-space: pre-wrap; word-break: break-word; }
+@media (max-width: 640px) {
+  .two-col { grid-template-columns: 1fr; }
+  .mistakes { grid-template-columns: 1fr; }
+}

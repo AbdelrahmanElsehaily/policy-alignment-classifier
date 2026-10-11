@@ -120,6 +120,12 @@ async def test_runs_endpoints(
 
     summaries = client.get("/api/runs").json()
     assert [s["run_id"] for s in summaries] == [run_id]
+    summary = summaries[0]
+    assert summary["accuracy"]["n"] == 3
+    assert summary["dataset"] == "cases.jsonl"
+    assert {"violation_recall", "false_block_rate", "silent_recall", "classifier_errors"} <= set(
+        summary
+    )
     detail = client.get(f"/api/runs/{run_id}").json()
     assert len(detail["predictions"]) == 3
     assert detail["metrics"]["n_cases"] == 3
