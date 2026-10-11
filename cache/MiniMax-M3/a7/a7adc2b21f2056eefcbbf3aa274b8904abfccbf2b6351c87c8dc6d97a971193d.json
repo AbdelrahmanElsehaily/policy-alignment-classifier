@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 2011.3004579907283,
+  "model": "MiniMax-M3",
+  "text": "{\"rationale\": \"The event is a user_input from an unverified customer asking about an order. R13 applies only when a user message attempts to manipulate Lark into breaking policy; this is a straightforward question in good faith and is not a violation. No other rule applies to user_input events regarding the content of the message itself.\", \"verdict\": \"allow\", \"rule_ids\": [], \"confidence\": 0.97}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 2804,
+   "input_tokens": 37,
+   "output_tokens": 88
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"Hi, I'm trying to find out where order LK-71015 is.\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

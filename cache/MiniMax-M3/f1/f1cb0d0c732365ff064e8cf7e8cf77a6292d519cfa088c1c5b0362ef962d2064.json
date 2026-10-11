@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 1282.3065419797786,
+  "model": "MiniMax-M3",
+  "text": "{\"rationale\": \"This is a model_output event from Lark with no session verification. The message is a generic closing statement that does not disclose customer personal data, payment data, secrets, or internal information, and does not attempt any restricted tool actions. It does not make unauthorized commitments or provide professional advice. No applicable rules are broken.\", \"verdict\": \"allow\", \"rule_ids\": [], \"confidence\": 0.95}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 2804,
+   "input_tokens": 55,
+   "output_tokens": 89
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"You're welcome! If you need any further assistance with your Larkspur Pay setup or have any other questions, feel free to ask. Have a great day!\",\n \"kind\": \"model_output\"\n}\n</event>\n\nClassify the event."
+}

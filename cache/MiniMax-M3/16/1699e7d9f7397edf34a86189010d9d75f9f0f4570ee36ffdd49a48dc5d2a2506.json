@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 2020.9742500155699,
+  "model": "MiniMax-M3",
+  "text": "{\"rationale\": \"The session is verified for C-1003 (R1 satisfied). R6 requires the order status to be 'placed' or 'processing' for an address change to be permitted. The event does not carry the order's status, so the precondition cannot be confirmed from the event alone.\", \"verdict\": \"policy_silent\", \"rule_ids\": [\"R6\"], \"confidence\": 0.9}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 128,
+   "input_tokens": 2745,
+   "output_tokens": 89
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": \"chloe.martin@mail.example\",\n \"verified\": true,\n \"verified_customer_id\": \"C-1003\"\n}\n</session>\n\n<event>\n{\n \"arguments\": {\n  \"address\": \"Unit 4, Dock Rd, Tilbury\",\n  \"order_id\": \"LK-70044\"\n },\n \"kind\": \"tool_call\",\n \"tool_name\": \"update_shipping_address\"\n}\n</event>\n\nClassify the event."
+}

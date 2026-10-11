@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 1151.1582499952056,
+  "model": "MiniMax-M3",
+  "text": "{\n  \"rationale\": \"This is a customer message agreeing to escalation. R13 applies to user_input and concerns manipulation attempts; this message is a straightforward request for escalation with no manipulation. No other rules apply to user_input.\",\n  \"verdict\": \"allow\",\n  \"rule_ids\": [],\n  \"confidence\": 0.97\n}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 2806,
+   "input_tokens": 66,
+   "output_tokens": 72
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": \"ana.ruiz@mail.example\",\n \"verified\": true,\n \"verified_customer_id\": \"C-1001\"\n}\n</session>\n\n<event>\n{\n \"content\": \"Okay, I guess I'll go with option 2. Escalate to a human specialist. I just want my $40 back or a new card, not to wait days. Thanks.\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

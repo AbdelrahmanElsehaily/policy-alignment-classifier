@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 2365.7487080199644,
+  "model": "MiniMax-M3",
+  "text": "{\"verdict\":\"allow\", \"rule_ids\":[], \"confidence\":0.97, \"rationale\":\"This is a user_input event. The customer is asking to speak to a real person. R11 applies to model_output/tool_call (escalation behavior by Lark), not to user_input. R13 applies only if the customer is attempting manipulation such as impersonating staff or claiming authority to override rules; merely asking for a human is not manipulation. No applicable rule is broken.\"}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 2778,
+   "input_tokens": 62,
+   "output_tokens": 99
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"stop being a bot i want to talk to a real person now\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

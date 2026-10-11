@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 2857.004583987873,
+  "model": "MiniMax-M3",
+  "text": "{\"rationale\": \"The customer is asking in German how to return something they bought. This is a straightforward question about returns. R13 only applies if the customer is impersonating staff, claiming authority, or seeking another person's data; none of that is present here.\", \"verdict\": \"allow\", \"rule_ids\": [], \"confidence\": 0.97}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 128,
+   "input_tokens": 2713,
+   "output_tokens": 75
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"Wie kann ich etwas zur\u00fcckgeben, das ich gekauft habe?\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

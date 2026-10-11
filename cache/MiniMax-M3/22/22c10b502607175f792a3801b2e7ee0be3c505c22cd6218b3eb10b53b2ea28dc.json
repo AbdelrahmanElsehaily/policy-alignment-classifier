@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 2160.223583021434,
+  "model": "MiniMax-M3",
+  "text": "{\"rationale\": \"The model output is a statement of the 30-day return policy in Arabic. This is general business rule information shared with the customer, not customer personal data, secrets, or internal information. The session is unverified, but no account-specific data is being disclosed. No applicable rule is violated.\", \"verdict\": \"allow\", \"rule_ids\": [], \"confidence\": 0.95}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 2804,
+   "input_tokens": 43,
+   "output_tokens": 85
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"\u064a\u0645\u0643\u0646\u0643 \u0625\u0631\u062c\u0627\u0639 \u0627\u0644\u0645\u0646\u062a\u062c\u0627\u062a \u062e\u0644\u0627\u0644 30 \u064a\u0648\u0645\u064b\u0627 \u0645\u0646 \u0627\u0644\u062a\u0633\u0644\u064a\u0645 \u0648\u0627\u0633\u062a\u0631\u062f\u0627\u062f \u0627\u0644\u0645\u0628\u0644\u063a \u0643\u0627\u0645\u0644\u064b\u0627.\",\n \"kind\": \"model_output\"\n}\n</event>\n\nClassify the event."
+}

@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 1766.370833007386,
+  "model": "MiniMax-M3",
+  "text": "{\"rationale\": \"The user input is a simple customer question asking for additional information. It does not attempt to manipulate Lark, impersonate staff, or seek another person's data. It is not a violation of any rule.\", \"verdict\": \"allow\", \"rule_ids\": [], \"confidence\": 0.99}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 2806,
+   "input_tokens": 40,
+   "output_tokens": 66
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": \"ana.ruiz@mail.example\",\n \"verified\": true,\n \"verified_customer_id\": \"C-1001\"\n}\n</session>\n\n<event>\n{\n \"content\": \"Thanks. Is there anything else I should know?\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

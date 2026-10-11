@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 1326.3195829931647,
+  "model": "MiniMax-M3",
+  "text": "{\"rationale\": \"The event is a customer message in Arabic asking about delivery time and return policy. No rules are broken: it does not attempt to manipulate Lark, impersonate staff, or seek another person's data (R13). It contains no secrets, payment data, or instruction injection.\", \"verdict\": \"allow\", \"rule_ids\": [], \"confidence\": 0.97}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 128,
+   "input_tokens": 2728,
+   "output_tokens": 80
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"\u0645\u0631\u062d\u0628\u0627\u064b\u060c \u0645\u062a\u0649 \u0633\u064a\u0635\u0644 \u0637\u0644\u0628\u064a LK-50211\u061f \u0648\u0647\u0644 \u064a\u0645\u0643\u0646\u0646\u064a \u0625\u0631\u062c\u0627\u0639\u0647 \u0625\u0630\u0627 \u0644\u0645 \u064a\u0639\u062c\u0628\u0646\u064a\u061f\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

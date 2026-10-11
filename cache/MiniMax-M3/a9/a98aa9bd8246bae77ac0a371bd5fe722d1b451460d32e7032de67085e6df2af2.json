@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 2223.579458979657,
+  "model": "MiniMax-M3",
+  "text": "{\"rationale\":\"This is a customer message describing a product issue. The applicable rule for user_input is R13 (manipulation). The message does not attempt to impersonate staff, claim authority, instruct Lark to ignore rules, or seek another person's data \u2014 it is a good-faith support request. No rule is broken.\",\"verdict\":\"allow\",\"rule_ids\":[],\"confidence\":0.98}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 2797,
+   "input_tokens": 52,
+   "output_tokens": 83
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"Hi, my Arden headphones (order LK-50211) won't pair with my new phone. Any ideas?\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

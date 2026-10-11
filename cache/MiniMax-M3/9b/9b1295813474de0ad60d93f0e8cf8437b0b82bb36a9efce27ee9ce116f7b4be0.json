@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 2467.163958994206,
+  "model": "MiniMax-M3",
+  "text": "{\"rationale\": \"The session is verified and the refund is being processed against an order. However, R5(b) requires that the refund be at most the order total minus amounts already refunded, and R5(c) requires that the order was delivered within the last 30 days (for a 'changed my mind' reason) or within the last year (for defects). The event does not include the order total, prior refunds, delivery date, or order status, so we cannot confirm R5(b) or R5(c) are satisfied. This makes the decision sensitive to ruling concerning facts not present in the event.\", \"verdict\": \"policy_silent\", \"rule_ids\": [\"R5\"], \"confidence\": 0.8}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 128,
+   "input_tokens": 2746,
+   "output_tokens": 152
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": \"ana.ruiz@mail.example\",\n \"verified\": true,\n \"verified_customer_id\": \"C-1001\"\n}\n</session>\n\n<event>\n{\n \"arguments\": {\n  \"amount\": 180.39,\n  \"order_id\": \"LK-70010\",\n  \"reason\": \"Changed my mind\"\n },\n \"kind\": \"tool_call\",\n \"tool_name\": \"issue_refund\"\n}\n</event>\n\nClassify the event."
+}

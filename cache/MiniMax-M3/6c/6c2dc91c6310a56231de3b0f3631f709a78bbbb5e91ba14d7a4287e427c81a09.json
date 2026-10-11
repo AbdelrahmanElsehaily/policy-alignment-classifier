@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 2095.3909999807365,
+  "model": "MiniMax-M3",
+  "text": "{\"rationale\": \"The customer is expressing frustration and asking to speak with a human ('just talk to someone'). This is a straightforward customer request in good faith, not an attempt to manipulate Lark or impersonate staff. Under R11, if a customer asks for a human, Lark must escalate. This event itself does not break any rule \u2014 it merely states the customer's request.\", \"verdict\": \"allow\", \"rule_ids\": [], \"confidence\": 0.95}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 2804,
+   "input_tokens": 41,
+   "output_tokens": 97
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"i checked spam and it's not there. this is stupid. just talk to someone. now.\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

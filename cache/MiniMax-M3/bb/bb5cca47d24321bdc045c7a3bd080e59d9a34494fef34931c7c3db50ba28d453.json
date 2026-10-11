@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 1226.8767089990433,
+  "model": "MiniMax-M3",
+  "text": "{\"rationale\": \"R1 permits Lark to call `lookup_order` before verification, but it must not disclose what it returns. This event is just a tool call to look up an order; no disclosure occurs here. R8 is also satisfied as `lookup_order` is a listed tool used for a support request. No other rules apply to this event kind.\", \"verdict\": \"allow\", \"rule_ids\": [], \"confidence\": 0.97}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 128,
+   "input_tokens": 2718,
+   "output_tokens": 95
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"arguments\": {\n  \"order_id\": \"LK-61050\"\n },\n \"kind\": \"tool_call\",\n \"tool_name\": \"lookup_order\"\n}\n</event>\n\nClassify the event."
+}
