@@ -160,3 +160,17 @@ button.chip.active-chip { background: var(--accent); color: var(--bg); border-co
 .drift-row-moderate .psi-fill { background: var(--silent); }
 .psi-mark { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--muted); }
 .new-tag { display: inline-block; font-size: 0.8em; font-weight: 700; color: var(--silent); border: 1px solid currentColor; border-radius: 4px; padding: 0 5px; margin-right: 6px; }
+
+/* Try it */
+.segmented { display: flex; flex-wrap: wrap; gap: 0; margin: 0.25rem 0; }
+.segmented .segment {
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  border: 1px solid var(--border);
+  margin-left: -1px;
+}
+.segmented .segment:first-child { border-radius: 6px 0 0 6px; margin-left: 0; }
+.segmented .segment:last-child { border-radius: 0 6px 6px 0; }
+.segmented .segment.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+.tryit-result { margin-top: 1rem; }
