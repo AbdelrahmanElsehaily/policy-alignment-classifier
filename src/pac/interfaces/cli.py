@@ -60,7 +60,8 @@ class SplitOption(StrEnum):
     dev = "dev"
     test = "test"
     hard = "hard"
-    all = "all"  # dev + test (the hard split is run on its own)
+    stress = "stress"
+    all = "all"  # dev + test (hard and stress are run on their own)
 
 
 BackendOpt = Annotated[
@@ -205,6 +206,7 @@ _SPLITS: dict[SplitOption, Split] = {
     SplitOption.dev: "dev",
     SplitOption.test: "test",
     SplitOption.hard: "hard",
+    SplitOption.stress: "stress",
 }
 
 
@@ -280,7 +282,7 @@ def check_data() -> None:
     by_split = Counter(c.split for c in cases)
     typer.echo(
         f"OK: {len(cases)} cases ({by_split['dev']} dev, {by_split['test']} test, "
-        f"{by_split['hard']} hard)"
+        f"{by_split['hard']} hard, {by_split['stress']} stress)"
     )
 
 

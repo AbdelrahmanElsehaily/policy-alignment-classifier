@@ -72,6 +72,13 @@ def render_report(run: ScoredRun) -> str:
         f"| rule attribution (right rule, given flagged) | {fmt_rate(m.rule_attribution)} |",
         f"| classifier errors (fail-closed) | {fmt_rate(op.classifier_errors)} |",
     ]
+    if m.accuracy_template_ci is not None:
+        lo, hi = m.accuracy_template_ci
+        lines.insert(
+            lines.index("| metric | value |") + 3,
+            f"| 3-way accuracy, interval over {m.n_templates} templates (generated data) "
+            f"| [{lo:.0%}–{hi:.0%}] |",
+        )
     if m.flip_rate is not None:
         lines.append(f"| verdict flip rate across repeats | {fmt_rate(m.flip_rate)} |")
 

@@ -187,3 +187,26 @@ def test_errors_are_never_scored_as_correct_silence() -> None:
     # Operationally, a fail-closed error still routes the event to a human.
     assert m.violation_caught_or_escalated.k == 1
     assert m.escalation_rate_on_allow.k == 1
+
+
+def test_template_interval_resamples_whole_templates() -> None:
+    def tagged(case_id: str, template: str, correct: bool) -> Prediction:
+        p = pred(case_id, "allow", "allow" if correct else "violation")
+        return p.model_copy(update={"tags": ("stress", f"tpl:{template}")})
+
+    # Two templates, each internally uniform: per-event Wilson says 50% +- 22 points over 20
+    # events, but there are really only two independent observations.
+    preds = [tagged(f"a{i}", "a", True) for i in range(10)]
+    preds += [tagged(f"b{i}", "b", False) for i in range(10)]
+    metrics = compute_metrics(preds)
+    assert metrics.n_templates == 2
+    assert metrics.accuracy_template_ci is not None
+    lo, hi = metrics.accuracy_template_ci
+    assert (lo, hi) == (0.0, 1.0)
+    assert metrics.accuracy.ci_low is not None
+    assert metrics.accuracy.ci_low > 0.25
+
+
+def test_no_template_interval_unless_every_case_has_a_template() -> None:
+    preds = [pred("x", "allow", "allow"), pred("y", "allow", "allow")]
+    assert compute_metrics(preds).accuracy_template_ci is None

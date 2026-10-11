@@ -82,6 +82,11 @@ class Metrics(BaseModel):
     accuracy: Rate
     macro_f1: float | None
     macro_f1_ci: tuple[float, float] | None
+    # Generated cases built from one template are not independent. When every case names its
+    # template (a ``tpl:`` tag), this interval resamples templates instead of events: it is the
+    # honest one for generated data, and wider than the Wilson interval on ``accuracy``.
+    n_templates: int | None = None
+    accuracy_template_ci: tuple[float, float] | None = None
     per_verdict: dict[str, VerdictScores]
     confusion: dict[str, dict[str, int]]
     violation_recall: Rate
@@ -183,6 +188,37 @@ def bootstrap_macro_f1(
     return (lo, hi) if lo is not None and hi is not None else None
 
 
+TEMPLATE_TAG = "tpl:"
+
+
+def template_of(p: Prediction) -> str | None:
+    return next((t for t in p.tags if t.startswith(TEMPLATE_TAG)), None)
+
+
+def bootstrap_template_accuracy(
+    preds: Sequence[Prediction], *, samples: int = 2000, seed: int = 0
+) -> tuple[int, tuple[float, float]] | None:
+    """Accuracy's 95% interval when resampling whole templates (a cluster bootstrap)."""
+    clusters: dict[str, list[bool]] = {}
+    for p in preds:
+        template = template_of(p)
+        if template is None:
+            return None
+        clusters.setdefault(template, []).append(p.correct)
+    if len(clusters) < 2:
+        return None
+    groups = [clusters[k] for k in sorted(clusters)]
+    rng = random.Random(seed)
+    values = []
+    for _ in range(samples):
+        drawn = [groups[rng.randrange(len(groups))] for _ in groups]
+        values.append(sum(sum(g) for g in drawn) / sum(len(g) for g in drawn))
+    lo, hi = percentile(values, 0.025), percentile(values, 0.975)
+    if lo is None or hi is None:
+        return None
+    return len(groups), (lo, hi)
+
+
 def slice_scores(preds: Sequence[Prediction]) -> SliceScores:
     return SliceScores(
         n=len(preds),
@@ -273,6 +309,7 @@ def compute_metrics(predictions: Sequence[Prediction], *, seed: int = 0) -> Metr
     gold_allow = [p for p in primary if p.gold == "allow"]
     flagged_violation = [p for p in gold_violation if p.predicted == "violation"]
     bins, ece = calibration(primary)
+    by_template = bootstrap_template_accuracy(primary, seed=seed)
 
     return Metrics(
         n_cases=len(primary),
@@ -281,6 +318,8 @@ def compute_metrics(predictions: Sequence[Prediction], *, seed: int = 0) -> Metr
         accuracy=rate(primary, lambda p: p.correct),
         macro_f1=macro_f1(primary),
         macro_f1_ci=bootstrap_macro_f1(primary, seed=seed),
+        n_templates=by_template[0] if by_template else None,
+        accuracy_template_ci=by_template[1] if by_template else None,
         per_verdict=per_verdict(primary),
         confusion=confusion(primary),
         violation_recall=rate(gold_violation, lambda p: p.predicted == "violation"),
