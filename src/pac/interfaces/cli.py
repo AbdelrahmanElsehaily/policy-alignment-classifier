@@ -6,6 +6,7 @@ import asyncio
 import shutil
 import subprocess
 import sys
+from collections import Counter
 from collections.abc import Callable
 from datetime import UTC, datetime
 from enum import StrEnum
@@ -15,7 +16,14 @@ from typing import Annotated, Any, get_args
 import typer
 from pydantic import ValidationError
 
-from pac.bootstrap import build_backend, build_baseline, build_classifier, build_policy
+from pac.bootstrap import (
+    build_backend,
+    build_baseline,
+    build_classifier,
+    build_policy,
+    dataset_path,
+    load_all_cases,
+)
 from pac.evaluation.application.reporting import fmt_rate
 from pac.evaluation.application.run_eval import new_run_id, record_run, rescore_run, run_cases
 from pac.evaluation.domain.cases import (
@@ -51,7 +59,8 @@ class ClassifierKind(StrEnum):
 class SplitOption(StrEnum):
     dev = "dev"
     test = "test"
-    all = "all"
+    hard = "hard"
+    all = "all"  # dev + test (the hard split is run on its own)
 
 
 BackendOpt = Annotated[
@@ -137,7 +146,8 @@ def evaluate(
         )
     settings = _settings(backend, model, concurrency=concurrency)
     policy = build_policy(settings)
-    cases = _select_cases(settings, policy, split, case_id)
+    dataset = dataset_path(settings, _SPLITS.get(split))
+    cases = _select_cases(dataset, policy, split, case_id)
     classifier, prompt_version, backend_name = _make_classifier(
         settings, classifier_kind, cache=cache
     )
@@ -164,7 +174,8 @@ def evaluate(
         prompt_version=prompt_version,
         policy_version=policy.version,
         policy_sha256=policy.sha256,
-        dataset_sha256=file_sha256(settings.cases_path),
+        dataset_sha256=file_sha256(dataset),
+        dataset=dataset.name,
         split=split.value,
         n_cases=len(cases),
         repeats=repeats,
@@ -190,17 +201,23 @@ def evaluate(
         raise typer.Exit(code=3)
 
 
+_SPLITS: dict[SplitOption, Split] = {
+    SplitOption.dev: "dev",
+    SplitOption.test: "test",
+    SplitOption.hard: "hard",
+}
+
+
 def _select_cases(
-    settings: Settings, policy: Policy, split: SplitOption, case_ids: list[str] | None
+    dataset: Path, policy: Policy, split: SplitOption, case_ids: list[str] | None
 ) -> list[LabeledCase]:
     try:
-        all_cases = load_cases(settings.cases_path)
+        all_cases = load_cases(dataset)
         check_against_policy(all_cases, policy)
     except DatasetError as exc:
         raise _fail(f"dataset invalid: {exc}") from exc
 
-    splits: dict[SplitOption, Split] = {SplitOption.dev: "dev", SplitOption.test: "test"}
-    cases = select(all_cases, splits.get(split))
+    cases = select(all_cases, _SPLITS.get(split))
     if case_ids:
         wanted = set(case_ids)
         cases = [c for c in cases if c.id in wanted]
@@ -256,12 +273,15 @@ def check_data() -> None:
     """Validate the eval set against the schema and the policy."""
     settings = Settings()
     try:
-        cases = load_cases(settings.cases_path)
+        cases = load_all_cases(settings)
         check_against_policy(cases, build_policy(settings))
     except DatasetError as exc:
         raise _fail(str(exc)) from exc
-    by_split = {s: sum(1 for c in cases if c.split == s) for s in ("dev", "test")}
-    typer.echo(f"OK: {len(cases)} cases ({by_split['dev']} dev, {by_split['test']} test)")
+    by_split = Counter(c.split for c in cases)
+    typer.echo(
+        f"OK: {len(cases)} cases ({by_split['dev']} dev, {by_split['test']} test, "
+        f"{by_split['hard']} hard)"
+    )
 
 
 @app.command()

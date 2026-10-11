@@ -14,7 +14,9 @@ from pac.guardrail.domain.policy import Policy
 from pac.guardrail.domain.value_object import ValueObject
 
 LabelConfidence = Literal["high", "medium", "contested"]
-Split = Literal["dev", "test"]
+# dev and test live in data/cases.jsonl (frozen with their committed runs); hard, written after
+# v1.0, lives in its own file so adding it changed nothing the earlier runs depend on.
+Split = Literal["dev", "test", "hard"]
 
 
 class DatasetError(ValueError):

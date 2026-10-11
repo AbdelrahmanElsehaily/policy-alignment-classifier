@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from pac.bootstrap import build_agent, build_classifier
+from pac.bootstrap import build_agent, build_classifier, dataset_path, load_all_cases
 from pac.guardrail.application.ports import BackendError
 from pac.guardrail.infrastructure.llm.caching import CachingBackend
 from pac.guardrail.infrastructure.llm.ollama import OllamaBackend
@@ -55,3 +55,16 @@ def test_the_agent_is_never_cached_and_can_use_its_own_model(tmp_path: Path) -> 
     assert "You are Lark" in agent._system
     same_model = build_agent(_settings(tmp_path, backend="ollama", live=True, model="qwen3.5"))
     assert same_model.model == "qwen3.5"
+
+
+def test_each_split_reads_its_own_dataset_file(tmp_path: Path) -> None:
+    settings = _settings(tmp_path)
+    assert dataset_path(settings, "hard") == settings.hard_cases_path
+    assert dataset_path(settings, "test") == settings.cases_path
+    assert dataset_path(settings, None) == settings.cases_path
+
+
+def test_all_cases_spans_both_files_with_unique_ids() -> None:
+    cases = load_all_cases(Settings())
+    assert {c.split for c in cases} == {"dev", "test", "hard"}
+    assert len({c.id for c in cases}) == len(cases)

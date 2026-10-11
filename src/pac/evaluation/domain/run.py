@@ -21,6 +21,8 @@ class RunConfig(ValueObject):
     policy_version: str
     policy_sha256: str
     dataset_sha256: str
+    # The dataset file under data/, so a run can be replayed against the file it measured.
+    dataset: str = "cases.jsonl"
     split: str
     n_cases: int
     repeats: int

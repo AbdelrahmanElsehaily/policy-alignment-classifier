@@ -6,6 +6,10 @@ layer reads configuration or picks concrete adapters.
 
 from __future__ import annotations
 
+from pathlib import Path
+
+from pac.evaluation.domain.cases import LabeledCase, Split, ensure_unique_ids
+from pac.evaluation.infrastructure.case_store import load_cases
 from pac.evaluation.infrastructure.run_store import FileRunStore
 from pac.guardrail.application.llm_classifier import LLMClassifier
 from pac.guardrail.application.ports import BackendError, LLMBackend
@@ -113,3 +117,17 @@ def build_agent(settings: Settings) -> SimulatedAgent:
         settings.agent_prompt_path.read_text(),
         max_tokens=settings.max_output_tokens,
     )
+
+
+def dataset_path(settings: Settings, split: Split | None) -> Path:
+    """The file holding a split: the hard split has its own; dev and test share one."""
+    return settings.hard_cases_path if split == "hard" else settings.cases_path
+
+
+def load_all_cases(settings: Settings) -> list[LabeledCase]:
+    """Every labelled case from every dataset file, with ids unique across files."""
+    cases = load_cases(settings.cases_path)
+    if settings.hard_cases_path.exists():
+        cases += load_cases(settings.hard_cases_path)
+    ensure_unique_ids(cases)
+    return cases

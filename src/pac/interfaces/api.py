@@ -17,13 +17,13 @@ from pac.bootstrap import (
     build_classifier,
     build_policy,
     build_run_store,
+    load_all_cases,
 )
 from pac.evaluation.application.ports import RunNotFound, RunStore
 from pac.evaluation.domain.cases import LabeledCase
 from pac.evaluation.domain.metrics import Metrics
 from pac.evaluation.domain.prediction import Prediction
 from pac.evaluation.domain.run import RunConfig
-from pac.evaluation.infrastructure.case_store import load_cases
 from pac.guardrail.application.ports import BackendError
 from pac.guardrail.domain.classification import Classification, EventClassifier
 from pac.guardrail.domain.events import ClassificationRequest
@@ -105,7 +105,7 @@ class _Services:
 
     @cached_property
     def cases(self) -> list[LabeledCase]:
-        return load_cases(self.settings.cases_path)
+        return load_all_cases(self.settings)
 
     @cached_property
     def baseline(self) -> RegexBaseline:

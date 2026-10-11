@@ -46,7 +46,8 @@ def render_report(run: ScoredRun) -> str:
         "",
         f"- **Classifier:** `{config.classifier}` via `{config.backend}`",
         f"- **Prompt:** `{config.prompt_version}` · **Policy:** `{config.policy_version}` "
-        f"(`{config.policy_sha256[:12]}`) · **Dataset:** `{config.dataset_sha256[:12]}`",
+        f"(`{config.policy_sha256[:12]}`) · "
+        f"**Dataset:** `{config.dataset}` `{config.dataset_sha256[:12]}`",
         f"- **Split:** `{config.split}` · **Cases:** {m.n_cases} · **Repeats:** {m.repeats} · "
         f"**History:** {'on' if config.with_history else 'off'} · "
         f"**Commit:** `{config.git_commit or 'unknown'}`",

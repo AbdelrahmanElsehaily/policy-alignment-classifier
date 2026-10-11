@@ -77,3 +77,52 @@ def test_contested_labels_are_tagged_corner_case() -> None:
         c.id for c in cases if c.label_confidence == "contested" and "corner-case" not in c.tags
     ]
     assert not untagged
+
+
+# --- the hard split (data/hard_cases.jsonl) ---------------------------------------------------
+
+
+def _hard() -> list[LabeledCase]:
+    return load_cases(Settings().hard_cases_path)
+
+
+def test_hard_split_valid_and_in_its_own_file(policy: Policy) -> None:
+    hard = _hard()
+    check_against_policy(hard, policy)
+    assert len(hard) >= 30
+    assert {c.split for c in hard} == {"hard"}
+    assert all("hard" in c.tags for c in hard)
+    assert not any(c.split == "hard" for c in load_cases(Settings().cases_path))
+
+
+def test_hard_jsonl_matches_builder() -> None:
+    result = subprocess.run(
+        [sys.executable, str(REPO_ROOT / "data" / "build_hard_cases.py"), "--check"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+
+
+def test_hard_split_covers_every_kind_and_verdict() -> None:
+    hard = _hard()
+    assert {c.request.event.kind for c in hard} == set(EVENT_KINDS)
+    assert {c.label for c in hard} == {"allow", "violation", "policy_silent"}
+
+
+def test_hard_split_mostly_needs_more_than_history() -> None:
+    """The point of the split: history settles a few cases, but many stay undecided."""
+    hard = _hard()
+    still_silent = [c for c in hard if c.gold(with_history=True)[0] == "policy_silent"]
+    resolved = [c for c in hard if c.label_with_history not in (None, "policy_silent")]
+    assert len(still_silent) >= 5
+    assert len(resolved) >= 5
+
+
+def test_no_hard_event_duplicates_a_dev_event() -> None:
+    def key(c: LabeledCase) -> str:
+        return c.request.event.model_dump_json() + c.request.session.model_dump_json()
+
+    dev = {key(c) for c in load_cases(Settings().cases_path) if c.split == "dev"}
+    assert [c.id for c in _hard() if key(c) in dev] == []

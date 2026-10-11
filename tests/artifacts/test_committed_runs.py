@@ -61,10 +61,11 @@ async def test_committed_run_reproduces(run_id: str) -> None:
     assert (errors.value or 0) <= 0.1, "a committed run that mostly failed closed measures nothing"
     if config.repeats > 1:
         pytest.skip("variance runs bypass the cache by design; only their metrics are checked")
-    assert file_sha256(SETTINGS.cases_path) == config.dataset_sha256, (
+    dataset = REPO_ROOT / "data" / config.dataset
+    assert file_sha256(dataset) == config.dataset_sha256, (
         "dataset changed since this run was recorded; re-run the eval to refresh it"
     )
-    by_id = {c.id: c for c in load_cases(SETTINGS.cases_path)}
+    by_id = {c.id: c for c in load_cases(dataset)}
     cases = [by_id[p.case_id] for p in recorded if p.repeat == 0]
 
     replayed = await run_cases(

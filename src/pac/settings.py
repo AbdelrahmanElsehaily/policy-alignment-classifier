@@ -38,6 +38,7 @@ class Settings(BaseSettings):
     policy_path: Path = REPO_ROOT / "policy" / "policy_v0.md"
     prompt_path: Path = REPO_ROOT / "prompts" / "classifier_v2.md"
     cases_path: Path = REPO_ROOT / "data" / "cases.jsonl"
+    hard_cases_path: Path = REPO_ROOT / "data" / "hard_cases.jsonl"
     examples_path: Path = REPO_ROOT / "data" / "demo_examples.json"
     # The live conversation's simulated agent: its instructions, and an optional different
     # model to play it (same backend). Unset, the classifier's model plays both roles.
