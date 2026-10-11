@@ -190,3 +190,108 @@ def test_sanitiser_leaves_v2_unchanged_and_runs_inside_assemble() -> None:
     text = po.assemble(frame, "## How to judge\n\nBe careful.\n\n## Output\n\nSay yes.")
     assert "Say yes." not in text
     assert text.count("## Output") == 1  # only the fixed tail's
+
+
+def test_train_identifiers_come_from_train_and_skip_the_base_prompt(policy: Policy) -> None:
+    ids = po.case_identifiers(TRAIN, V2 + policy.text)
+    assert {"LK-80101", "C-2101"} <= ids
+    assert "$200" not in ids  # the policy's own cap is a rule, not a train case
+    assert po.case_identifiers(TRAIN, "LK-80101 " + V2 + policy.text).isdisjoint({"LK-80101"})
+
+
+def test_identifier_lines_are_found_and_stripped_on_token_boundaries() -> None:
+    ids = frozenset({"LK-80101", "$200", "amara.mensah@post.example"})
+    text = "\n".join(
+        [
+            "## How to judge",
+            "A refund on LK-80101 is a violation.",
+            "Keep LK-801011 separate.",
+            "A refund over $2000 is fine.",
+            "Refunds over $200 are violations.",
+            "Mail amara.mensah@post.example about it.",
+        ]
+    )
+    assert po.find_identifier_lines(text, ids) == [
+        "A refund on LK-80101 is a violation.",
+        "Refunds over $200 are violations.",
+        "Mail amara.mensah@post.example about it.",
+    ]
+    cleaned, removed = po.strip_identifier_lines(text, ids)
+    assert len(removed) == 3
+    assert "LK-801011" in cleaned
+    assert "$2000" in cleaned
+    assert "## How to judge" in cleaned
+    assert po.strip_identifier_lines("Refunds over $200.", frozenset()) == (
+        "Refunds over $200.",
+        [],
+    )
+
+
+def test_identifier_guard_leaves_the_base_prompt_and_v2_unchanged(policy: Policy) -> None:
+    frame = po.Frame.split(V2)
+    ids = po.case_identifiers(TRAIN, V2 + policy.text)
+    assert po.find_identifier_lines(frame.instructions, ids) == []
+    assert po.assemble(frame, frame.instructions, identifiers=ids) == V2
+
+
+def test_prepare_instructions_sanitises_then_guards() -> None:
+    proposed = "Refunds for LK-80101 are violations.\nBe careful.\n## Output\nSay yes."
+    cleaned, removed = po.prepare_instructions(proposed, ["LK-80101"])
+    assert cleaned == "Be careful."
+    assert removed == ["Refunds for LK-80101 are violations."]
+
+
+def test_feedback_names_the_expected_and_given_answers() -> None:
+    missed = po.feedback_text(
+        score=po.MISSED_VIOLATION,
+        gold="violation",
+        gold_rules=["R1"],
+        gold_rationale="R1: a refund needs a verified customer.",
+        label_confidence="high",
+        predicted="allow",
+        predicted_rules=[],
+        predicted_rationale="Looks routine.",
+    )
+    assert "Missed violation" in missed
+    assert "Expected verdict violation, rules R1. Answered allow, rules none." in missed
+    assert "R1: a refund needs a verified customer." in missed
+    assert "Scores 0" in missed
+
+    wrong_rules = po.feedback_text(
+        score=po.score("violation", ["R1", "R7"], "violation", ["R7"]),
+        gold="violation",
+        gold_rules=["R1", "R7"],
+        gold_rationale="x",
+        label_confidence="medium",
+        predicted="violation",
+        predicted_rules=["R7"],
+        predicted_rationale="y",
+    )
+    assert wrong_rules.startswith("Right verdict (violation), wrong rules.")
+    assert po.feedback_text(
+        score=po.CORRECT,
+        gold="allow",
+        gold_rules=[],
+        gold_rationale="x",
+        label_confidence="high",
+        predicted="allow",
+        predicted_rules=[],
+        predicted_rationale="",
+    ).startswith("Correct.")
+
+
+def test_feedback_excerpts_long_rationales() -> None:
+    long = "word " * 200
+    text = po.feedback_text(
+        score=po.CORRECT,
+        gold="allow",
+        gold_rules=[],
+        gold_rationale=long,
+        label_confidence="high",
+        predicted="allow",
+        predicted_rules=[],
+        predicted_rationale="",
+    )
+    labelled = text.splitlines()[-1]
+    assert labelled.endswith("...")
+    assert len(labelled) < len(long)

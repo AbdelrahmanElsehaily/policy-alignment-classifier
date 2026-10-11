@@ -16,7 +16,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Iterable, Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
 
@@ -149,9 +149,100 @@ def sanitise_instructions(text: str) -> str:
     return "\n".join(kept).strip()
 
 
-def assemble(frame: Frame, instructions: str, demos: Sequence[Demo] = ()) -> str:
+# =============================================================================================
+# Identifiers of the train cases: instructions must not quote them
+# =============================================================================================
+
+# What a train case's concrete facts look like: order, customer and card numbers, emails, amounts.
+_IDENTIFIER = re.compile(
+    r"LK-\d{4,}"  # order ids
+    r"|C-\d{3,}"  # customer ids
+    r"|[\w.+-]+@[\w-]+(?:\.[\w-]+)+"  # email addresses
+    r"|\$\d+(?:,\d{3})*(?:\.\d+)?"  # amounts
+    r"|\b\d{9,}\b"  # card, IMEI and other long numbers
+)
+# A match must not be part of a longer token ("LK-801011", "$2000") or a longer amount.
+_BOUNDARY_BEFORE = r"(?<![\w$.@-])"
+_BOUNDARY_AFTER = r"(?![\w@-]|\.\d)"
+
+
+def case_identifiers(cases: Iterable[LabeledCase], base_text: str) -> frozenset[str]:
+    """The concrete identifiers in the cases' inputs and rationales, minus any ``base_text`` has.
+
+    ``base_text`` is the fixed prompt and the policy: an amount or id the policy itself states
+    (a $200 cap) is part of the rules, not a train case. Pass only train cases.
+    """
+    found: set[str] = set()
+    for case in cases:
+        for text in (*_strings(case.request.model_dump(mode="json")), case.rationale):
+            found.update(m.group(0) for m in _IDENTIFIER.finditer(text))
+    return frozenset(i for i in found if not _bounded(i).search(base_text))
+
+
+def _strings(value: Any) -> Iterator[str]:
+    """Every string inside a JSON-like value, decoded (no JSON escaping to search through)."""
+    if isinstance(value, str):
+        yield value
+    elif isinstance(value, dict):
+        for item in value.values():
+            yield from _strings(item)
+    elif isinstance(value, list):
+        for item in value:
+            yield from _strings(item)
+
+
+def _bounded(identifier: str) -> re.Pattern[str]:
+    return re.compile(_BOUNDARY_BEFORE + re.escape(identifier) + _BOUNDARY_AFTER)
+
+
+def _identifier_matcher(identifiers: Iterable[str]) -> re.Pattern[str] | None:
+    ids = sorted(set(identifiers), key=len, reverse=True)
+    if not ids:
+        return None
+    return re.compile(
+        _BOUNDARY_BEFORE + "(?:" + "|".join(map(re.escape, ids)) + ")" + _BOUNDARY_AFTER
+    )
+
+
+def find_identifier_lines(text: str, identifiers: Iterable[str]) -> list[str]:
+    """The lines of ``text`` that quote one of ``identifiers`` verbatim."""
+    matcher = _identifier_matcher(identifiers)
+    if matcher is None:
+        return []
+    return [line.strip() for line in text.splitlines() if matcher.search(line)]
+
+
+def strip_identifier_lines(text: str, identifiers: Iterable[str]) -> tuple[str, list[str]]:
+    """``text`` without the lines that quote an identifier, and those lines."""
+    matcher = _identifier_matcher(identifiers)
+    lines = text.strip().splitlines()
+    if matcher is None:
+        return text.strip(), []
+    kept = [line for line in lines if not matcher.search(line)]
+    removed = [line.strip() for line in lines if matcher.search(line)]
+    return "\n".join(kept).strip(), removed
+
+
+def prepare_instructions(
+    instructions: str, identifiers: Iterable[str] = ()
+) -> tuple[str, list[str]]:
+    """What a candidate's instructions become before scoring or export.
+
+    Sanitised (output-format and example sections dropped), then any line quoting a train
+    identifier dropped. Returns the text and the identifier lines removed.
+    """
+    return strip_identifier_lines(sanitise_instructions(instructions), list(identifiers))
+
+
+def assemble(
+    frame: Frame,
+    instructions: str,
+    demos: Sequence[Demo] = (),
+    identifiers: Iterable[str] = (),
+) -> str:
     """The prompt template text for a candidate: fixed head, its instructions and demos, tail."""
-    middle = escape_template(sanitise_instructions(instructions))
+    cleaned, _ = prepare_instructions(instructions, identifiers)
+    middle = escape_template(cleaned)
     if demos:
         middle += "\n\n" + escape_template(render_demos(demos))
     return f"{frame.head}{middle}\n\n{frame.tail}"
@@ -233,6 +324,61 @@ def strict_match(
     if predicted != gold:
         return False
     return gold != "violation" or set(gold_rules) == set(predicted_rules)
+
+
+FEEDBACK_EXCERPT = 400
+
+
+def _excerpt(text: str) -> str:
+    collapsed = " ".join(text.split())
+    if len(collapsed) <= FEEDBACK_EXCERPT:
+        return collapsed
+    return collapsed[: FEEDBACK_EXCERPT - 3] + "..."
+
+
+def feedback_text(
+    *,
+    score: float,
+    gold: Verdict,
+    gold_rules: Sequence[str],
+    gold_rationale: str,
+    label_confidence: str,
+    predicted: str,
+    predicted_rules: Sequence[str],
+    predicted_rationale: str,
+) -> str:
+    """What GEPA's reflection reads about one judgement: the outcome, both answers, the reasons.
+
+    The label rationale is the labelled case's own (its ``rationale``); the case carries no
+    separate notes. Its wording is the reason the gold answer is what it is.
+    """
+    expected = ", ".join(gold_rules) or "none"
+    cited = ", ".join(predicted_rules) or "none"
+    if score == CORRECT:
+        outcome = "Correct."
+    elif score == MISSED_VIOLATION:
+        outcome = (
+            "Missed violation: the event is a violation and the classifier let it through. "
+            "Scores 0, the costliest error."
+        )
+    elif predicted == gold:
+        outcome = (
+            f"Right verdict ({gold}), wrong rules. Scores {score:.2f}: the expected rules are "
+            f"{expected}; the classifier cited {cited}."
+        )
+    else:
+        outcome = (
+            f"Wrong verdict: expected {gold}, the classifier answered {predicted}. "
+            f"Scores {score:.2f}."
+        )
+    return "\n".join(
+        [
+            outcome,
+            f"Expected verdict {gold}, rules {expected}. Answered {predicted}, rules {cited}.",
+            f"The classifier's rationale: {_excerpt(predicted_rationale) or '(none)'}",
+            f"Labelled rationale ({label_confidence} label confidence): {_excerpt(gold_rationale)}",
+        ]
+    )
 
 
 # =============================================================================================
