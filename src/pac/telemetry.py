@@ -90,12 +90,17 @@ def _text(value: Any) -> str:
     return f'"{text}"' if isinstance(value, str) and (" " in text or not text) else text
 
 
+# uvicorn logs its own status ("Started server process", …) to "uvicorn.error", which reads as a
+# failure in a log line. Nothing failed, so text logs call it "uvicorn".
+_DISPLAY_NAMES = {"uvicorn.error": "uvicorn"}
+
+
 class TextFormatter(logging.Formatter):
     """``16:40:01.123 INFO    guardrail.llm_classifier [run=… case=…] message key=value …``"""
 
     def format(self, record: logging.LogRecord) -> str:
         stamp = datetime.fromtimestamp(record.created, UTC).astimezone()
-        name = (
+        name = _DISPLAY_NAMES.get(record.name) or (
             record.name.removeprefix("pac.")
             .replace(".application", "")
             .replace(".infrastructure", "")

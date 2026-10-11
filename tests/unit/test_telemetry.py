@@ -81,3 +81,5 @@ def test_web_server_lines_are_logged_once_without_internals(stream: io.StringIO)
     logging.getLogger("uvicorn.error").info("Started", extra={"color_message": "\x1b[36mStarted"})
     assert stream.getvalue().count("Started") == 1
     assert "color_message" not in stream.getvalue()
+    assert " uvicorn Started" in stream.getvalue()
+    assert "uvicorn.error" not in stream.getvalue()
