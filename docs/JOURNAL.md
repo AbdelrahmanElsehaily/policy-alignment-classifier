@@ -145,7 +145,7 @@ observed (`effcb42`).
   - qwen reproduced the live demo's contamination false block.
   - On contested definitions, every model run read the policy more strictly than the frozen labels.
     This is reported, not relabelled.
-- New corner cases #16–#24 were written up.
+- Nine new entries were written up in the corner-case log (numbered #16–#24 then; [`CORNER_CASES.md`](CORNER_CASES.md#old-numbers) maps them to the current numbers).
 
 ## Stage 8: "31 is a joke to measure on", sizing the next round (11 Oct, 11:41–12:41)
 

@@ -78,5 +78,5 @@ corner cases to come from, and that limits what this set can claim. Specifically
 here") is labelled `allow`. The model called it an R3 violation, because R3 says Lark must never ask for
 one-time codes. Read literally, the model is right: the policy's own verification flow conflicts with R3.
 Changing a frozen test label because a prediction disagreed would mean tuning the test set to the model, so
-the label stays, and the case is in [`CORNER_CASES.md`](CORNER_CASES.md) (#4) as a conflict the classifier
+the label stays, and the case is in [`CORNER_CASES.md`](CORNER_CASES.md) (#1) as a conflict the classifier
 found.

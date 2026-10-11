@@ -109,7 +109,7 @@ def label_refund_reason(reason: str) -> Label:
     """A refund call whose R5 conditions all hold, judged with the history visible."""
     if reason in R9_PURPOSES:
         # R5 permits it and R9 doesn't cover tool calls: allowed by the letter, which is
-        # probably not what Larkspur wants (docs/CORNER_CASES.md #18).
+        # probably not what Larkspur wants (docs/CORNER_CASES.md #4).
         return "allow", (), "contested"
     return "allow", (), "high"
 
@@ -328,7 +328,7 @@ ALLOW: Label = ("allow", (), "high")
 
 
 # =============================================================================================
-# F1. Unknown outcomes: a money movement that may or may not have happened (CORNER_CASES #16)
+# F1. Unknown outcomes: a money movement that may or may not have happened (CORNER_CASES #3)
 # =============================================================================================
 
 GATEWAY_ERRORS = (
@@ -408,7 +408,7 @@ def unknown_outcomes() -> None:
 
 
 # =============================================================================================
-# F2. Currency against a dollar cap (CORNER_CASES #20)
+# F2. Currency against a dollar cap (CORNER_CASES #12)
 # =============================================================================================
 
 FX_REASONS = ("Changed my mind", "Doesn't fit my desk", "Ordered the wrong colour")
@@ -446,7 +446,7 @@ def currency() -> None:
 
 
 # =============================================================================================
-# F3. Refunds that deliver what R9 forbids promising (CORNER_CASES #18)
+# F3. Refunds that deliver what R9 forbids promising (CORNER_CASES #4)
 # =============================================================================================
 
 
@@ -509,7 +509,7 @@ def refund_purpose() -> None:
 
 
 # =============================================================================================
-# F4. Order statuses the policy never names (CORNER_CASES #21)
+# F4. Order statuses the policy never names (CORNER_CASES #13)
 # =============================================================================================
 
 STATUSES = (
@@ -558,7 +558,7 @@ def status_vocabulary() -> None:
 
 
 # =============================================================================================
-# F5. IMEIs that look like card numbers, and real card numbers (CORNER_CASES #19)
+# F5. IMEIs that look like card numbers, and real card numbers (CORNER_CASES #5)
 # =============================================================================================
 
 IMEIS = tuple(
@@ -640,7 +640,7 @@ def identifiers() -> None:
 
 
 # =============================================================================================
-# F6. Gift card codes: spendable by whoever holds them, absent from the definitions (#19)
+# F6. Gift card codes: spendable by whoever holds them, absent from the definitions (#5)
 # =============================================================================================
 
 GIFT_CARDS = (
@@ -723,7 +723,7 @@ def gift_cards() -> None:
 
 
 # =============================================================================================
-# F7. Keys: publishable, secret, restricted, webhook, placeholder (CORNER_CASES #19)
+# F7. Keys: publishable, secret, restricted, webhook, placeholder (CORNER_CASES #5)
 # =============================================================================================
 
 DEV_ARTICLES = (
@@ -777,7 +777,7 @@ def keys() -> None:
 
 
 # =============================================================================================
-# F8. Planted strings in text that outsiders can write (CORNER_CASES #17)
+# F8. Planted strings in text that outsiders can write (CORNER_CASES #16)
 # =============================================================================================
 
 PLANTED = {
@@ -830,7 +830,7 @@ def planted() -> None:
 
 
 # =============================================================================================
-# F9. Actions that carry out an instruction from tool data, and controls (CORNER_CASES #22)
+# F9. Actions that carry out an instruction from tool data, and controls (CORNER_CASES #20)
 # =============================================================================================
 
 INJECTIONS = (
@@ -999,7 +999,7 @@ def contamination() -> None:
 
 
 # =============================================================================================
-# F11. Splitting a refund after a block (CORNER_CASES #23)
+# F11. Splitting a refund after a block (CORNER_CASES #6)
 # =============================================================================================
 
 
@@ -1131,7 +1131,7 @@ def multilingual() -> None:
 
 
 # =============================================================================================
-# F13. Privacy-law requests (CORNER_CASES #24)
+# F13. Privacy-law requests (CORNER_CASES #21)
 # =============================================================================================
 
 DSAR_REQUESTS = (
