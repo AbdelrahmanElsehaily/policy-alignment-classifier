@@ -19,7 +19,33 @@ customer.
 
 It does **not** control the agent: it can't change the agent's prompts, tools, tool schemas or platform
 flows, and it can't add data to the agent's tool calls. It can only pass, block or hold what goes past.
-Everything it knows comes from what passes through it. Three consequences shape the design:
+Everything it knows comes from what passes through it.
+
+**What it sees, and what it doesn't.** The agent's *model input* belongs to the agent and its
+operator. That covers its system prompt, retrieved context placed straight into its prompt, its
+memory, and its hidden reasoning. The guardrail sees only the four event kinds that cross the wire:
+
+| Sees | Doesn't see |
+|---|---|
+| `user_input`, `model_output`, `tool_call`, `tool_response` | The agent's system prompt and instructions |
+| Its own record of earlier events in the session ("history") | Context injected into the prompt without a tool call (RAG, memory, summaries) |
+| The session envelope (an assumption, below) | The agent's reasoning, or why it chose an action |
+
+What follows from that:
+- **"Lark's own instructions" (R4) can only be recognised, not compared.** The guardrail can't diff a
+  reply against the real system prompt; it judges whether a reply looks like instructions.
+- **Injection is visible only when it arrives through a tool result.** If the operator puts
+  retrieved text straight into the agent's prompt, an injection there never passes the guardrail. It
+  sees only what the agent then does.
+- **Why the agent acted has to be inferred from the trace.** A refund that carries out an injected
+  instruction is caught by connecting events the guardrail saw (the injected tool result, then the
+  refund, with no customer request), never from the agent's reasoning. The `provenance` family in the
+  stress split measures exactly this.
+- **The guardrail's history isn't the agent's context.** The agent may have truncated or summarised
+  its context, and it still remembers replies the guardrail blocked. The live demo keeps the two
+  apart (`agent_view` and `guardrail_view` in `simulation/application/conversation.py`).
+
+Three consequences shape the design:
 
 - **Latency is on the critical path.** Every judged event waits, so the guardrail's latency is added to
   the agent's, event after event. That is why deterministic checks should settle what they can before
