@@ -195,6 +195,25 @@ So now:
   conversation and records why it stopped.
 - **Briefs don't guarantee the trap.** In the pairing conversation, Lark never searched the help
   centre, so the injected article never appeared. That is the price of naturalness.
+- It also refused six times to hand over to a human until the customer verified (R11). It wrongly
+  refused a valid return in Arabic: it said "more than 30 days" when the order was 12 days old. No rule
+  covers an agent that's wrong against the customer, so the guardrail can't catch that.
+
+**The stress split as frozen** (`27be069`): 355 cases.
+
+| Part | Cases | Notes |
+|---|---|---|
+| Recorded conversations | 191 | 16 conversations; 145 allow, 35 violation, 11 policy_silent |
+| Scripted conversations | 62 | 5 targeted probes |
+| Context windows | 8 | The same deciding event with partial history |
+| Single-event families | 94 | 12 families |
+
+54 turns have 10 or more prior events.
+
+**A caution, learned from the first baseline run:** the regex baseline scores 59% overall but catches
+only 25% of violations. Natural traffic is mostly benign, so overall accuracy rewards allowing
+everything. From here on, results are reported per family, alongside violation recall and false
+blocks, never as accuracy alone.
 
 ---
 
