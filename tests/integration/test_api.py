@@ -33,7 +33,11 @@ def _responder(request: LLMRequest) -> str:
 
 @pytest.fixture
 def settings(tmp_path: Path) -> Settings:
-    return Settings(results_dir=tmp_path / "results", web_dist=tmp_path / "no-dist")
+    return Settings(
+        results_dir=tmp_path / "results",
+        web_dist=tmp_path / "no-dist",
+        monitoring_reference_path=tmp_path / "reference.json",
+    )
 
 
 @pytest.fixture
@@ -202,3 +206,17 @@ def test_an_unreadable_run_is_skipped_not_fatal(
         response = client.get("/api/runs")
     assert response.status_code == 200
     assert any(r.getMessage() == "skipping unreadable run" for r in caplog.records)
+
+
+def test_monitoring_counts_what_the_classifier_judged(client: TestClient) -> None:
+    client.post("/api/classify", json=_body("user_input", "hello"))
+    client.post("/api/classify", json=_body("model_output", "4539 1488 0343 6467"))
+    client.post("/api/classify", params={"engine": "baseline"}, json=_body("user_input", "hi"))
+
+    snapshot = client.get("/api/monitoring").json()
+    assert snapshot["totals"]["events"] == 2  # the regex baseline isn't monitored
+    assert snapshot["totals"]["by_verdict"] == {"allow": 1, "violation": 1}
+    assert snapshot["has_reference"] is False
+    metrics = client.get("/metrics")
+    assert metrics.headers["content-type"].startswith("text/plain")
+    assert 'pac_classifications_total{verdict="violation"} 1' in metrics.text

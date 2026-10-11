@@ -53,6 +53,12 @@ class Settings(BaseSettings):
     # sweet spot for that workload on current Claude models.
     anthropic_effort: Literal["low", "medium", "high"] = "low"
 
+    # Drift monitoring: the reference profile live traffic is compared with (built by
+    # `pac monitor reference`), the rolling window, and how many events before judging drift.
+    monitoring_reference_path: Path = REPO_ROOT / "results" / "monitoring" / "reference.json"
+    monitoring_window: int = 500
+    monitoring_min_events: int = 100
+
     # Logging: level (DEBUG shows every classification) and text or one-JSON-object-per-line.
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
     log_format: Literal["text", "json"] = "text"

@@ -21,9 +21,11 @@ from pac.bootstrap import (
     build_baseline,
     build_classifier,
     build_policy,
+    build_run_store,
     dataset_path,
     load_all_cases,
 )
+from pac.evaluation.application.ports import RunNotFound
 from pac.evaluation.application.reporting import fmt_rate
 from pac.evaluation.application.run_eval import new_run_id, record_run, rescore_run, run_cases
 from pac.evaluation.domain.cases import (
@@ -42,6 +44,9 @@ from pac.guardrail.application.ports import BackendError
 from pac.guardrail.domain.classification import EventClassifier
 from pac.guardrail.domain.events import ClassificationRequest
 from pac.guardrail.domain.policy import Policy
+from pac.monitoring.domain.drift import Profile, compare
+from pac.monitoring.domain.features import observe
+from pac.monitoring.infrastructure.exporters import load_profile, save_profile
 from pac.settings import BackendName, Settings
 from pac.telemetry import configure_logging, log_context
 
@@ -317,6 +322,74 @@ def check_data() -> None:
         f"OK: {len(cases)} cases ({by_split['dev']} dev, {by_split['test']} test, "
         f"{by_split['hard']} hard, {by_split['stress']} stress)"
     )
+
+
+monitor_app = typer.Typer(
+    help="Drift monitoring: profile a run as the reference, compare other traffic with it.",
+    no_args_is_help=True,
+)
+app.add_typer(monitor_app, name="monitor")
+
+DRIFT_EXIT_CODE = 4
+
+
+def _profile_of_run(settings: Settings, run_id: str) -> Profile:
+    """The monitoring profile of a committed run: what it saw and what it said."""
+    store = build_run_store(settings)
+    try:
+        saved = store.load(run_id)
+    except RunNotFound as exc:
+        raise _fail(str(exc)) from exc
+    by_id = {c.id: c for c in load_all_cases(settings)}
+    with_history = saved.config.with_history
+    return Profile.of(
+        observe(by_id[p.case_id].request_for(with_history=with_history), p.result)
+        for p in saved.predictions
+        if p.repeat == 0 and p.case_id in by_id
+    )
+
+
+@monitor_app.command("reference")
+def monitor_reference(
+    run_id: Annotated[str, typer.Argument(help="The run whose traffic is 'normal'")],
+    out: Annotated[Path | None, typer.Option(help="Where to write the profile")] = None,
+) -> None:
+    """Build the reference profile that live traffic is compared with."""
+    settings = Settings()
+    profile = _profile_of_run(settings, run_id)
+    path = out or settings.monitoring_reference_path
+    save_profile(profile, path)
+    typer.echo(f"Wrote {path}: {profile.events} events from {run_id}")
+
+
+@monitor_app.command("compare")
+def monitor_compare(
+    run_id: Annotated[str, typer.Argument(help="The run to check against the reference")],
+    reference: Annotated[Path | None, typer.Option(help="Reference profile")] = None,
+    min_events: Annotated[
+        int, typer.Option(min=1, help="Fewer events than this: no verdict")
+    ] = 100,
+) -> None:
+    """Report how far a run's traffic has drifted from the reference. Exits 4 on major drift."""
+    settings = Settings()
+    ref = load_profile(reference or settings.monitoring_reference_path)
+    if ref is None:
+        raise _fail("No reference profile yet. Build one: uv run pac monitor reference RUN_ID")
+    report = compare(ref, _profile_of_run(settings, run_id), min_events=min_events)
+    typer.echo(
+        f"Drift of {run_id} ({report.current_events} events) against the reference "
+        f"({report.reference_events} events): {report.status.upper()}\n"
+    )
+    typer.echo(f"  {'feature':<12} {'group':<7} {'PSI':>6}  {'status':<12} biggest moves")
+    for f in report.features:
+        moved = ", ".join(f"{c} {r:.0%}→{n:.0%}" for c, r, n in f.movers)
+        if f.new:
+            moved = f"NEW: {', '.join(f.new)}; {moved}"
+        value = "–" if f.psi is None else f"{f.psi:.3f}"
+        typer.echo(f"  {f.feature:<12} {f.group:<7} {value:>6}  {f.status:<12} {moved}")
+    typer.echo("\nPSI: below 0.1 stable, 0.1-0.25 moderate, 0.25 and above major.")
+    if report.status == "major":
+        raise typer.Exit(code=DRIFT_EXIT_CODE)
 
 
 @app.command()

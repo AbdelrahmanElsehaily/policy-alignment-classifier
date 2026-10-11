@@ -9,7 +9,7 @@ from functools import cached_property
 from typing import Annotated, Any, Literal
 
 from fastapi import FastAPI, HTTPException, Query, Request, Response
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import FileResponse, PlainTextResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -17,6 +17,7 @@ from pac.bootstrap import (
     build_agent,
     build_baseline,
     build_classifier,
+    build_monitor,
     build_policy,
     build_run_store,
     load_all_cases,
@@ -38,6 +39,8 @@ from pac.interfaces.live_conversation import (
     CustomerView,
     TurnRequest,
 )
+from pac.monitoring.application.monitor import Monitor, MonitoredClassifier, MonitoringSnapshot
+from pac.monitoring.infrastructure.exporters import prometheus_text
 from pac.settings import Settings, get_settings
 from pac.simulation.application.agent import SimulatedAgent
 from pac.simulation.application.conversation import GuardedConversation, executed_calls
@@ -129,12 +132,19 @@ class _Services:
     def runs(self) -> RunStore:
         return build_run_store(self.settings)
 
+    @cached_property
+    def monitor(self) -> Monitor:
+        return build_monitor(self.settings)
+
     def classifier(self) -> EventClassifier | None:
+        """The LLM classifier, wrapped so every verdict it gives is measured for drift."""
         if self._classifier is None and self._classifier_error is None:
             try:
                 self._classifier = build_classifier(self.settings)
             except BackendError as exc:
                 self._classifier_error = str(exc)
+        if self._classifier is not None and not isinstance(self._classifier, MonitoredClassifier):
+            self._classifier = MonitoredClassifier(self._classifier, self.monitor)
         return self._classifier
 
     @property
@@ -254,6 +264,19 @@ def create_app(
                 yield update.model_dump_json() + "\n"
 
         return StreamingResponse(lines(), media_type="application/x-ndjson")
+
+    @app.get("/api/monitoring")
+    def monitoring() -> MonitoringSnapshot:
+        """Live counts and drift of the traffic this server has judged, against the reference."""
+        return services.monitor.snapshot()
+
+    @app.get("/metrics", include_in_schema=False)
+    def metrics() -> PlainTextResponse:
+        """The same, in Prometheus' text format, for scraping."""
+        return PlainTextResponse(
+            prometheus_text(services.monitor.snapshot()),
+            media_type="text/plain; version=0.0.4",
+        )
 
     @app.get("/api/runs")
     def runs() -> list[RunSummary]:

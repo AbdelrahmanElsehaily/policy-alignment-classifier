@@ -206,3 +206,41 @@ def test_serve_live_refuses_replay() -> None:
     result = runner.invoke(app, ["serve", "--live"], env={"PAC_BACKEND": "replay"})
     assert result.exit_code == 1
     assert "--live needs a real model" in plain(result.output)
+
+
+def test_monitor_reference_and_compare(dataset: Path, tmp_path: Path) -> None:
+    run = tmp_path / "results" / "runs" / "base"
+    assert (
+        runner.invoke(
+            app, ["eval", "--split", "all", "--classifier", "baseline", "--out-dir", str(run)]
+        ).exit_code
+        == 0
+    )
+    reference = tmp_path / "reference.json"
+    built = runner.invoke(app, ["monitor", "reference", "base", "--out", str(reference)])
+    assert built.exit_code == 0, built.output
+    assert reference.exists()
+
+    same = runner.invoke(
+        app, ["monitor", "compare", "base", "--reference", str(reference), "--min-events", "1"]
+    )
+    assert same.exit_code == 0, same.output
+    assert "STABLE" in plain(same.stdout)
+
+    shifted = json.loads(reference.read_text())
+    shifted["counts"]["kind"] = {"tool_call": 100}
+    shifted["events"] = 100
+    reference.write_text(json.dumps(shifted))
+    drifted = runner.invoke(
+        app, ["monitor", "compare", "base", "--reference", str(reference), "--min-events", "1"]
+    )
+    assert drifted.exit_code == 4
+    assert "MAJOR" in plain(drifted.stdout)
+
+
+def test_monitor_compare_needs_a_reference(dataset: Path, tmp_path: Path) -> None:
+    result = runner.invoke(
+        app, ["monitor", "compare", "anything", "--reference", str(tmp_path / "none.json")]
+    )
+    assert result.exit_code == 1
+    assert "pac monitor reference" in plain(result.output)

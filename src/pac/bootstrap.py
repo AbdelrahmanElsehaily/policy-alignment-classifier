@@ -20,6 +20,8 @@ from pac.guardrail.infrastructure.llm.caching import CachingBackend
 from pac.guardrail.infrastructure.llm.ollama import OllamaBackend
 from pac.guardrail.infrastructure.llm.openai_compatible import OpenAICompatibleBackend
 from pac.guardrail.infrastructure.regex_classifier import RegexBaseline
+from pac.monitoring.application.monitor import Monitor
+from pac.monitoring.infrastructure.exporters import load_profile
 from pac.settings import Settings
 from pac.simulation.application.agent import SimulatedAgent
 
@@ -136,3 +138,12 @@ def load_all_cases(settings: Settings) -> list[LabeledCase]:
             cases += load_cases(extra)
     ensure_unique_ids(cases)
     return cases
+
+
+def build_monitor(settings: Settings) -> Monitor:
+    """The live drift monitor, with the reference profile if one has been built."""
+    return Monitor(
+        load_profile(settings.monitoring_reference_path),
+        window=settings.monitoring_window,
+        min_events=settings.monitoring_min_events,
+    )

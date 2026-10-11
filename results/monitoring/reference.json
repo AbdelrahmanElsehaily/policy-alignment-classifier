@@ -1,0 +1,74 @@
+{
+ "events": 114,
+ "counts": {
+  "kind": {
+   "user_input": 31,
+   "model_output": 34,
+   "tool_response": 20,
+   "tool_call": 29
+  },
+  "tool": {
+   "n/a": 65,
+   "search_kb": 6,
+   "issue_refund": 10,
+   "escalate_to_human": 5,
+   "lookup_customer": 1,
+   "lookup_order": 15,
+   "update_shipping_address": 3,
+   "send_email": 7,
+   "cancel_order": 1,
+   "apply_discount_code": 1
+  },
+  "verified": {
+   "verified": 88,
+   "unverified": 26
+  },
+  "text_length": {
+   "50-150": 82,
+   "<50": 18,
+   "150-400": 14
+  },
+  "script": {
+   "latin": 114
+  },
+  "history": {
+   "0": 114
+  },
+  "verdict": {
+   "allow": 61,
+   "violation": 43,
+   "policy_silent": 10
+  },
+  "gate": {
+   "pass": 61,
+   "block": 43,
+   "hold": 10
+  },
+  "rules": {
+   "none": 63,
+   "R3": 10,
+   "R4": 10,
+   "R12": 6,
+   "R13": 3,
+   "R5": 8,
+   "R1": 6,
+   "R6": 5,
+   "R2": 3,
+   "R10": 4,
+   "R9": 5,
+   "R7": 4,
+   "R8": 1
+  },
+  "confidence": {
+   "0.95+": 113,
+   "0.8-0.95": 1
+  },
+  "error": {
+   "ok": 114
+  },
+  "latency": {
+   "5-15s": 79,
+   "15s+": 35
+  }
+ }
+}

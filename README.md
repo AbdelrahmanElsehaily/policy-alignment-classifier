@@ -86,6 +86,36 @@ Each run writes `results/runs/<run_id>/` containing `config.json` (prompt, polic
 commit), `predictions.jsonl`, `metrics.json` and a readable `report.md`. Every proportion carries a 95%
 Wilson interval.
 
+## Monitor drift
+
+Production traffic has no labels, so accuracy can't be measured there, but its *shape* can. If the
+events, or the verdicts, move away from what the classifier was evaluated on, the eval numbers stop
+describing it. Every event the LLM classifier judges is profiled:
+- **input:** event kind, tool, verified, text length, script (Latin, Arabic, …), history length;
+- **output:** verdict, gate, rules, confidence, errors, latency.
+
+A rolling window (last 500 events) is compared with a **reference profile** using the Population
+Stability Index:
+- below 0.1 is stable, 0.1–0.25 moderate, 0.25 and above major;
+- rare categories are merged so small samples don't raise false alarms;
+- a category the reference never saw (a new language, tool or event kind) is always reported.
+
+When a feature's status changes, it logs one `drift detected` warning, and one `drift resolved`
+when it recovers.
+
+```bash
+uv run pac monitor reference 20261010T114413Z_qwen3.5_test   # "normal" = the test-split run
+uv run pac monitor compare 20261011T125927Z_qwen3.5_stress   # exits 4 on major drift (CI/cron)
+curl localhost:8000/api/monitoring                           # live counts and drift, as JSON
+curl localhost:8000/metrics                                  # the same for Prometheus
+```
+
+The committed reference ([`results/monitoring/reference.json`](results/monitoring/reference.json))
+is the test-split run. Checked against it, the stress split shows what drift looks like: texts get
+longer (major, including a new 400–1,000-character band), Arabic appears (reported as new), refunds
+rise and the verdict mix shifts. The code is the `monitoring` context in
+[`src/pac/monitoring/`](src/pac/monitoring/).
+
 ## Logs
 
 Logs go to stderr and results to stdout, so `pac classify … | jq` stays clean. Every line carries

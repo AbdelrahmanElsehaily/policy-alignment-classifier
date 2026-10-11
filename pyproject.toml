@@ -77,7 +77,7 @@ type = "layers"
 layers = [
     "pac.interfaces",
     "pac.bootstrap",
-    "pac.evaluation | pac.simulation",
+    "pac.evaluation | pac.simulation | pac.monitoring",
     "pac.guardrail",
 ]
 
@@ -98,6 +98,21 @@ layers = [
     "pac.evaluation.application",
     "pac.evaluation.domain",
 ]
+
+[[tool.importlinter.contracts]]
+name = "Monitoring context is layered: infrastructure > application > domain"
+type = "layers"
+layers = [
+    "pac.monitoring.infrastructure",
+    "pac.monitoring.application",
+    "pac.monitoring.domain",
+]
+
+[[tool.importlinter.contracts]]
+name = "Monitoring sees only the guardrail's published domain model"
+type = "forbidden"
+source_modules = ["pac.monitoring"]
+forbidden_modules = ["pac.guardrail.application", "pac.guardrail.infrastructure"]
 
 [[tool.importlinter.contracts]]
 name = "Simulation context is layered: application > domain"
@@ -133,5 +148,7 @@ source_modules = [
     "pac.evaluation.application",
     "pac.simulation.domain",
     "pac.simulation.application",
+    "pac.monitoring.domain",
+    "pac.monitoring.application",
 ]
 forbidden_modules = ["anthropic", "httpx", "fastapi", "typer", "uvicorn", "pac.settings"]
