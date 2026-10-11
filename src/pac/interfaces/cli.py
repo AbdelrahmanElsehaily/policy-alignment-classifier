@@ -93,7 +93,8 @@ class SplitOption(StrEnum):
     test = "test"
     hard = "hard"
     stress = "stress"
-    all = "all"  # dev + test (hard and stress are run on their own)
+    train = "train"  # for prompt optimisation (scripts/optimize_prompt.py), never for reporting
+    all = "all"  # dev + test (hard, stress and train are run on their own)
 
 
 BackendOpt = Annotated[
@@ -240,6 +241,7 @@ _SPLITS: dict[SplitOption, Split] = {
     SplitOption.test: "test",
     SplitOption.hard: "hard",
     SplitOption.stress: "stress",
+    SplitOption.train: "train",
 }
 
 
@@ -315,7 +317,7 @@ def check_data() -> None:
     by_split = Counter(c.split for c in cases)
     typer.echo(
         f"OK: {len(cases)} cases ({by_split['dev']} dev, {by_split['test']} test, "
-        f"{by_split['hard']} hard, {by_split['stress']} stress)"
+        f"{by_split['hard']} hard, {by_split['stress']} stress, {by_split['train']} train)"
     )
 
 

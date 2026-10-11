@@ -16,8 +16,8 @@ from pac.guardrail.domain.value_object import ValueObject
 LabelConfidence = Literal["high", "medium", "contested"]
 # dev and test live in data/cases.jsonl (frozen with their committed runs). hard (hand-written)
 # and stress (generated) came later and each has its own file, so adding them changed nothing the
-# earlier runs depend on.
-Split = Literal["dev", "test", "hard", "stress"]
+# earlier runs depend on. train (generated) is for prompt optimisation only, never for reporting.
+Split = Literal["dev", "test", "hard", "stress", "train"]
 
 
 class DatasetError(ValueError):

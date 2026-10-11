@@ -120,18 +120,20 @@ def build_agent(settings: Settings) -> SimulatedAgent:
 
 
 def dataset_path(settings: Settings, split: Split | None) -> Path:
-    """The file holding a split: hard and stress have their own; dev and test share one."""
+    """The file holding a split: hard, stress and train have their own; dev and test share one."""
     if split == "hard":
         return settings.hard_cases_path
     if split == "stress":
         return settings.stress_cases_path
+    if split == "train":
+        return settings.train_cases_path
     return settings.cases_path
 
 
 def load_all_cases(settings: Settings) -> list[LabeledCase]:
     """Every labelled case from every dataset file, with ids unique across files."""
     cases = load_cases(settings.cases_path)
-    for extra in (settings.hard_cases_path, settings.stress_cases_path):
+    for extra in (settings.hard_cases_path, settings.stress_cases_path, settings.train_cases_path):
         if extra.exists():
             cases += load_cases(extra)
     ensure_unique_ids(cases)

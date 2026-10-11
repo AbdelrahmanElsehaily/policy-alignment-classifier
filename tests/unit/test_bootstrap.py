@@ -61,11 +61,12 @@ def test_each_split_reads_its_own_dataset_file(tmp_path: Path) -> None:
     settings = _settings(tmp_path)
     assert dataset_path(settings, "hard") == settings.hard_cases_path
     assert dataset_path(settings, "stress") == settings.stress_cases_path
+    assert dataset_path(settings, "train") == settings.train_cases_path
     assert dataset_path(settings, "test") == settings.cases_path
     assert dataset_path(settings, None) == settings.cases_path
 
 
 def test_all_cases_spans_both_files_with_unique_ids() -> None:
     cases = load_all_cases(Settings())
-    assert {c.split for c in cases} == {"dev", "test", "hard", "stress"}
+    assert {c.split for c in cases} == {"dev", "test", "hard", "stress", "train"}
     assert len({c.id for c in cases}) == len(cases)
