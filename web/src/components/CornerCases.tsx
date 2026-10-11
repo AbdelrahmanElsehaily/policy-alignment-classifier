@@ -23,9 +23,7 @@ export function CornerCases({ known, onTry }: Props) {
         {CORNER_CASES.map((c) => (
           <details key={c.id} className="corner">
             <summary>
-              <span className="corner-title">
-                {c.id}. {c.title}
-              </span>
+              <span className="corner-title">{c.title}</span>
               <span className="small corner-kind">{c.kind}</span>
             </summary>
             <div className="corner-body">
@@ -42,7 +40,9 @@ export function CornerCases({ known, onTry }: Props) {
                 <b>What I'd ship meanwhile.</b> {c.ship}
               </p>
               <div className="row compact">
-                <span className="small">Eval cases:</span>
+                <span className="small">
+                  <code>docs/CORNER_CASES.md</code> #{c.id} · Eval cases:
+                </span>
                 {c.cases.map((id) =>
                   known.has(id) ? (
                     <button key={id} className="chip" onClick={() => onTry(id)} title="Open it in Try it">

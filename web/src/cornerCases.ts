@@ -5,6 +5,7 @@
  * the doc and the write-up, not here.
  */
 export interface CornerCase {
+  /** The entry's number in docs/CORNER_CASES.md, a stable reference, not a rank. */
   id: number;
   title: string;
   /** How it was found: while labelling, by a targeted search, or by using the live demo. */
