@@ -357,7 +357,40 @@ def _eval_cases() -> list[LabeledCase]:
     return cases
 
 
-def configure(budget: int, threads: int) -> dspy.LM:
+PROPOSER_CONTEXT = """\
+Context for anyone writing instructions for this classifier. Its prompt is assembled as: a fixed
+role sentence; the policy below, verbatim; THE INSTRUCTIONS BEING WRITTEN; optional worked
+examples; and a fixed output section that requires one JSON object with the keys rationale,
+verdict (allow | violation | policy_silent), rule_ids and confidence. So the instructions must
+not restate, paraphrase, renumber or invent rules (refer to them by the ids the policy defines),
+and must not specify any output format. The policy:
+
+<policy>
+{policy}
+</policy>"""
+
+
+class PolicyAwareLM(dspy.LM):  # type: ignore[misc]
+    """The proposer's LM. Every request carries the policy and how the prompt is assembled.
+
+    MIPROv2's proposer sees only the current instructions and some examples, not the policy,
+    which sits in the fixed part of the prompt. Without it, a first run proposed instructions
+    that invented rules (a $100 cap, tools Lark doesn't have) and a non-JSON answer format.
+    """
+
+    def __init__(self, *args: Any, context: str, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self.context = context
+
+    def __call__(self, prompt: Any = None, *, messages: Any = None, **kwargs: Any) -> Any:
+        if messages and messages[0].get("role") == "system":
+            first = {**messages[0], "content": f"{self.context}\n\n{messages[0]['content']}"}
+            messages = [first, *messages[1:]]
+        return super().__call__(prompt, messages=messages, **kwargs)
+
+
+def configure(budget: int, threads: int, policy: Policy) -> tuple[dspy.LM, dspy.LM]:
+    """(task model, proposer model): the same MiniMax-M3, the proposer with the policy."""
     settings = Settings()
     if settings.minimax_api_key is None:
         raise SystemExit("MINIMAX_API_KEY is not set (put it in .env)")
@@ -366,17 +399,23 @@ def configure(budget: int, threads: int) -> dspy.LM:
     dspy.configure_cache(
         enable_disk_cache=True, enable_memory_cache=True, disk_cache_dir=str(CACHE_DIR)
     )
-    lm = dspy.LM(
+    common: dict[str, Any] = {
+        "engine": "litellm",
+        "api_base": settings.minimax_base_url,
+        "api_key": settings.minimax_api_key.get_secret_value(),
+        "num_retries": 4,
+        "extra_body": EXTRA_BODY,
+    }
+    lm = dspy.LM(f"openai/{MODEL}", max_tokens=settings.max_output_tokens, **common)
+    # Longer outputs: a full instruction set doesn't fit in the classifier's 1,024 tokens.
+    proposer = PolicyAwareLM(
         f"openai/{MODEL}",
-        engine="litellm",
-        api_base=settings.minimax_base_url,
-        api_key=settings.minimax_api_key.get_secret_value(),
-        max_tokens=settings.max_output_tokens,
-        num_retries=4,
-        extra_body=EXTRA_BODY,
+        max_tokens=4096,
+        context=PROPOSER_CONTEXT.format(policy=policy.text.strip()),
+        **common,
     )
     dspy.configure(lm=lm, num_threads=threads, max_errors=50)
-    return lm
+    return lm, proposer
 
 
 def main(argv: list[str]) -> int:
@@ -415,7 +454,7 @@ def main(argv: list[str]) -> int:
         return 0
 
     RUNTIME.adapter = HarnessAdapter(frame, policy)
-    lm = configure(args.budget, min(args.threads, 2))
+    lm, proposer = configure(args.budget, min(args.threads, 2), policy)
     calls = RUNTIME.get_calls()
     trainset, valset = [to_example(c) for c in train], [to_example(c) for c in val]
     baseline = PolicyClassifier(frame.instructions)
@@ -430,7 +469,7 @@ def main(argv: list[str]) -> int:
     calls.phase = "miprov2"
     optimizer = dspy.MIPROv2(
         metric=metric,
-        prompt_model=lm,
+        prompt_model=proposer,
         task_model=lm,
         auto="light",
         max_bootstrapped_demos=po.MAX_DEMOS,
