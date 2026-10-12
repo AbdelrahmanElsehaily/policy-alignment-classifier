@@ -17,10 +17,11 @@ LabelConfidence = Literal["high", "medium", "contested"]
 # dev and test live in data/eval/dev_test.jsonl (frozen with their committed runs). hard
 # (hand-written) and stress (generated) came later and each has its own file, so adding them
 # changed nothing the earlier runs depend on. agents: conversations recorded with another agent
-# model (MiniMax-M3), in their own file for the same reason. train (generated) is for prompt
+# model (MiniMax-M3), in their own file for the same reason. agents-pressure: the same briefs with
+# a tool-encouraging line in the agent's instructions. train (generated) is for prompt
 # optimisation only, never for reporting.
 # "hard" is historical: those cases now open the stress set, but runs recorded before keep it.
-Split = Literal["dev", "test", "hard", "stress", "agents", "train"]
+Split = Literal["dev", "test", "hard", "stress", "agents", "agents-pressure", "train"]
 
 
 class DatasetError(ValueError):

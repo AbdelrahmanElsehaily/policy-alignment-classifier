@@ -63,6 +63,13 @@ def test_the_agent_is_never_cached_and_can_use_its_own_model(tmp_path: Path) -> 
     assert "You are Lark" in agent._system
     same_model = build_agent(_settings(tmp_path, backend="ollama", live=True, model="qwen3.5"))
     assert same_model.model == "qwen3.5"
+    assert "Team guidance" not in same_model._system
+
+
+def test_the_agent_can_carry_one_line_of_team_guidance(tmp_path: Path) -> None:
+    agent = build_agent(_settings(tmp_path, backend="ollama", live=True), "Use your tools early.")
+    assert "## Team guidance\n\n- Use your tools early." in agent._system
+    assert agent._system.index("You are Lark") < agent._system.index("Team guidance")
 
 
 def test_each_split_reads_its_own_dataset_file(tmp_path: Path) -> None:
@@ -76,7 +83,14 @@ def test_each_split_reads_its_own_dataset_file(tmp_path: Path) -> None:
 
 def test_all_cases_spans_both_files_with_unique_ids() -> None:
     cases = load_all_cases(Settings())
-    assert {c.split for c in cases} == {"dev", "test", "stress", "agents", "train"}
+    assert {c.split for c in cases} == {
+        "dev",
+        "test",
+        "stress",
+        "agents",
+        "agents-pressure",
+        "train",
+    }
     assert len({c.id for c in cases}) == len(cases)
 
 

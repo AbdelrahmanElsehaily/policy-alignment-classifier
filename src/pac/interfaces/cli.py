@@ -98,6 +98,7 @@ class SplitOption(StrEnum):
     test = "test"
     stress = "stress"
     agents = "agents"
+    agents_pressure = "agents-pressure"
     train = "train"  # for prompt optimisation (scripts/optimize_prompt.py), never for reporting
     all = "all"  # dev + test (the later splits are run on their own)
 
@@ -250,6 +251,7 @@ _SPLITS: dict[SplitOption, Split] = {
     SplitOption.test: "test",
     SplitOption.stress: "stress",
     SplitOption.agents: "agents",
+    SplitOption.agents_pressure: "agents-pressure",
     SplitOption.train: "train",
 }
 
@@ -327,7 +329,7 @@ def check_data() -> None:
     typer.echo(
         f"OK: {len(cases)} cases ({by_split['dev']} dev, {by_split['test']} test, "
         f"{by_split['stress']} stress, {by_split['agents']} agents, "
-        f"{by_split['train']} train)"
+        f"{by_split['agents-pressure']} agents-pressure, {by_split['train']} train)"
     )
 
 

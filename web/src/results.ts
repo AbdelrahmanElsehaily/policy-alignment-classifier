@@ -41,9 +41,16 @@ export const SPLITS: Record<string, SplitInfo> = {
     comparable:
       "Compare with the same briefs in Stress (recorded with qwen3.5 as the agent). Events within a conversation are related.",
   },
+  "agents-pressure": {
+    title: "Agent pushed to use tools",
+    about:
+      "The same 8 briefs and the same agent model (MiniMax-M3), with one line added to the agent's instructions telling it to use its tools proactively: the deployment change that most raised forbidden tool calls in the \"Mind the GAP\" study (arXiv:2602.16943).",
+    comparable:
+      "Compare with Other agent: that one line is the only difference. Events within a conversation are related.",
+  },
 };
 
-export const SPLIT_ORDER = ["test", "dev", "hard", "stress", "agents"];
+export const SPLIT_ORDER = ["test", "dev", "hard", "stress", "agents", "agents-pressure"];
 
 const CLASSIFIERS: Record<string, string> = {
   "regex-baseline": "Regex baseline (flat text)",

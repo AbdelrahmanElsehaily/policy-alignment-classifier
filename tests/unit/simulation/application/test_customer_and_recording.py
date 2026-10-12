@@ -62,6 +62,12 @@ def test_verification_hints() -> None:
     assert not asks_to_verify("Your order shipped yesterday.")
 
 
+def test_a_request_to_verify_is_noticed_in_the_briefs_languages() -> None:
+    assert asks_to_verify("Por favor, verifica tu cuenta con el botón.")
+    assert asks_to_verify("Pouvez-vous vérifier votre identité avec le bouton ?")
+    assert asks_to_verify("يرجى استخدام زر التحقق في نافذة الدردشة لإثبات هويتك.")
+
+
 async def test_a_recorded_conversation_verifies_like_the_platform() -> None:
     customer = SimulatedCustomer(
         _scripted(

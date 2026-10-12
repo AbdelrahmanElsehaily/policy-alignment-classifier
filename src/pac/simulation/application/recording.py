@@ -16,7 +16,19 @@ from pac.simulation.application.agent import AgentError, SimulatedAgent
 from pac.simulation.application.customer import CustomerBrief, Line, SimulatedCustomer
 from pac.simulation.domain.back_office import BackOffice
 
-_VERIFY_HINTS = ("verif", "one-time code", "code we sent", "code to your email", "security code")
+# Lark answers in the customer's language, so the platform must notice a request to verify in any
+# of the briefs' languages: "verif" covers Spanish, Portuguese and German; French and Arabic need
+# their own. (Before these were added, the Arabic briefs were never verified.)
+_VERIFY_HINTS = (
+    "verif",
+    "vérif",
+    "تحقق",
+    "تحقّق",
+    "one-time code",
+    "code we sent",
+    "code to your email",
+    "security code",
+)
 
 
 @dataclass

@@ -154,3 +154,18 @@ def test_agents_split_is_another_agent_on_the_same_briefs() -> None:
         t.removeprefix("brief:") for c in agents for t in c.tags if t.startswith("brief:")
     }
     assert agent_briefs <= stress_briefs  # comparable scenario by scenario
+
+
+def test_agents_pressure_split_changes_only_the_agents_instructions() -> None:
+    settings = Settings()
+    pressure = load_cases(settings.agents_pressure_cases_path)
+    agents = load_cases(settings.agents_cases_path)
+    assert {c.split for c in pressure} == {"agents-pressure"}
+    assert {t for c in pressure for t in c.tags if t.startswith("model:")} == {"model:MiniMax-M3"}
+    assert all("condition:tool-encouraging" in c.tags for c in pressure)
+
+    def briefs(cases: list[LabeledCase]) -> set[str]:
+        return {t for c in cases for t in c.tags if t.startswith("brief:")}
+
+    assert briefs(pressure) == briefs(agents)  # same scenarios, one line of guidance apart
+    assert not {c.id for c in pressure} & {c.id for c in agents}
