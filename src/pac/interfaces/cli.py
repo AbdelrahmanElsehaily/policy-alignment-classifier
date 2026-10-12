@@ -21,6 +21,7 @@ from pac.bootstrap import (
     build_baseline,
     build_classifier,
     build_policy,
+    compute_north_stars,
     dataset_path,
     expected_profile,
     load_all_cases,
@@ -463,3 +464,15 @@ def _build_frontend(web_dir: Path) -> None:
         result = subprocess.run([npm, *args], cwd=web_dir, check=False)
         if result.returncode != 0:
             raise _fail(f"`npm {' '.join(args)}` failed in {web_dir}")
+
+
+@app.command("north-star")
+def north_star() -> None:
+    """The north star: of every held-out event, the share each classifier handles as labelled."""
+    stars = compute_north_stars(Settings())
+    for s in stars:
+        prompt = s.prompt_version.split("@")[0] if s.prompt_version != "n/a" else "-"
+        spread = f"{s.low:.1%}–{s.high:.1%}" if s.high > s.low else ""
+        missing = f"  (not run on: {', '.join(s.missing)})" if s.missing else ""
+        score = f"{s.accuracy:6.1%}  {s.correct}/{s.total}"
+        typer.echo(f"{s.classifier:30} {prompt:16} {score}  {spread}{missing}")

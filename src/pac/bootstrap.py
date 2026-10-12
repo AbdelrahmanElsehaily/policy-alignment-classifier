@@ -6,13 +6,16 @@ layer reads configuration or picks concrete adapters.
 
 from __future__ import annotations
 
+import json
+import logging
 from pathlib import Path
 from typing import Any
 
 from pydantic import SecretStr
 
 from pac.evaluation.domain.cases import LabeledCase, Split, ensure_unique_ids
-from pac.evaluation.infrastructure.case_store import load_cases
+from pac.evaluation.domain.north_star import HELD_OUT, NorthStar, north_stars
+from pac.evaluation.infrastructure.case_store import file_sha256, load_cases
 from pac.evaluation.infrastructure.run_store import FileRunStore
 from pac.guardrail.application.llm_classifier import LLMClassifier
 from pac.guardrail.application.ports import BackendError, LLMBackend
@@ -30,6 +33,8 @@ from pac.monitoring.domain.features import observe, observe_expected
 from pac.monitoring.infrastructure.exporters import load_profile
 from pac.settings import Settings
 from pac.simulation.application.agent import SimulatedAgent
+
+logger = logging.getLogger(__name__)
 
 
 def build_backend(settings: Settings, *, use_cache: bool = True) -> LLMBackend:
@@ -198,6 +203,14 @@ def dataset_file(settings: Settings, name: str) -> Path:
     raise FileNotFoundError(f"no dataset file named {name}")
 
 
+def prompt_training_ids(settings: Settings) -> set[str]:
+    """Eval events some prompt was trained on, left out of the north star for every prompt."""
+    path = settings.prompt_training_path
+    if not path.exists():
+        return set()
+    return set(json.loads(path.read_text(encoding="utf-8")).get("case_ids", []))
+
+
 def load_all_cases(settings: Settings) -> list[LabeledCase]:
     """Every labelled case from every dataset file, with ids unique across files."""
     cases = load_cases(settings.cases_path)
@@ -256,3 +269,41 @@ def profile_of_run(settings: Settings, run_id: str) -> Profile:
         for p in saved.predictions
         if p.repeat == 0 and p.case_id in by_id
     )
+
+
+# List prices, $ per million tokens (input, output), OpenRouter, 12 Oct 2026, without prompt
+# caching. MiniMax-M3 ran on MiniMax's own API and is priced at its OpenRouter rate.
+LIST_PRICES: dict[str, tuple[float, float]] = {
+    "MiniMax-M3": (0.30, 1.20),
+    "anthropic/claude-haiku-5.5": (0.10, 0.50),
+    "anthropic/claude-opus-5.5": (4.00, 20.00),
+    "regex-baseline": (0.0, 0.0),
+}
+
+
+def usd_per_1k_events(star: NorthStar) -> float | None:
+    """What 1,000 events cost at list price, without prompt caching; None for an unpriced model."""
+    price = LIST_PRICES.get(star.classifier)
+    if price is None:
+        return None
+    return (star.tokens_in * price[0] + star.tokens_out * price[1]) / 1000
+
+
+def compute_north_stars(settings: Settings) -> list[NorthStar]:
+    """The north star of every classifier and prompt, from the committed runs on today's files."""
+    store = build_run_store(settings)
+    runs = []
+    for run_id in store.list_ids():
+        try:
+            saved = store.load(run_id)
+        except Exception:  # one bad run file mustn't hide the others
+            logger.warning("skipping unreadable run", extra={"run_id": run_id}, exc_info=True)
+            continue
+        runs.append((saved.config, saved.predictions))
+    exclude = prompt_training_ids(settings)
+    cases = load_all_cases(settings)
+    current = {split: file_sha256(dataset_path(settings, split)) for split in HELD_OUT}
+    expected = {
+        split: sum(c.split == split and c.id not in exclude for c in cases) for split in HELD_OUT
+    }
+    return north_stars(runs, exclude, current, expected)

@@ -21,8 +21,10 @@ from pac.bootstrap import (
     build_policy,
     build_prompt,
     build_run_store,
+    compute_north_stars,
     load_all_cases,
     profile_of_run,
+    usd_per_1k_events,
 )
 from pac.evaluation.application.ports import RunNotFound, RunStore
 from pac.evaluation.domain.cases import LabeledCase
@@ -109,6 +111,23 @@ class RunSummary(BaseModel):
     accuracy_by_run: list[float] = []
     # Events longer than this were judged in parts.
     max_event_chars: int | None = None
+
+
+class NorthStarView(BaseModel):
+    """Of every held-out event, the share handled as labelled: one classifier and prompt."""
+
+    classifier: str
+    prompt_version: str
+    correct: int
+    total: int
+    accuracy: float
+    low: float
+    high: float
+    sets: list[str]
+    missing: list[str]
+    # At list price, without prompt caching; None for an unpriced model.
+    usd_per_1k_events: float | None
+    latency_p50_ms: float | None
 
 
 class RunDetail(BaseModel):
@@ -245,6 +264,7 @@ def create_app(
         )
 
     _policy_routes(app, services)
+    _north_star_route(app, services)
 
     @app.get("/api/cases")
     def cases() -> list[LabeledCase]:
@@ -372,6 +392,27 @@ def _accuracy_by_run(predictions: Sequence[Prediction]) -> list[float]:
         ok = p.result.error is None and p.result.decision.verdict == p.gold
         right[p.repeat] = right.get(p.repeat, 0) + ok
     return [right[r] / total[r] for r in sorted(total)]
+
+
+def _north_star_route(app: FastAPI, services: _Services) -> None:
+    @app.get("/api/north-star")
+    def north_star() -> list[NorthStarView]:
+        return [
+            NorthStarView(
+                classifier=s.classifier,
+                prompt_version=s.prompt_version,
+                correct=s.correct,
+                total=s.total,
+                accuracy=s.accuracy,
+                low=s.low,
+                high=s.high,
+                sets=list(s.sets),
+                missing=list(s.missing),
+                usd_per_1k_events=usd_per_1k_events(s),
+                latency_p50_ms=s.latency_p50_ms,
+            )
+            for s in compute_north_stars(services.settings)
+        ]
 
 
 def _policy_routes(app: FastAPI, services: _Services) -> None:

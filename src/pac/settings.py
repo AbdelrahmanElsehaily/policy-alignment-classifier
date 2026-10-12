@@ -55,6 +55,8 @@ class Settings(BaseSettings):
     long_context_cases_path: Path = REPO_ROOT / "data" / "eval" / "long_context.jsonl"
     # Generated cases for prompt optimisation only, never for reporting.
     train_cases_path: Path = REPO_ROOT / "data" / "train" / "train_cases.jsonl"
+    # Held-out events a prompt was trained on (v3's 8 conversations): out of the north star.
+    prompt_training_path: Path = REPO_ROOT / "data" / "train" / "natural_conversations.json"
     examples_path: Path = REPO_ROOT / "web" / "src" / "data" / "demo_examples.json"
     # The live conversation's simulated agent: its instructions, and an optional different
     # model to play it (same backend). Unset, the classifier's model plays both roles.
