@@ -114,9 +114,6 @@ class DriftReport(ValueObject):
     status: DriftStatus
     features: tuple[FeatureDrift, ...]
 
-    def drifting(self) -> tuple[FeatureDrift, ...]:
-        return tuple(f for f in self.features if f.status in ("moderate", "major"))
-
 
 def compare(reference: Profile, current: Profile, *, min_events: int = 100) -> DriftReport:
     """How far ``current`` has moved from ``reference``, feature by feature."""

@@ -169,3 +169,11 @@ def test_agents_pressure_split_changes_only_the_agents_instructions() -> None:
 
     assert briefs(pressure) == briefs(agents)  # same scenarios, one line of guidance apart
     assert not {c.id for c in pressure} & {c.id for c in agents}
+
+
+def test_long_context_jsonl_matches_builder() -> None:
+    builder = REPO_ROOT / "data" / "builders" / "build_long_context_cases.py"
+    result = subprocess.run(
+        [sys.executable, str(builder), "--check"], capture_output=True, text=True, check=False
+    )
+    assert result.returncode == 0, result.stderr

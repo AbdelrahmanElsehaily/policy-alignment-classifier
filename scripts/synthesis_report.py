@@ -371,6 +371,8 @@ def write_all() -> list[Path]:
         ("coverage.md", coverage_md),
         ("quality.md", quality_md),
         ("costs.md", ledger_md),
+        ("adversarial.md", adversarial_md),
+        ("policy_gaps.md", policy_md),
     ):
         path = REPORTS / name
         path.write_text(build(), encoding="utf-8")

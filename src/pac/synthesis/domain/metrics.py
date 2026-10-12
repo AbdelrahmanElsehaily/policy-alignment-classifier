@@ -5,7 +5,7 @@ from __future__ import annotations
 import math
 import re
 from collections import Counter
-from collections.abc import Hashable, Iterable, Mapping, Sequence
+from collections.abc import Hashable, Iterable, Sequence
 
 
 def agreement(a: Sequence[Hashable], b: Sequence[Hashable]) -> float:
@@ -98,7 +98,3 @@ def length_buckets(texts: Iterable[str]) -> dict[str, int]:
         label = next((name for edge, name in edges if len(text) < edge), "1000+")
         counts[label] += 1
     return {name: counts.get(name, 0) for name in ("<50", "50-150", "150-400", "400-1000", "1000+")}
-
-
-def per_group(values: Mapping[str, Iterable[Hashable]]) -> dict[str, int]:
-    return {k: len(list(v)) for k, v in values.items()}

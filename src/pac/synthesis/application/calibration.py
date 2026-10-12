@@ -140,7 +140,3 @@ def report(results: Sequence[CaseResult], jurors: Sequence[str]) -> dict[str, An
     out["gold_mix"] = dict(Counter(gold))
     out["predicted_mix"] = dict(Counter(pred))
     return out
-
-
-def disagreements(results: Sequence[CaseResult]) -> list[CaseResult]:
-    return [r for r in results if r.gold != r.predicted]
