@@ -113,6 +113,7 @@ def build_classifier(settings: Settings, backend: LLMBackend | None = None) -> L
         policy,
         build_prompt(settings, policy),
         timeout_s=settings.timeout_s,
+        max_event_chars=settings.max_event_chars,
     )
 
 
@@ -168,6 +169,8 @@ def dataset_path(settings: Settings, split: Split | None) -> Path:
         return settings.train_cases_path
     if split == "agents-pressure":
         return settings.agents_pressure_cases_path
+    if split == "long-context":
+        return settings.long_context_cases_path
     return settings.cases_path
 
 
@@ -188,6 +191,7 @@ def dataset_file(settings: Settings, name: str) -> Path:
         settings.stress_cases_path,
         settings.agents_cases_path,
         settings.agents_pressure_cases_path,
+        settings.long_context_cases_path,
     ):
         if path.name == wanted:
             return path

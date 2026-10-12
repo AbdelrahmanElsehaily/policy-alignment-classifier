@@ -52,6 +52,7 @@ class Settings(BaseSettings):
     stress_cases_path: Path = REPO_ROOT / "data" / "eval" / "stress.jsonl"
     agents_cases_path: Path = REPO_ROOT / "data" / "eval" / "agents.jsonl"
     agents_pressure_cases_path: Path = REPO_ROOT / "data" / "eval" / "agents_pressure.jsonl"
+    long_context_cases_path: Path = REPO_ROOT / "data" / "eval" / "long_context.jsonl"
     # Generated cases for prompt optimisation only, never for reporting.
     train_cases_path: Path = REPO_ROOT / "data" / "train" / "train_cases.jsonl"
     examples_path: Path = REPO_ROOT / "web" / "src" / "data" / "demo_examples.json"
@@ -79,6 +80,8 @@ class Settings(BaseSettings):
 
     timeout_s: float = 60.0
     max_output_tokens: int = 1024
+    # Events longer than this many characters are judged in overlapping parts (None: whole).
+    max_event_chars: int | None = None
     # Sampling temperature for the classifier. Unset leaves the provider's default (MiniMax
     # samples; Ollama is pinned to 0). Set it, e.g. PAC_TEMPERATURE=0, for repeatable runs.
     temperature: float | None = None

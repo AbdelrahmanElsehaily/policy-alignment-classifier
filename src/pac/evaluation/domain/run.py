@@ -31,6 +31,8 @@ class RunConfig(ValueObject):
     git_commit: str | None = None
     # The classifier's sampling temperature; None is the provider's default.
     temperature: float | None = None
+    # Events longer than this were judged in overlapping parts; None: always whole.
+    max_event_chars: int | None = None
 
 
 @dataclass(frozen=True, slots=True)

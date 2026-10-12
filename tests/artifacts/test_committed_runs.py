@@ -51,7 +51,7 @@ def _classifier_for(config: RunConfig) -> EventClassifier:
     )
     assert prompt.version == config.prompt_version, f"{stem}.md changed since this run"
     replay = CachingBackend(SETTINGS.cache_dir, inner=None, model=config.classifier)
-    return LLMClassifier(replay, policy, prompt)
+    return LLMClassifier(replay, policy, prompt, max_event_chars=config.max_event_chars)
 
 
 @pytest.mark.skipif(not RUNS, reason="no committed runs")

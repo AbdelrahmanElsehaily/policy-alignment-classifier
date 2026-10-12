@@ -17,7 +17,7 @@ from pac.guardrail.application.ports import (
 from pac.guardrail.application.prompting import PromptTemplate, parse_decision
 from pac.guardrail.domain.classification import Classification, Usage
 from pac.guardrail.domain.decision import Decision
-from pac.guardrail.domain.events import ClassificationRequest
+from pac.guardrail.domain.events import ClassificationRequest, TraceEvent
 from pac.guardrail.domain.policy import Policy
 
 logger = logging.getLogger(__name__)
@@ -42,12 +42,15 @@ class LLMClassifier:
         *,
         timeout_s: float = 60.0,
         max_attempts: int = 2,
+        max_event_chars: int | None = None,
     ) -> None:
         self._backend = backend
         self._policy = policy
         self._prompt = prompt
         self._timeout_s = timeout_s
         self._max_attempts = max_attempts
+        # Above this many characters, an event is judged in overlapping parts (None: never).
+        self._max_event_chars = max_event_chars
 
     @property
     def name(self) -> str:
@@ -61,6 +64,7 @@ class LLMClassifier:
             prompt,
             timeout_s=self._timeout_s,
             max_attempts=self._max_attempts,
+            max_event_chars=self._max_event_chars,
         )
 
     @property
@@ -68,6 +72,59 @@ class LLMClassifier:
         return self._prompt
 
     async def classify(self, request: ClassificationRequest) -> Classification:
+        limit = self._max_event_chars
+        if limit is not None and event_chars(request.event) > limit:
+            return await self._classify_in_parts(request, limit)
+        return await self._classify_one(request)
+
+    async def _classify_in_parts(
+        self, request: ClassificationRequest, limit: int
+    ) -> Classification:
+        """Judge a long event as overlapping parts, all at once, and combine the verdicts.
+
+        A violation anywhere makes the event a violation; otherwise a part the policy can't
+        decide holds it; any part that fails fails the whole event closed. Latency is the
+        slowest part's, since they run in parallel; tokens are the sum.
+        """
+        started = time.perf_counter()
+        parts = split_event(request.event, limit, overlap=min(1000, limit // 4))
+        results = await asyncio.gather(
+            *(self._classify_one(request.model_copy(update={"event": part})) for part in parts)
+        )
+        usage = Usage()
+        for r in results:
+            usage += r.usage
+        latency = max(r.model_latency_ms for r in results)
+        cached = all(r.cached for r in results)
+        failed = [r for r in results if r.error is not None]
+        ranked = [(i, r) for i, r in enumerate(results) if r.error is None]
+        for verdict in ("violation", "policy_silent"):
+            hits = [(i, r) for i, r in ranked if r.decision.verdict == verdict]
+            if hits and (verdict == "violation" or not failed):
+                first_i, first = hits[0]
+                rules = tuple(dict.fromkeys(rule for _, r in hits for rule in r.decision.rule_ids))
+                where = f"Part {first_i + 1} of {len(parts)}"
+                decision = first.decision.model_copy(
+                    update={
+                        "rule_ids": rules,
+                        "rationale": f"{where}: {first.decision.rationale}",
+                    }
+                )
+                return self._result(decision, started, usage, latency, cached=cached)
+        if failed:
+            error = f"{len(failed)} of {len(parts)} parts failed: {failed[0].error}"
+            return self._result(
+                Decision.fail_closed(error), started, usage, latency, cached=cached, error=error
+            )
+        decision = results[0].decision.model_copy(
+            update={
+                "rationale": f"All {len(parts)} parts allowed. {results[0].decision.rationale}",
+                "confidence": min(r.decision.confidence for r in results),
+            }
+        )
+        return self._result(decision, started, usage, latency, cached=cached)
+
+    async def _classify_one(self, request: ClassificationRequest) -> Classification:
         started = time.perf_counter()
         usage = Usage()
         model_latency_ms = 0.0
@@ -166,6 +223,40 @@ class LLMClassifier:
             cached=cached,
             error=error,
         )
+
+
+def event_chars(event: TraceEvent) -> int:
+    """How long an event is: its text, or for a tool call its longest argument."""
+    if event.content is not None:
+        return len(event.content)
+    values = [v for v in (event.arguments or {}).values() if isinstance(v, str)]
+    return max((len(v) for v in values), default=0)
+
+
+def split_event(event: TraceEvent, limit: int, *, overlap: int) -> list[TraceEvent]:
+    """The event as overlapping parts of at most ``limit`` characters, each saying which part it is.
+
+    For a tool call, the longest string argument is split and the other arguments repeat in every
+    part, so each part is still a complete call to judge.
+    """
+    if event.content is not None:
+        field, text = None, event.content
+    else:
+        args = event.arguments or {}
+        field = max((k for k, v in args.items() if isinstance(v, str)), key=lambda k: len(args[k]))
+        text = args[field]
+    step = max(1, limit - overlap)
+    windows = [text[i : i + limit] for i in range(0, max(1, len(text) - overlap), step)]
+    parts = []
+    for n, window in enumerate(windows, start=1):
+        marked = f"[part {n} of {len(windows)} of a longer {event.kind}]\n{window}"
+        if field is None:
+            parts.append(event.model_copy(update={"content": marked}))
+        else:
+            args = dict(event.arguments or {})
+            args[field] = marked
+            parts.append(event.model_copy(update={"arguments": args}))
+    return parts
 
 
 def _first_line(exc: Exception) -> str:

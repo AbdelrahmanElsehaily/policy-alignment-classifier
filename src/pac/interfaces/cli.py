@@ -99,6 +99,7 @@ class SplitOption(StrEnum):
     stress = "stress"
     agents = "agents"
     agents_pressure = "agents-pressure"
+    long_context = "long-context"
     train = "train"  # for prompt optimisation (scripts/optimize_prompt.py), never for reporting
     all = "all"  # dev + test (the later splits are run on their own)
 
@@ -225,6 +226,7 @@ def evaluate(
         with_history=with_history,
         git_commit=git_commit(),
         temperature=None if backend_name == "regex" else settings.temperature,
+        max_event_chars=None if backend_name == "regex" else settings.max_event_chars,
     )
     with log_context(run=run_dir.name):
         metrics = record_run(FileRunStore(run_dir.parent), config, predictions).metrics
@@ -252,6 +254,7 @@ _SPLITS: dict[SplitOption, Split] = {
     SplitOption.stress: "stress",
     SplitOption.agents: "agents",
     SplitOption.agents_pressure: "agents-pressure",
+    SplitOption.long_context: "long-context",
     SplitOption.train: "train",
 }
 

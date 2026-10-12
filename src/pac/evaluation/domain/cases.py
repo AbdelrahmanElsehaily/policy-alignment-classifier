@@ -21,7 +21,9 @@ LabelConfidence = Literal["high", "medium", "contested"]
 # a tool-encouraging line in the agent's instructions. train (generated) is for prompt
 # optimisation only, never for reporting.
 # "hard" is historical: those cases now open the stress set, but runs recorded before keep it.
-Split = Literal["dev", "test", "hard", "stress", "agents", "agents-pressure", "train"]
+Split = Literal[
+    "dev", "test", "hard", "stress", "agents", "agents-pressure", "long-context", "train"
+]
 
 
 class DatasetError(ValueError):
