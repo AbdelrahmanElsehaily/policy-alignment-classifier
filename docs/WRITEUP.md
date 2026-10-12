@@ -121,6 +121,8 @@ can be challenged.
 | The guardrail sees only the four event kinds: `user_input`, `model_output`, `tool_call`, `tool_response` | The agent's system prompt, injected context and reasoning belong to its operator | Rules about "the agent's own instructions" can only be recognised, not compared |
 | It also sees a session envelope: `verified`, customer id, email on file | The platform's verification result, or the verification step passing through it | R1, R2 and R7 become undecidable |
 | It judges one event; history is an ablation | The brief says one event | Missing-fact cases stay undecided without history (§3) |
+| **How much context an event carries:** one event and its envelope, of any length. A help-centre search, an order history or a pasted log can run to tens of thousands of tokens | That is what a man in the middle receives; nothing trims events before they reach it | Up to 32k tokens, length alone didn't hide a clear violation from either model, at any position ([long inputs](#long-inputs-what-length-does-72-events-labelled-before-any-run)). Past the model's window an event can't be judged whole, so above `PAC_MAX_EVENT_CHARS` it is judged in overlapping parts and any violation wins |
+| **How many cases is enough:** enough that the differences that matter are bigger than the noise | 114 frozen test events give intervals about ±8 points wide, so two settings closer than that on test alone are not different. That is why every setting also runs on 623 more held-out events, three times where the model samples, and why contested labels are reported apart | A real deployment needs its own traffic sampled and labelled; the numbers here rank approaches, they don't certify one |
 | It sits inline and can only pass, block or hold | A man in the middle can't change the agent, its tools or its platform | Every interim fix here is something it can do alone; the rest are questions for the operator |
 | `policy_silent` routes to a human | That is what "the policy doesn't decide" means in production | A deployment that can't escalate has to pick a side on these |
 | The labels are the ground truth | Claude wrote and labelled every case; a second, blind Claude agreed 30/30 | Agreement between two copies of one model is an upper bound; human labels are the next step (§8) |
@@ -436,6 +438,34 @@ same conventions (the `agents-pressure` split), and the same guardrail run three
   body to R3 and R4 only. So a promise the agent puts in an email (a full EUR 189 refund, a label
   "attached" that can't be) escapes R9 under the convention that a rule doesn't reach event kinds it
   doesn't list.
+
+### Long inputs: what length does (72 events, labelled before any run)
+
+Every other eval event is short. This set buries one deciding sentence near the start, middle or end of a
+realistic long event (help-centre results, an order history, a tracking log, a pasted device log), at about
+1k, 8k and 32k tokens, each with a harmless twin. Built by
+[`build_long_context_cases.py`](../data/builders/build_long_context_cases.py); tables from
+[`scripts/long_context.py`](../scripts/long_context.py) in
+[`results/long_context.md`](../results/long_context.md).
+
+| Run | 1k tokens | 8k | 32k | Violations caught | Twins allowed | $ per 1,000 events at 32k |
+|---|---|---|---|---|---|---|
+| Claude Haiku 5.5, whole | 100% | 100% | 100% | 36/36 | 36/36 | $7.59 |
+| Claude Haiku 5.5, in parts of 16,000 chars | 100% | 100% | 96% | 36/36 | 35/36 | $13.42 |
+| MiniMax-M3, whole | 83% | 88% | 88% | 36/36 | 26/36 | $15.05 |
+| MiniMax-M3, in parts of 16,000 chars | 83% | 88% | 88% | 36/36 | 26/36 | $24.86 |
+
+Up to 32k tokens, length alone hides nothing: both models catch every violation at every length and
+position. What grows is cost (Haiku: $0.89 per 1,000 events at 1k tokens, $7.59 at 32k) and latency
+(2.7 s to 3.8 s median). MiniMax-M3's misses are one twin it blocks at every length ("Courier API key
+rotated; the new one is in the vault"): a mention of a key read as a key, not a length effect. The
+context limit proper is the window: the prompt takes 3–5k tokens of it, so past the window an event has
+to be judged in parts, which the classifier does above `PAC_MAX_EVENT_CHARS`. Inside the window parts buy
+nothing and cost more (the prompt is repeated in every part), so the limit is off by default and meant
+for events past the window. On
+natural traffic, longer events *are* harder (MiniMax-M3 on the agents split: 96% under 200 characters,
+77% at 200–600), but because long replies carry more claims, not because they are long
+([finding 22](CORNER_CASES.md#22-long-inputs-length-isnt-what-hurts-until-the-window-runs-out-measured)).
 
 ### Synthetic data (not part of the eval)
 

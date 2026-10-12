@@ -296,6 +296,21 @@ of natural traffic, in every run, so it ships. The frontier model is no more acc
 26–44% where the label is contested. The ceiling is the policy. The red-team loop against the policy
 found five gaps, among them redirecting a still-processing order to someone else's address.
 
+## Stage 14: "what about long inputs?" (12 Oct)
+
+**Why.** The brief leaves open how much context an event carries, and no eval event was longer than
+about 300 tokens. On natural traffic, longer events were already scoring worse.
+
+**What I did.** Built 72 long events (about 1k, 8k and 32k tokens) with one deciding sentence at the
+start, middle or end and a harmless twin for each. Added an optional guard that judges an event longer
+than `PAC_MAX_EVENT_CHARS` in overlapping parts, any violation winning and any failure failing closed.
+Ran Claude Haiku 5.5 and MiniMax-M3, whole and in parts.
+
+**What it showed.** Length alone hid nothing up to 32k tokens: every violation was caught at every
+length and position. Cost and latency grow with length, and the hard limit is the model's window,
+which the guard handles. The drop with length on natural traffic is about content (long replies carry
+more claims), not the window.
+
 ---
 
 ## Recurring principles

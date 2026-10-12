@@ -20,7 +20,9 @@ limitations.
 | Regex baseline | 51% | — | $0 |
 
 Every model is right 95–98% of the time where the policy is clear and 26–44% where its label is
-contested: the policy, not the model, sets the ceiling.
+contested: the policy, not the model, sets the ceiling. Long inputs (up to 32k tokens, one deciding
+sentence anywhere in them) hide nothing from either model; they cost more, and past the model's window
+an event is judged in parts ([long inputs](docs/WRITEUP.md#long-inputs-what-length-does-72-events-labelled-before-any-run)).
 
 **Every choice, with its reason:**
 

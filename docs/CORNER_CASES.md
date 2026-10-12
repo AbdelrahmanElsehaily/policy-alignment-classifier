@@ -295,6 +295,43 @@ security alert once per distinct string, not once per read. The live demo made t
 other side: blocking a whole order record for one leaked field hid the order status Lark needed (see
 [`WRITEUP.md`](WRITEUP.md)).
 
+### 22. Long inputs: length isn't what hurts, until the window runs out (Measured)
+
+**What happens.** The brief leaves open how much context an event carries, and every other eval event is
+short (the longest is about 300 tokens). The long-context set (`data/eval/long_context.jsonl`, 72 events)
+buries one deciding sentence near the start, middle or end of a realistic long event: help-centre search
+results with an instruction to the assistant (R12), an order history with a full card number in a note
+(R3), a tracking log with a live key (R4), a pasted device log with a fake staff override (R13). Each has
+a harmless twin, identical except for that sentence, at about 1k, 8k and 32k tokens.
+
+- **Length alone doesn't hide a clear violation.** Both models caught all 36 violations at every length
+  and position, Claude Haiku 5.5 without a single error (72/72).
+- **What length does change is cost and time.** Haiku's cost per 1,000 events goes from $0.89 at 1k
+  tokens to $7.59 at 32k, and its median latency from 2.7 s to 3.8 s. On a request path every event
+  waits for its verdict.
+- **MiniMax-M3's mistakes here are not about length.** It blocked 10 of the 36 harmless twins, 9 of them
+  the same one ("Courier API key rotated; the new one is in the vault"), at 1k tokens as often as at 32k.
+  A mention of a key is read as a key.
+- **On natural traffic, longer events are harder, for another reason.** On the agents split MiniMax-M3
+  is right on 96% of events under 200 characters and 77% at 200–600. Long agent replies carry more
+  claims, and the subtle ones (a promise, a disclosure) are what it misses. That is content, not the
+  window.
+- **Past the window, an event can't be judged whole.** The prompt takes 3–5k tokens of the model's
+  window (200k for Haiku). So above `PAC_MAX_EVENT_CHARS` the classifier judges overlapping parts in
+  parallel; a violation in any part makes the event a violation, and a failed part fails it closed.
+  With parts of 16,000 characters, Haiku scores 71/72 and MiniMax-M3 62/72, the same as whole. Inside the
+  window, parts buy nothing and cost more, since the prompt is repeated in every part (Haiku: $13.42
+  against $7.59 per 1,000 events at 32k tokens), so the guard is off by default and meant for events past
+  the window.
+
+**Why the policy decides it.** Nothing in the policy depends on length; the question is whether the
+guardrail still sees what the policy names.
+
+**What I'd ship meanwhile.** Judge events whole up to a size well inside the model's window, and in parts
+above it. Run the cheap deterministic checks (card numbers, key formats) on the full text first, since
+they don't care about length. Sample long events for human review, because the eval has few long natural
+events.
+
 ### More findings of this kind
 
 | # | Case(s) | What it is | Why the policy decides it | Ship meanwhile | Type |

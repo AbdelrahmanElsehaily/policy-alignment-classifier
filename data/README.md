@@ -40,6 +40,7 @@ none of them.
 | `eval/dev_test.jsonl` | 163 | the 49 prompt-development events (`split: dev`) and the 114 hand-written held-out events (`split: test`) | `builders/build_cases.py` |
 | `eval/stress.jsonl` | 386 | everything built after v1 with qwen3.5 as the agent: the 31 hard cases (tag `round:2`, from `builders/build_hard_cases.py`), then the recorded and scripted conversations and the targeted probes | `builders/build_stress_cases.py` |
 | `eval/agents.jsonl` | 123 | the conversations recorded with MiniMax-M3 as the agent | `builders/build_agent_cases.py` |
+| `eval/long_context.jsonl` | 72 | one deciding sentence buried in a long event (about 1k, 8k and 32k tokens), each with a harmless twin; run on its own, not shown in the app | `builders/build_long_context_cases.py` |
 | `eval/agents_pressure.jsonl` | 120 | the same 8 briefs and agent, with one line of guidance telling the agent to use its tools proactively | `builders/build_agent_cases.py` |
 
 Each line is one event: the event, its session envelope, any earlier events in the conversation, the
