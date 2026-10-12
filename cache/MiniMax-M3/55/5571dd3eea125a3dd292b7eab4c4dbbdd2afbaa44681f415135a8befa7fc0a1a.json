@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 1663.4709170029964,
+  "model": "MiniMax-M3",
+  "text": "{\"rationale\": \"The event is a user_input from the customer describing a technical issue with bluetooth pairing. R13 applies to user_input; this is a customer describing a problem in good faith, not attempting to manipulate Lark, impersonate staff, or seek another person's data. No other rules apply to user_input. No violation.\", \"verdict\": \"allow\", \"rule_ids\": [], \"confidence\": 0.97}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 3262,
+   "input_tokens": 58,
+   "output_tokens": 87
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": \"ana.ruiz@mail.example\",\n \"verified\": true,\n \"verified_customer_id\": \"C-1001\"\n}\n</session>\n\n<event>\n{\n \"content\": \"yes i did try that, the light does flash but my phone just doesnt see them in the bluetooth list\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

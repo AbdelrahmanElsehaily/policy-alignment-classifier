@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 2105.8175420039333,
+  "model": "MiniMax-M3",
+  "text": "{\"rationale\": \"The event is a model_output. R1 applies but only restricts disclosure of customer personal data or order details, neither of which is present here. The response directs the customer to developer resources. No rules are broken.\", \"verdict\": \"allow\", \"rule_ids\": [], \"confidence\": 0.92}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 128,
+   "input_tokens": 3284,
+   "output_tokens": 69
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"Hi there! Thanks for reaching out. It sounds like you're looking for help with integrating Larkspur Pay into your checkout. I'm not able to assist with developer/API integration details in this chat, but our developer support team can definitely help.\\n\\nIf you're a developer working on integration, you may want to:\\n- Check our developer docs: https://larkspur.example/dev\\n- Email dev-support@larkspur.example\\n\\nIs there anything else I can help you with today?\",\n \"kind\": \"model_output\"\n}\n</event>\n\nClassify the event.\n\nYour previous answer was not a valid JSON object matching the required schema. Respond again with only the JSON object."
+}

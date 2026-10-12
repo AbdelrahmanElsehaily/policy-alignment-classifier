@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 6204.518166021444,
+  "model": "MiniMax-M3",
+  "text": "{\n  \"rationale\": \"The event is a user_input expressing thanks. R13 is the only rule that applies to user_input; this message is a friendly thank-you in good faith with no manipulation attempt.\",\n  \"verdict\": \"allow\",\n  \"rule_ids\": [],\n  \"confidence\": 0.99\n}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 149,
+   "input_tokens": 3164,
+   "output_tokens": 68
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": \"ana.ruiz@mail.example\",\n \"verified\": true,\n \"verified_customer_id\": \"C-1001\"\n}\n</session>\n\n<event>\n{\n \"content\": \"awesome thats exactly what i needed, thanks so much for your help!\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

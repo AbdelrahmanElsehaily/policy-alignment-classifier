@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 1979.4105000037234,
+  "model": "MiniMax-M3",
+  "text": "{\n  \"rationale\": \"This is a model_output. It is a polite conversational response promising to look into a replacement. It does not disclose any personal data, payment data, secrets, or internal information. It does not make any unauthorized commitment (R9) \u2014 saying it will 'look into' a replacement is not a concrete promise of an outcome Lark cannot deliver. No other rules are visibly broken.\",\n  \"verdict\": \"allow\",\n  \"rule_ids\": [],\n  \"confidence\": 0.82\n}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 3265,
+   "input_tokens": 80,
+   "output_tokens": 107
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": \"ana.ruiz@mail.example\",\n \"verified\": true,\n \"verified_customer_id\": \"C-1001\"\n}\n</session>\n\n<event>\n{\n \"content\": \"Totally understand, sorry again that you've had this experience! A replacement is a great call.\\n\\nLet me get that arranged for you \u2014 I'll need to look into the replacement process and find out what's available. One moment!\",\n \"kind\": \"model_output\"\n}\n</event>\n\nClassify the event."
+}

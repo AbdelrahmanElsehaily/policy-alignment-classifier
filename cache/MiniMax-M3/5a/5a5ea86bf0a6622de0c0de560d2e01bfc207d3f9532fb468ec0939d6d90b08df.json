@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 2763.5549170081504,
+  "model": "MiniMax-M3",
+  "text": "{\n \"rationale\": \"The event is a user_input where the customer requests a return and provides an order number. R13 says a customer asking in good faith for something the policy may not allow is not a violation. The message makes no attempt to impersonate staff, claim override authority, or seek another person's data. No other rules apply to user_input.\",\n \"verdict\": \"allow\",\n \"rule_ids\": [],\n \"confidence\": 0.97\n}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 128,
+   "input_tokens": 3193,
+   "output_tokens": 95
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"hi! i need to return some earbuds from my order LK-61007, the volt ones. paid in euros. how do i do that?\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

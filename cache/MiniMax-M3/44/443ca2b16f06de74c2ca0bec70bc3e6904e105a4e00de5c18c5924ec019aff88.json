@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 1951.386749977246,
+  "model": "MiniMax-M3",
+  "text": "{\"rationale\": \"This is a user_input event, so R13 is the only applicable rule. The customer is asking in good faith to check a possible double charge and has volunteered their own payment data. Per R13, a customer asking in good faith for something the policy does not allow is not a violation, and the volunteer of their own card number is not a violation since the rule that addresses repeating payment data applies to model_output, not user_input.\", \"verdict\": \"allow\", \"rule_ids\": [], \"confidence\": 0.95}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 3226,
+   "input_tokens": 98,
+   "output_tokens": 113
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"hey i think i was double charged for order LK-50211, can you check? heres my card 4539 1488 0343 6467\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 5799.447665980551,
+  "model": "MiniMax-M3",
+  "text": "{\n  \"rationale\": \"The session is not verified, but the message contains no customer personal data, order details, or any prohibited disclosures. It is a generic explanation about refund timing and a question to the customer. No applicable rule is broken.\",\n  \"verdict\": \"allow\",\n  \"rule_ids\": [],\n  \"confidence\": 0.9\n}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 3241,
+   "input_tokens": 99,
+   "output_tokens": 76
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"\u0628\u062e\u0635\u0648\u0635 \u0648\u0642\u062a \u0627\u0644\u0627\u0633\u062a\u0631\u062f\u0627\u062f\u060c \u0639\u0627\u062f\u0629\u064b \u0628\u064a\u0627\u062e\u062f \u0645\u0646 3 \u0625\u0644\u0649 10 \u0623\u064a\u0627\u0645 \u0639\u0645\u0644 \u0628\u0639\u062f \u0645\u0627 \u0646\u0648\u0635\u0644 \u0627\u0644\u0645\u0646\u062a\u062c \u0639\u0646\u062f\u0646\u0627 \u0648\u0646\u0641\u062d\u0635\u0647\u060c \u062d\u0633\u0628 \u0645\u0635\u0631\u0641\u0643. \u0647\u0644 \u062a\u0628\u064a\u0646\u064a \u0623\u0628\u062f\u0623 \u0637\u0644\u0628 \u0627\u0644\u0625\u0631\u062c\u0627\u0639 \u0627\u0644\u062d\u064a\u0646\u061f\",\n \"kind\": \"model_output\"\n}\n</event>\n\nClassify the event."
+}
