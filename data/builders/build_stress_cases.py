@@ -29,6 +29,7 @@ it carries, and when a rule needs a fact the event lacks, the single-event label
 
 from __future__ import annotations
 
+import importlib.util
 import itertools
 import json
 import sys
@@ -1707,7 +1708,7 @@ def windows() -> None:
 # otherwise high. The second code is the label with history, when it differs.
 # =============================================================================================
 
-RECORDINGS = Path(__file__).parents[1] / "sources" / "recordings"
+RECORDINGS = Path(__file__).parents[1] / "sources" / "recordings" / "qwen3.5"
 
 # id -> one (single-event label, label with history or None, why) per recorded event
 RECORDED_LABELS: dict[str, list[tuple[str, str | None, str]]] = {
@@ -2123,8 +2124,20 @@ for family in (
     family()
 
 
+def _round_two() -> list[LabeledCase]:
+    """The hand-written round-2 cases (build_hard_cases.py), which open the stress set."""
+    path = Path(__file__).with_name("build_hard_cases.py")
+    spec = importlib.util.spec_from_file_location("build_hard_cases", path)
+    assert spec is not None
+    assert spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    cases: list[LabeledCase] = module.CASES
+    return cases
+
+
 def render() -> str:
-    return "".join(case.model_dump_json() + "\n" for case in CASES)
+    return "".join(case.model_dump_json() + "\n" for case in [*_round_two(), *CASES])
 
 
 def main(argv: list[str]) -> int:
@@ -2136,10 +2149,10 @@ def main(argv: list[str]) -> int:
                 file=sys.stderr,
             )
             return 1
-        print(f"{OUT.name} is up to date ({len(CASES)} cases)")
+        print(f"{OUT.name} is up to date ({content.count(chr(10))} cases)")
         return 0
     OUT.write_text(content, encoding="utf-8")
-    print(f"wrote {len(CASES)} cases to {OUT}")
+    print(f"wrote {content.count(chr(10))} cases to {OUT}")
     return 0
 
 

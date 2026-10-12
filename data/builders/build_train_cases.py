@@ -48,7 +48,7 @@ from pac.guardrail.domain.events import ClassificationRequest, Session, TraceEve
 HERE = Path(__file__).parent
 OUT = HERE.parent / "train" / "train_cases.jsonl"
 EVAL = HERE.parent / "eval"
-EVAL_FILES = (EVAL / "dev_test.jsonl", EVAL / "hard.jsonl", EVAL / "stress.jsonl")
+EVAL_FILES = (EVAL / "dev_test.jsonl", EVAL / "stress.jsonl")
 
 Label = tuple[Verdict, tuple[str, ...], LabelConfidence]
 

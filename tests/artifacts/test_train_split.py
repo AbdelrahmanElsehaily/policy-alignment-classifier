@@ -46,7 +46,7 @@ def _train() -> list[LabeledCase]:
 def _eval() -> list[LabeledCase]:
     settings = Settings()
     cases: list[LabeledCase] = []
-    for path in (settings.cases_path, settings.hard_cases_path, settings.stress_cases_path):
+    for path in (settings.cases_path, settings.stress_cases_path):
         cases += load_cases(path)
     return cases
 
@@ -112,7 +112,8 @@ def test_no_train_event_equals_any_eval_event_or_history_event_in_any_session() 
 
 
 def test_no_train_template_appears_in_the_stress_split() -> None:
-    stress_templates = {_template(c) for c in load_cases(Settings().stress_cases_path)}
+    stress = load_cases(Settings().stress_cases_path)
+    stress_templates = {_template(c) for c in stress if any(t.startswith("tpl:") for t in c.tags)}
     train_templates = {_template(c) for c in _train()}
     assert train_templates.isdisjoint(stress_templates)
     assert all(t.startswith("tpl:train-") for t in train_templates)

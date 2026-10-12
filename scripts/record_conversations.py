@@ -3,8 +3,8 @@
     PAC_BACKEND=ollama PAC_MODEL=qwen3.5 uv run python scripts/record_conversations.py
     PAC_BACKEND=ollama PAC_MODEL=qwen3.5 uv run python scripts/record_conversations.py rec-pairing
 
-Reads data/sources/recordings/briefs.json and writes data/sources/recordings/<id>.json: the
-brief, the models, and every event with the session envelope it carried. No guardrail runs while
+Reads data/sources/recordings/briefs.json, writes data/sources/recordings/<agent model>/<id>.json:
+the brief, the models, and every event with the session envelope it carried. No guardrail runs while
 recording, so the trace is what the agent does on its own. Labels are written by hand afterwards, in
 data/builders/build_stress_cases.py, and recordings are never edited to fit them.
 """
@@ -91,12 +91,13 @@ if __name__ == "__main__":
     parser.add_argument(
         "--out-dir",
         type=Path,
-        default=RECORDINGS,
-        help="where to write (e.g. a folder per agent model)",
+        default=None,
+        help="where to write (default: a folder named after the agent model)",
     )
     parser.add_argument("--force", action="store_true", help="overwrite existing recordings")
     args = parser.parse_args(sys.argv[1:])
     configure_logging(Settings().log_level, Settings().log_format)
-    out_dir = args.out_dir.resolve()
+    settings = Settings()
+    out_dir = (args.out_dir or RECORDINGS / (settings.agent_model or settings.model)).resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
     asyncio.run(main(args.ids, out_dir, force=args.force))

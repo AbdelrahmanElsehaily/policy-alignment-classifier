@@ -23,7 +23,7 @@ def test_system_prompt_embeds_policy_and_schema(prompt: PromptTemplate, policy: 
     assert policy.text.strip() in prompt.system
     assert '"enum"' in prompt.system
     assert "$" not in prompt.system.replace("$200", "")
-    assert re.fullmatch(r"classifier_v2@[0-9a-f]{8}", prompt.version)
+    assert re.fullmatch(r"classifier_v3@[0-9a-f]{8}", prompt.version)
 
 
 def test_schema_matches_decision_model(policy: Policy) -> None:

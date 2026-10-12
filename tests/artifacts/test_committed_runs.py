@@ -32,7 +32,6 @@ pytestmark = pytest.mark.integration
 SETTINGS = Settings(
     policy_path=REPO_ROOT / "policy" / "policy_v0.md",
     cases_path=REPO_ROOT / "data" / "eval" / "dev_test.jsonl",
-    hard_cases_path=REPO_ROOT / "data" / "eval" / "hard.jsonl",
     stress_cases_path=REPO_ROOT / "data" / "eval" / "stress.jsonl",
     cache_dir=REPO_ROOT / "cache",
     results_dir=REPO_ROOT / "results",

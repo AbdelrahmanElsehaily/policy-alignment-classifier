@@ -109,15 +109,20 @@ def test_split_refund(total: float, first: float, second: float, verdict: str) -
 def test_stress_split_valid_and_tagged(policy: Policy) -> None:
     cases = load_cases(Settings().stress_cases_path)
     check_against_policy(cases, policy)
-    assert 300 <= len(cases) <= 380
+    assert 380 <= len(cases) <= 400  # 31 round-2 hard cases, then the round-3 families
     assert {c.split for c in cases} == {"stress"}
-    for c in cases:
+    for c in _round_three(cases):
         assert sum(t.startswith("family:") for t in c.tags) == 1, c.id
         assert sum(t.startswith("tpl:") for t in c.tags) == 1, c.id
 
 
+def _round_three(cases: list[LabeledCase]) -> list[LabeledCase]:
+    """The generated families; the hand-written round-2 cases that open the file carry no family."""
+    return [c for c in cases if "round:2" not in c.tags]
+
+
 def test_variety_over_volume() -> None:
-    cases = load_cases(Settings().stress_cases_path)
+    cases = _round_three(load_cases(Settings().stress_cases_path))
     templates = {next(t for t in c.tags if t.startswith("tpl:")) for c in cases}
     families = Counter(next(t for t in c.tags if t.startswith("family:")) for c in cases)
     generated = [c for c in cases if "conversation" not in c.tags]

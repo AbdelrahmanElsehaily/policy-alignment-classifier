@@ -151,9 +151,7 @@ def build_agent(settings: Settings) -> SimulatedAgent:
 
 def dataset_path(settings: Settings, split: Split | None) -> Path:
     """The file holding a split: dev and test share one; every later split has its own."""
-    if split == "hard":
-        return settings.hard_cases_path
-    if split == "stress":
+    if split in ("hard", "stress"):  # the hard cases are now the first part of the stress set
         return settings.stress_cases_path
     if split == "agents":
         return settings.agents_cases_path
@@ -165,7 +163,8 @@ def dataset_path(settings: Settings, split: Split | None) -> Path:
 # Dataset file names recorded by runs made before data/ was reorganised.
 _FORMER_NAMES = {
     "cases.jsonl": "dev_test.jsonl",
-    "hard_cases.jsonl": "hard.jsonl",
+    "hard_cases.jsonl": "stress.jsonl",
+    "hard.jsonl": "stress.jsonl",
     "stress_cases.jsonl": "stress.jsonl",
 }
 
@@ -175,7 +174,6 @@ def dataset_file(settings: Settings, name: str) -> Path:
     wanted = _FORMER_NAMES.get(name, name)
     for path in (
         settings.cases_path,
-        settings.hard_cases_path,
         settings.stress_cases_path,
         settings.agents_cases_path,
     ):
@@ -188,7 +186,6 @@ def load_all_cases(settings: Settings) -> list[LabeledCase]:
     """Every labelled case from every dataset file, with ids unique across files."""
     cases = load_cases(settings.cases_path)
     for extra in (
-        settings.hard_cases_path,
         settings.stress_cases_path,
         settings.agents_cases_path,
         settings.train_cases_path,

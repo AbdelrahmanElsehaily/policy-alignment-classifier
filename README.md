@@ -78,7 +78,7 @@ uv run pac eval --split test --no-cache --repeats 3    # run-to-run variance
 uv run pac eval --split hard --with-history            # round 2: hard real-world cases
 ```
 
-The `hard` split (31 events, in `data/eval/hard.jsonl`) was written after v1.0 and labelled before any
+The 31 hard events (now the first part of `data/eval/stress.jsonl`, tag `round:2`) were written after v1.0 and labelled before any
 model ran on it. It holds realistic events the policy mostly doesn't decide: a refund retried after a
 timeout, euros against a dollar cap, IMEIs that look like card numbers, gift card codes, publishable keys,
 and more. A few, such as planted key-shaped strings that trigger blocks, turned out to be decided by the
@@ -162,7 +162,7 @@ build.
 | [`prompts/`](prompts/) | Versioned classifier prompts (v1 kept for traceability; v2 is the default), and the simulated agent's instructions |
 | [`data/README.md`](data/README.md) | What each eval set is, where it lives, and how it was built |
 | [`data/builders/build_cases.py`](data/builders/build_cases.py) | The eval set, with each label's reasoning; generates `data/eval/dev_test.jsonl` |
-| [`data/builders/build_hard_cases.py`](data/builders/build_hard_cases.py) | The hard split (round 2), labelled before any model run; generates `data/eval/hard.jsonl` |
+| [`data/builders/build_hard_cases.py`](data/builders/build_hard_cases.py) | The hard cases (round 2), labelled before any model run; they open `data/eval/stress.jsonl` |
 | [`src/pac/guardrail/`](src/pac/guardrail/) | Core domain: judging one event. Domain model, the LLM classifier use case, model adapters, regex baseline |
 | [`src/pac/evaluation/`](src/pac/evaluation/) | Measuring a guardrail: labelled cases, metrics, eval use cases, run storage |
 | [`src/pac/simulation/`](src/pac/simulation/) | The live demo's stand-in agent: Lark played by an LLM, and its simulated back office |

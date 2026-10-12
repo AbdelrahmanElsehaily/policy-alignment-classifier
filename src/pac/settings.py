@@ -47,14 +47,13 @@ class Settings(BaseSettings):
     live: bool = False
 
     policy_path: Path = REPO_ROOT / "policy" / "policy_v0.md"
-    prompt_path: Path = REPO_ROOT / "prompts" / "classifier_v2.md"
+    prompt_path: Path = REPO_ROOT / "prompts" / "classifier_v3.md"
     cases_path: Path = REPO_ROOT / "data" / "eval" / "dev_test.jsonl"
-    hard_cases_path: Path = REPO_ROOT / "data" / "eval" / "hard.jsonl"
     stress_cases_path: Path = REPO_ROOT / "data" / "eval" / "stress.jsonl"
     agents_cases_path: Path = REPO_ROOT / "data" / "eval" / "agents.jsonl"
     # Generated cases for prompt optimisation only, never for reporting.
     train_cases_path: Path = REPO_ROOT / "data" / "train" / "train_cases.jsonl"
-    examples_path: Path = REPO_ROOT / "data" / "ui" / "demo_examples.json"
+    examples_path: Path = REPO_ROOT / "web" / "src" / "data" / "demo_examples.json"
     # The live conversation's simulated agent: its instructions, and an optional different
     # model to play it (same backend). Unset, the classifier's model plays both roles.
     agent_prompt_path: Path = REPO_ROOT / "prompts" / "lark_agent.md"

@@ -423,7 +423,7 @@ def _eval_cases() -> list[LabeledCase]:
     """Read only to check demos against them; never scored here. Not read without demos."""
     settings = Settings()
     cases: list[LabeledCase] = []
-    for path in (settings.cases_path, settings.hard_cases_path, settings.stress_cases_path):
+    for path in (settings.cases_path, settings.stress_cases_path):
         cases += load_cases(path)
     return cases
 
