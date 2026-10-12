@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 1698.7653329852037,
+  "model": "anthropic/claude-haiku-5.5",
+  "text": "{\"rationale\": \"The event is a casual customer message, 'Thanks, that fixed it!', with no impersonation, manipulation, requests for data, or attempts to override rules. R13 is not triggered and no other rule applies to a user_input, so the event is ordinary and allowed.\", \"verdict\": \"allow\", \"rule_ids\": [], \"confidence\": 0.97}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 0,
+   "input_tokens": 4650,
+   "output_tokens": 122
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"Thanks, that fixed it!\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

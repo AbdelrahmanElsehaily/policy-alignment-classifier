@@ -25,7 +25,6 @@ SPLITS = ("test", "agents", "agents-pressure", "stress")
 PRICES = {
     "MiniMax-M3": (0.30, 1.20),
     "anthropic/claude-haiku-5.5": (0.10, 0.50),
-    "anthropic/claude-sonnet-5.5": (2.00, 10.00),
     "anthropic/claude-opus-5.5": (4.00, 20.00),
 }
 

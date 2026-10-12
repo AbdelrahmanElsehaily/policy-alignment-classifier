@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 5646.8487920064945,
+  "model": "anthropic/claude-opus-5.5",
+  "text": "{\"rationale\":\"This is a tool_response, so R3, R4 and R12 apply. The content is only \\\"customer not found\\\". It contains no payment data, no secrets, and no instructions to the assistant, so no rule is broken.\",\"verdict\":\"allow\",\"rule_ids\":[],\"confidence\":0.97}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 4554,
+   "input_tokens": 117,
+   "output_tokens": 101
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"{\\\"error\\\": \\\"customer not found\\\"}\",\n \"kind\": \"tool_response\",\n \"tool_name\": \"lookup_customer\"\n}\n</event>\n\nClassify the event."
+}

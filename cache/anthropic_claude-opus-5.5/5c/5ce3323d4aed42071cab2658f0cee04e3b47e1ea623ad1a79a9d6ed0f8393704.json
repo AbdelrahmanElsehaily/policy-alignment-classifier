@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 5208.064334001392,
+  "model": "anthropic/claude-opus-5.5",
+  "text": "{\"rationale\": \"Under R5 and R2, the visible conditions pass: the session is verified and $189 is within the $200 limit. But the event does not show whether order LK-61007 belongs to C-1001, its total minus prior refunds, or its delivery date. Each of these gates a refund for reason \\\"customer_request\\\", so the verdict depends on missing facts.\", \"verdict\": \"policy_silent\", \"rule_ids\": [], \"confidence\": 0.7}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 4554,
+   "input_tokens": 159,
+   "output_tokens": 221
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": \"ana.ruiz@mail.example\",\n \"verified\": true,\n \"verified_customer_id\": \"C-1001\"\n}\n</session>\n\n<event>\n{\n \"arguments\": {\n  \"amount\": 189.0,\n  \"order_id\": \"LK-61007\",\n  \"reason\": \"customer_request\"\n },\n \"kind\": \"tool_call\",\n \"tool_name\": \"issue_refund\"\n}\n</event>\n\nClassify the event."
+}

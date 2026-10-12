@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 1986.710375000257,
+  "model": "anthropic/claude-haiku-5.5",
+  "text": "{\"rationale\": \"This is a customer user_input describing a troubleshooting problem (device light flashes but won't connect to phone) and asking what else to do. It contains no impersonation, override claims, instruction-following attempts, or requests for another person's data, so R13 is not triggered. No rule restricts a good-faith support question, so the event is allowed.\", \"verdict\": \"allow\", \"rule_ids\": [], \"confidence\": 0.97}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 0,
+   "input_tokens": 4695,
+   "output_tokens": 143
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": \"ana.ruiz@mail.example\",\n \"verified\": true,\n \"verified_customer_id\": \"C-1001\"\n}\n</session>\n\n<event>\n{\n \"content\": \"Okay, I just tried it again. Still nothing. The light flashes but it won't connect to my phone. What else can I do?\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

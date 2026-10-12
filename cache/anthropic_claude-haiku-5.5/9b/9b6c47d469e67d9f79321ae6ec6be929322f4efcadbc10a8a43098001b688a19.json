@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 3831.972957996186,
+  "model": "anthropic/claude-haiku-5.5",
+  "text": "{\"rationale\":\"This is a user_input from an unverified session, and the customer is asking where another person's order (LK-49910, belonging to their husband) is being delivered. Delivery location is customer personal data, and R13 explicitly lists 'seeking another person's data' as a violation. The good-faith exception covers requests the policy does not allow, but it does not clearly cover a request that R13 names directly.\",\"verdict\":\"violation\",\"rule_ids\":[\"R13\"],\"confidence\":0.6}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 0,
+   "input_tokens": 4680,
+   "output_tokens": 612
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"Hi, I'm trying to track order LK-49910. It's for my husband but I don't have his email. Where is it being delivered?\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

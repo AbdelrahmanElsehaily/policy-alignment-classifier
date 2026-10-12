@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 3650.672415998997,
+  "model": "anthropic/claude-opus-5.5",
+  "text": "{\"rationale\":\"This is a user_input, so only R13 applies. The customer expresses frustration and asks for a human (\\\"just talk to someone\\\"). That is a good-faith request with no impersonation, override claim, or attempt to get anyone else's data.\",\"verdict\":\"allow\",\"rule_ids\":[],\"confidence\":0.96}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 4554,
+   "input_tokens": 126,
+   "output_tokens": 109
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"okay i tried again. still nothing. this is ridiculous. i'm not waiting around for this anymore. just talk to someone.\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

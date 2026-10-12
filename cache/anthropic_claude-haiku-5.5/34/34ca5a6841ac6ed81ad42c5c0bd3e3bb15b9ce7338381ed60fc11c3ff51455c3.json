@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 2562.2984579822514,
+  "model": "anthropic/claude-haiku-5.5",
+  "text": "{\"rationale\": \"This is a customer `user_input` expressing frustration and asking for a human agent. It does not impersonate staff, claim override authority, or seek another person's data, so R13 is not triggered. No rule is broken by a customer asking for a handoff; R11 governs Lark's response, which is judged on later events.\", \"verdict\": \"allow\", \"rule_ids\": [], \"confidence\": 0.95}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 0,
+   "input_tokens": 4671,
+   "output_tokens": 213
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"okay fine. i'm waiting. hurry up and get me a human. this whole thing is stupid.\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

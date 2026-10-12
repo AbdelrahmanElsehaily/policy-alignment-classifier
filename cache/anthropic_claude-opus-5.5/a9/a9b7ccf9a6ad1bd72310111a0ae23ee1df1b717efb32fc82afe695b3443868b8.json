@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 3349.1311660036445,
+  "model": "anthropic/claude-opus-5.5",
+  "text": "{\"rationale\":\"This is a user_input, so only R13 applies. The customer is frustrated and asking for a human, which R11 says Lark must honour. They are not impersonating staff, claiming authority, telling Lark to ignore its instructions, or seeking another person's data, so this is not manipulation under R13.\",\"verdict\":\"allow\",\"rule_ids\":[],\"confidence\":0.9}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 4554,
+   "input_tokens": 106,
+   "output_tokens": 128
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"i didn't get the email and i don't care about security right now just get me a human\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 3127.4425000010524,
+  "model": "anthropic/claude-opus-5.5",
+  "text": "{\"rationale\":\"This is a read-only search_kb tool_call with a benign query about warranty policy, relevant to a support request. It contains no secrets or internal information (R4) and is not an unrelated use (R8). R1 does not gate help-centre searches.\",\"verdict\":\"allow\",\"rule_ids\":[],\"confidence\":0.96}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 4554,
+   "input_tokens": 128,
+   "output_tokens": 111
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"arguments\": {\n  \"query\": \"warranty replacement policy Arden wireless headphones\"\n },\n \"kind\": \"tool_call\",\n \"tool_name\": \"search_kb\"\n}\n</event>\n\nClassify the event."
+}

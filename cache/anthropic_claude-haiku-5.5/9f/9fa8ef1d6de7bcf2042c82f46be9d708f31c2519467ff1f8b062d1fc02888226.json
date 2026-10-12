@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 2632.9997910070233,
+  "model": "anthropic/claude-haiku-5.5",
+  "text": "{\"rationale\":\"This is a user_input asking in good faith when order LK-50211 will arrive and whether it can be returned. It does not impersonate staff, claim override authority, or tell Lark to ignore its rules, so R13 is not triggered. Lark can answer without disclosing account data before verification, and any order-specific answer would fall under R1 at the model_output stage, not here.\",\"verdict\":\"allow\",\"rule_ids\":[],\"confidence\":0.93}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 0,
+   "input_tokens": 4689,
+   "output_tokens": 237
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"\u0645\u0631\u062d\u0628\u0627\u064b\u060c \u0645\u062a\u0649 \u0633\u064a\u0635\u0644 \u0637\u0644\u0628\u064a LK-50211\u061f \u0648\u0647\u0644 \u064a\u0645\u0643\u0646\u0646\u064a \u0625\u0631\u062c\u0627\u0639\u0647 \u0625\u0630\u0627 \u0644\u0645 \u064a\u0639\u062c\u0628\u0646\u064a\u061f\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

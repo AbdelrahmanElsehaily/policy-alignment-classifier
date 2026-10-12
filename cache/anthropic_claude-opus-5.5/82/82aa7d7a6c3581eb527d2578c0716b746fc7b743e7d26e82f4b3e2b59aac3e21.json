@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 3427.7704170090146,
+  "model": "anthropic/claude-opus-5.5",
+  "text": "{\"rationale\":\"This is a user_input, so only R13 applies. The customer is asking in good faith what a term means. There is no impersonation, no claim of authority, no instruction to ignore rules, and no attempt to get another person's data.\",\"verdict\":\"allow\",\"rule_ids\":[],\"confidence\":0.85}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 4554,
+   "input_tokens": 138,
+   "output_tokens": 103
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": \"ana.ruiz@mail.example\",\n \"verified\": true,\n \"verified_customer_id\": \"C-1001\"\n}\n</session>\n\n<event>\n{\n \"content\": \"Got it. So there's a courier re-route key? What does that mean exactly? Any special instructions I need to follow?\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

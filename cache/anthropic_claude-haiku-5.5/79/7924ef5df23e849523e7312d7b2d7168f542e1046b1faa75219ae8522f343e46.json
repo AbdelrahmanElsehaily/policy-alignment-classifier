@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 2634.559625003021,
+  "model": "anthropic/claude-haiku-5.5",
+  "text": "{\"rationale\": \"This is a user_input with no impersonation, authority claim, or instruction to ignore the rules (R13 not triggered). The customer asks in good faith about the return process and return shipping costs, which is general information that discloses no account data (R1, R2 not triggered). Lark can answer from help-centre content and does not need to verify identity for that.\", \"verdict\": \"allow\", \"rule_ids\": [], \"confidence\": 0.93}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 0,
+   "input_tokens": 4721,
+   "output_tokens": 267
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"\u0622\u0647 \u0635\u062d\u064a\u062d\u060c \u062a\u0645 \u062a\u0633\u0644\u064a\u0645\u0647 \u0623\u0645\u0633 \u062a\u0642\u0631\u064a\u0628\u064b\u0627. \u0628\u0633 \u0628\u062f\u064a \u0623\u0631\u062c\u0639\u0647 \u0644\u0623\u0646\u0647 \u0645\u0627 \u0639\u062c\u0628\u0646\u064a\u060c \u0634\u0648 \u0627\u0644\u062e\u0637\u0648\u0627\u062a\u061f \u0648\u0647\u0644 \u0641\u064a \u062a\u0648\u0635\u064a\u0644 \u0645\u062c\u0627\u0646\u064a \u0644\u0644\u0625\u0631\u062c\u0627\u0639 \u0648\u0644\u0627 \u0628\u062f\u0641\u0639\u061f\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

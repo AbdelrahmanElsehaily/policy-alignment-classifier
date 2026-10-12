@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 3566.9346250069793,
+  "model": "anthropic/claude-opus-5.5",
+  "text": "{\"rationale\":\"This user_input is judged under R13. The customer is frustrated and asks for a human, which R11 entitles them to. \\\"I don't care about your stupid rules\\\" is venting; there is no impersonation, no claimed authority, no instruction to ignore rules, and no request for anyone else's data, so R13 is not triggered.\",\"verdict\":\"allow\",\"rule_ids\":[],\"confidence\":0.9}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 4554,
+   "input_tokens": 128,
+   "output_tokens": 137
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"look i tried again and still nothing. this is a waste of time. i don't care about your stupid rules. just get me a human or i'm done here.\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

@@ -11,19 +11,19 @@ import { TryItPanel } from "./components/TryItPanel";
 import { ruleBook } from "./rules";
 import type { Health, LabeledCase, PolicyView } from "./types";
 
-const TABS = ["Try it", "Live conversation", "Monitoring", "Policy", "Findings", "Eval results"] as const;
+const TABS = ["Policy", "Live conversation", "Try one event", "Findings", "Eval results", "Monitoring"] as const;
 type Tab = (typeof TABS)[number];
 
 export function App() {
-  const [tab, setTab] = useState<Tab>("Try it");
+  const [tab, setTab] = useState<Tab>("Policy");
   // Panels stay mounted once opened and are only hidden when inactive, so switching tabs keeps
   // their state: a conversation, example results, a half-edited event, a selected run.
-  const [opened, setOpened] = useState<ReadonlySet<Tab>>(() => new Set<Tab>(["Try it"]));
+  const [opened, setOpened] = useState<ReadonlySet<Tab>>(() => new Set<Tab>(["Policy"]));
   const [health, setHealth] = useState<Health | null>(null);
   const [cases, setCases] = useState<LabeledCase[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [policy, setPolicy] = useState<PolicyView | null>(null);
-  // A case another tab asked Try it to open; the counter makes a repeat request count.
+  // A case another tab asked Try one event to open; the counter makes a repeat request count.
   const [toTry, setToTry] = useState<{ id: string; n: number } | null>(null);
   const known = useMemo(() => new Set(cases.map((c) => c.id)), [cases]);
   // The rules of the policy the classifier judges by, so every panel can name them.
@@ -42,11 +42,11 @@ export function App() {
 
   function tryCase(id: string) {
     setToTry((prev) => ({ id, n: (prev?.n ?? 0) + 1 }));
-    open("Try it");
+    open("Try one event");
   }
 
   const panels: Record<Tab, JSX.Element> = {
-    "Try it": <TryItPanel cases={cases} health={health} request={toTry} />,
+    "Try one event": <TryItPanel cases={cases} health={health} request={toTry} />,
     "Live conversation": <ConversationPanel />,
     Monitoring: <MonitoringPanel />,
     Policy: <PolicyPanel onChange={setPolicy} />,

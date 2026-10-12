@@ -8,7 +8,11 @@
   electronics retailer. The eval is 792 labelled events: 49 the prompt was developed on and 743 held
   out, from hand-written cases and from conversations recorded with two different agent models. The app
   is one React page, and every number below is reproducible offline from the committed response cache.
-- **Headline:** the shipped classifier is prompt v3 with MiniMax-M3, run three times per split
+- **The north star:** of the 648 held-out events (every set no prompt was written or trained on,
+  pooled), the share the guardrail handles as labelled. The shipped classifier (prompt v3,
+  MiniMax-M3): **83.5%** (83–85% over runs). Claude Haiku 5.5: **87.8%**. Claude Opus 5.5:
+  **87.8%**. The regex baseline: 63.1%. `uv run pac north-star` recomputes it from the runs.
+- **Per set:** the shipped classifier is prompt v3 with MiniMax-M3, run three times per split
   (hosted models give different answers on the same input, so one run is not a measurement):
   - **82–86%** three-way accuracy on the frozen test split (114 events), violation recall **88%**,
     false blocks on benign events **6%**. The flat-text regex baseline gets **51%**.
@@ -17,8 +21,8 @@
     trained on.
   - **The model matters less than the policy.** Claude Opus 5.5 (frontier) gets 87–89% on test and
     Claude Haiku 5.5 gets the same, at **$0.65 per 1,000 events against $23**. On labels where the
-    policy is clear every model is right 95–98% of the time; on contested labels, 26–44%
-    ([§3](#four-models-one-prompt-cost-against-quality)).
+    policy is clear every model is right 95–97% of the time; on contested labels, 33–44%
+    ([§3](#three-models-one-prompt-cost-against-quality)).
 - **What matters more than the number:**
   1. **The policy's money rules can't be enforced one event at a time** (structural). A refund call
      doesn't carry the order's total, prior refunds, owner or delivery date, and R2, R5 and R6 depend on
@@ -77,7 +81,7 @@ trace event ──► session envelope + event JSON (escaped) ──► prompt v
   macro-F1, breakdowns by kind, label confidence and tag, calibration, latency, tokens and cost.
 - **The regression test** replays every committed run and requires identical verdicts and metrics.
 - **The app** has four tabs. `pac serve --live` makes every click a real model call.
-  - **Try it:** classify any event, starting from a curated example, and place the same text in all four
+  - **Try one event:** classify any event, starting from a curated example, and place the same text in all four
     positions.
   - **Live conversation:** chat with a simulated agent (an LLM with a fake back office) while the
     guardrail sits inline. Each event waits for its verdict and is passed, blocked or held.
@@ -105,7 +109,7 @@ trace event ──► session envelope + event JSON (escaped) ──► prompt v
 | **Fail closed to `policy_silent`** on timeouts, bad output or a cache miss | A guardrail that fails open isn't one. Failing to `violation` would block legitimate traffic on every outage. | — |
 | **Prompt v2, by hand** ([v1 → v2](../prompts/)) | On dev, v1 invented facts ("the order belongs to the verified customer") and flagged vague wording. v2 adds three general rules: use only the facts present, point to the content that breaks a rule, and name the missing fact. No case-specific patches. | Few-shot examples. Not tried: the dev failures were about reasoning discipline, not format, and examples risk teaching the dev cases. |
 | **Prompt v3, shipped** ([why](#prompt-v3-against-v2)) | GEPA (DSPy) rewrote v2's instructions, trained on the dev cases plus 8 recorded conversations. It is level with v2 on the hand-written test set and **3–5 points better on every natural-traffic set**, in every run. Those 95 training events are left out of every v3 score. | Keeping v2: equal on test, worse on real traffic. The two other optimiser candidates (MIPROv2, GEPA on generated data) were no better than v2 and are kept in `prompts/experiments/`. |
-| **MiniMax-M3 as the recorded model; Claude Haiku 5.5 recommended** ([table](#four-models-one-prompt-cost-against-quality)) | Local `qwen3.5` came first (no API key early on) as a repeatable lower bound. MiniMax-M3 has the full set of recorded runs, so the offline app replays it. The four-model benchmark says Haiku 5.5 is as accurate as Opus 5.5 at 1/35 of the price, so that is the model I'd deploy. | Opus 5.5: no more accurate here, twice the latency and 35× the cost. The limit is the policy, not the model. |
+| **MiniMax-M3 as the recorded model; Claude Haiku 5.5 recommended** ([table](#three-models-one-prompt-cost-against-quality)) | Local `qwen3.5` came first (no API key early on) as a repeatable lower bound. MiniMax-M3 has the full set of recorded runs, so the offline app replays it. The four-model benchmark says Haiku 5.5 is as accurate as Opus 5.5 at 1/35 of the price, so that is the model I'd deploy. | Opus 5.5: no more accurate here, twice the latency and 35× the cost. The limit is the policy, not the model. |
 | **Test cases** ([data/README.md](../data/README.md)) | Hand-written first, one per rule × event kind × verdict, so each rule's line is tested from both sides, plus position pairs (the same text in different event kinds). Then rounds of realistic traffic: conversations between a simulated customer and two different agent models, recorded with no guardrail running, and one condition where the agent is told to use its tools. Every split was labelled before any model ran on it. | Generated cases only: they test the generator's idea of the policy. Real traces: none exist for a fictional company. |
 | **Uncertain labels** ([LABELING.md](LABELING.md), [CORNER_CASES.md](CORNER_CASES.md)) | Six written conventions decide them, the main one being "a missing fact means `policy_silent`". Every label carries a confidence; the 13 `contested` test labels are tagged `corner-case` and argued in the corner-case log; every later change is logged with its reason. A second, blind Claude relabelled 30 test cases and agreed 30/30. | Dropping contested cases: they are where the guardrail fails, so they are reported separately instead. |
 | **Labels: the literal policy reading** ([LABELING.md](LABELING.md)) | When a rule needs a fact the event doesn't carry, the label is `policy_silent`, because that is the policy's own definition. This makes the structural problem measurable instead of hiding it. | "Allow unless shown otherwise". That gives a higher headline number and hides the money-rules finding. |
@@ -149,7 +153,7 @@ On the hand-written set the two are level within run-to-run noise. On every set 
 one run each, and v3 saw 8 recorded conversations in training, so its stress score leaves those 95 events
 out and the two prompts are compared on the same remaining 291.
 
-### Four models, one prompt: cost against quality
+### Three models, one prompt: cost against quality
 
 Prompt v3, thinking off, through OpenRouter (MiniMax through its own API). Generated by
 [`scripts/cost_quality.py`](../scripts/cost_quality.py) into
@@ -159,16 +163,15 @@ Prompt v3, thinking off, through OpenRouter (MiniMax through its own API). Gener
 |---|---|---|---|---|
 | Claude Haiku 5.5 | 87–89% | 89% | **$0.65** | 2.6 s |
 | MiniMax-M3 | 82–86% | 81–85% (3 runs) | $1.15 | 1.9 s |
-| Claude Sonnet 5.5 | 84–85% | 89% | $11.31 | 2.3 s |
-| Claude Opus 5.5 (frontier) | 87–89% | 87% | $22.99 | 4.1 s |
+| Claude Opus 5.5 (frontier) | 87–89% | 87% | $23.07 | 4.2 s |
 
 By label confidence on test (all runs pooled):
 
-| Label confidence | Events | MiniMax-M3 | Haiku 5.5 | Sonnet 5.5 | Opus 5.5 |
-|---|---|---|---|---|---|
-| high | 74 | 96% | 95% | 98% | 97% |
-| medium | 27 | 74% | 89% | 78% | 84% |
-| contested | 13 | 33% | 44% | 26% | 44% |
+| Label confidence | Events | MiniMax-M3 | Haiku 5.5 | Opus 5.5 |
+|---|---|---|---|---|
+| high | 74 | 96% | 95% | 97% |
+| medium | 27 | 74% | 89% | 84% |
+| contested | 13 | 33% | 44% | 44% |
 
 A frontier model buys nothing here. Every model is near-perfect where the policy is clear and close to
 a coin flip where it isn't, so the next point of accuracy comes from fixing the policy, not from a bigger

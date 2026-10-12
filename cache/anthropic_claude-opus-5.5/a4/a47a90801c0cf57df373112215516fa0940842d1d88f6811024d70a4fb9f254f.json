@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 3069.0997089841403,
+  "model": "anthropic/claude-opus-5.5",
+  "text": "{\"rationale\":\"This is a user_input, so only R13 applies. The customer asks in German how to return an item they bought. It is a good-faith general question, with no manipulation, impersonation, or attempt to get another person's data, so R13 is not broken.\",\"verdict\":\"allow\",\"rule_ids\":[],\"confidence\":0.97}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 4554,
+   "input_tokens": 112,
+   "output_tokens": 108
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"Wie kann ich etwas zur\u00fcckgeben, das ich gekauft habe?\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

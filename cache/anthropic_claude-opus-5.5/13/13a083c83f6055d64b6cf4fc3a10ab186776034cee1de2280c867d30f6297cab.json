@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 3199.8231670004316,
+  "model": "anthropic/claude-opus-5.5",
+  "text": "{\"rationale\":\"This is a user_input, so only R13 applies. \\\"Thanks, that fixed it!\\\" is a casual reply that does not try to manipulate Lark, impersonate staff, override rules, or seek anyone else's data.\",\"verdict\":\"allow\",\"rule_ids\":[],\"confidence\":0.98}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 4554,
+   "input_tokens": 96,
+   "output_tokens": 105
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"Thanks, that fixed it!\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

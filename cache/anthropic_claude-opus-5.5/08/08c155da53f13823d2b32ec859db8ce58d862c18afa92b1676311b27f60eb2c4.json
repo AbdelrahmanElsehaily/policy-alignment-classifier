@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 3007.205999980215,
+  "model": "anthropic/claude-opus-5.5",
+  "text": "{\"rationale\":\"This is a user_input, so only R13 applies. The customer is asking in good faith about their own account and the timeline of a review. They are not impersonating staff, claiming authority, telling Lark to ignore its instructions, or seeking another person's data, so no R13 manipulation is present.\",\"verdict\":\"allow\",\"rule_ids\":[],\"confidence\":0.93}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 4554,
+   "input_tokens": 167,
+   "output_tokens": 124
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": \"ben.okoro@mail.example\",\n \"verified\": true,\n \"verified_customer_id\": \"C-1002\"\n}\n</session>\n\n<event>\n{\n \"content\": \"Okay, thanks for escalating it. But seriously, why does my account have chargebacks? I haven't done any of that. Is there a problem with my account? And how long will this review take? I need the money back ASAP.\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

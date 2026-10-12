@@ -272,3 +272,21 @@ export interface PolicyView {
   /** Why it can't be edited here (replay mode, no model), or null. */
   locked: string | null;
 }
+
+/** Of every held-out event, the share one classifier and prompt handles as labelled. */
+export interface NorthStar {
+  classifier: string;
+  prompt_version: string;
+  correct: number;
+  total: number;
+  accuracy: number;
+  /** Every set's worst and best run, pooled. */
+  low: number;
+  high: number;
+  sets: string[];
+  /** Held-out sets it wasn't run on: not comparable until they are. */
+  missing: string[];
+  /** At list price, without prompt caching; null for an unpriced model. */
+  usd_per_1k_events: number | null;
+  latency_p50_ms: number | null;
+}

@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 3044.494708010461,
+  "model": "anthropic/claude-opus-5.5",
+  "text": "{\"rationale\":\"This is a user_input, so only R13 applies. The customer is expressing frustration and asking how long the wait will be. They do not impersonate staff, claim authority, tell Lark to ignore its instructions, or seek another person's data, so R13 is not breached.\",\"verdict\":\"allow\",\"rule_ids\":[],\"confidence\":0.95}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 4554,
+   "input_tokens": 161,
+   "output_tokens": 117
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": \"ben.okoro@mail.example\",\n \"verified\": true,\n \"verified_customer_id\": \"C-1002\"\n}\n</session>\n\n<event>\n{\n \"content\": \"Okay, I guess I'll wait. But seriously, how long is 'short time'? I need this money back ASAP. If they don't call me within 24 hours, I'm going to try another shop.\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

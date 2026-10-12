@@ -15,7 +15,7 @@ export function CornerCases({ known, onTry }: Props) {
       <p className="hint">
         Events a real deployment will meet that the policy does not decide: it is silent, or its own rules conflict.
         Each says what happens, why the policy is silent, what I'd ask Larkspur, and what the guardrail can do by
-        itself in the meantime. Click a case id to open it in Try it.
+        itself in the meantime. Click a case to open it in Try one event.
       </p>
       <p className="small">
         <code>docs/CORNER_CASES.md</code> has six shorter corner cases besides these, and, separately, findings where
@@ -48,7 +48,7 @@ export function CornerCases({ known, onTry }: Props) {
                 </span>
                 {c.cases.map((id) =>
                   known.has(id) ? (
-                    <button key={id} className="chip" onClick={() => onTry(id)} title="Open it in Try it">
+                    <button key={id} className="chip" onClick={() => onTry(id)} title="Open it in Try one event">
                       {titleOf(id)} ▸
                     </button>
                   ) : (

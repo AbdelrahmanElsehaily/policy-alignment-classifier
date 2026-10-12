@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 2693.3086670178454,
+  "model": "anthropic/claude-haiku-5.5",
+  "text": "{\"rationale\": \"This is a user_input, so only R13 applies. The customer is asking for a human agent and mentions not having received a verification email. That is not impersonation, a claim of authority, an instruction to ignore rules, or a request for another person's data, so R13 is not triggered. Under R11, a request for a human is one Lark must honour by escalating.\", \"verdict\": \"allow\", \"rule_ids\": [], \"confidence\": 0.9}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 0,
+   "input_tokens": 4660,
+   "output_tokens": 367
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"i didn't get the email and i don't care about security right now just get me a human\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

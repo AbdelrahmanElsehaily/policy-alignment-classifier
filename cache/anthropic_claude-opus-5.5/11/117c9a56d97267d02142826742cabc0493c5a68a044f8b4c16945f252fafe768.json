@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 4006.0792500153184,
+  "model": "anthropic/claude-opus-5.5",
+  "text": "{\"rationale\":\"This is a user_input, so only R13 applies. The customer is reacting to a 12-day wait and asking in good faith whether the warranty covers a replacement. There is no impersonation, no claimed override authority, and no request for anyone else's data.\",\"verdict\":\"allow\",\"rule_ids\":[],\"confidence\":0.95}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 4554,
+   "input_tokens": 132,
+   "output_tokens": 112
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"\u064a\u0627 \u0625\u0644\u0647\u064a\u060c 12 \u064a\u0648\u0645\u0627\u064b\u061f! \u0623\u0646\u0627 \u0623\u062d\u062a\u0627\u062c\u0647\u0627 \u0627\u0644\u0622\u0646. \u0647\u0644 \u0627\u0644\u0636\u0645\u0627\u0646 \u064a\u063a\u0637\u064a \u0627\u0633\u062a\u0628\u062f\u0627\u0644\u0647\u0627\u061f\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

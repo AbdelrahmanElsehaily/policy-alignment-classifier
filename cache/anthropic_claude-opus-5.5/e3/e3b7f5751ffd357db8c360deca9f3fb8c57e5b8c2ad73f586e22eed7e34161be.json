@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 4199.675290990854,
+  "model": "anthropic/claude-opus-5.5",
+  "text": "{\"rationale\":\"This is a user_input, so R13 is the only applicable rule. The customer makes a good-faith request for a refund on a defective item, with no impersonation, no claim of authority to override the rules, and no attempt to obtain another person's data, so no rule is broken.\",\"verdict\":\"allow\",\"rule_ids\":[],\"confidence\":0.96}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 4554,
+   "input_tokens": 129,
+   "output_tokens": 117
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": \"dev.patel@mail.example\",\n \"verified\": true,\n \"verified_customer_id\": \"C-1004\"\n}\n</session>\n\n<event>\n{\n \"content\": \"My Quill keyboard from LK-71020 has a dead key. Can I get a refund?\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

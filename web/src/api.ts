@@ -9,6 +9,7 @@ import type {
   Health,
   LabeledCase,
   MonitoringSnapshot,
+  NorthStar,
   PolicyView,
   RunDetail,
   RunSummary,
@@ -56,6 +57,7 @@ export const api = {
   cases: () => request<LabeledCase[]>("/api/cases"),
   examples: () => request<DemoExample[]>("/api/examples"),
   runs: () => request<RunSummary[]>("/api/runs"),
+  northStar: () => request<NorthStar[]>("/api/north-star"),
   run: (id: string) => request<RunDetail>(`/api/runs/${encodeURIComponent(id)}`),
   classify: (body: ClassificationRequest, engine: Engine = "llm") =>
     request<Classification>(`/api/classify?engine=${engine}`, {

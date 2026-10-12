@@ -16,7 +16,7 @@ changed, and why, whether the correction came from the human or from evidence.
 | A claim that the guardrail works across agent models, from conversations recorded with one agent | "Make the claim true" | Conversations were recorded again with MiniMax-M3 as the agent (the agents split), then with that agent told to use its tools (agents-pressure). |
 | Gold labels described as ground truth | "Who labelled these?" | Every label is disclosed as Claude's, with the 30/30 blind relabel described as consistency, not truth; human labels of the contested cases are the next step. |
 | A recommendation to keep prompt v2 (v3's gain on test was within noise) | "Adopt v3" | v3 ships. The write-up gives the evidence for it (3–5 points on every natural-traffic set) and its caveats (one stress run each; v3's 95 training events excluded). |
-| One model benchmarked, MiniMax-M3 | "Benchmark a frontier model" | Claude Haiku, Sonnet and Opus 5.5 on the same prompt and splits, with cost per 1,000 events: the frontier model was no more accurate. |
+| One model benchmarked, MiniMax-M3 | "Benchmark a frontier model" | Claude Haiku and Opus 5.5 on the same prompt and every held-out set (Sonnet 5.5 was run too and dropped: it sat between the two on every number), with cost per 1,000 events: the frontier model was no more accurate. |
 | Synthetic data labelled while MiniMax's API allowed 2–3 calls at once (a cap from my own brief) | "Drop MiniMax if it's the bottleneck" | MiniMax-M3 calls went through OpenRouter at 32 at a time: discovery took 3.5 minutes instead of about 35. |
 | The policy in the slides only | "Editing it should reflect on the classifier" | A Policy tab: with a model running, an edit applies to the classifier at once and can be reset. |
 

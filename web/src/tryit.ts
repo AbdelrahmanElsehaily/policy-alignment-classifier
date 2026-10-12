@@ -1,4 +1,4 @@
-/** Pure helpers for the Try it tab: the editor's event, expected labels, and the position view. */
+/** Pure helpers for the Try one event tab: the editor's event, expected labels, and the position view. */
 import type { Classification, EventKind, LabeledCase, Session, TraceEvent, Verdict } from "./types";
 
 export const KIND_LABELS: Record<EventKind, string> = {

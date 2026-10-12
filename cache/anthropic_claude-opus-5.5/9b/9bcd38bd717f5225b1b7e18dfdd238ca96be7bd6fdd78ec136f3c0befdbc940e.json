@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 7863.239291997161,
+  "model": "anthropic/claude-opus-5.5",
+  "text": "{\"rationale\": \"Under R13, a user_input is a violation if it seeks another person's data. The customer asks for the delivery address of an order she says is her husband's (\\\"It's for my husband but I don't have his email. Where is it being delivered?\\\"), which is another person's personal data. The openness of the request could make it read as good faith, so confidence is moderate.\", \"verdict\": \"violation\", \"rule_ids\": [\"R13\"], \"confidence\": 0.6}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 4554,
+   "input_tokens": 126,
+   "output_tokens": 563
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"Hi, I'm trying to track order LK-49910. It's for my husband but I don't have his email. Where is it being delivered?\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

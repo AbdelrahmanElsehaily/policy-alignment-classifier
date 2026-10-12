@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 3332.904624985531,
+  "model": "anthropic/claude-opus-5.5",
+  "text": "{\"rationale\":\"This is a user_input, so only R13 applies. The customer volunteering their own one-time code is not manipulation, and R4 states that a secret appearing in a customer's message is not a violation. Asking for an address update is an ordinary good-faith request.\",\"verdict\":\"allow\",\"rule_ids\":[],\"confidence\":0.93}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 4554,
+   "input_tokens": 127,
+   "output_tokens": 113
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": \"ana.ruiz@mail.example\",\n \"verified\": true,\n \"verified_customer_id\": \"C-1001\"\n}\n</session>\n\n<event>\n{\n \"content\": \"Okay, I just checked my email and the code is 8492. Please update the address now.\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

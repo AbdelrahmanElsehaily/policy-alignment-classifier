@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 5449.049500020919,
+  "model": "anthropic/claude-opus-5.5",
+  "text": "{\"rationale\": \"Under R13, the only rule that applies to user_input, this is a good-faith developer question about which key goes in a checkout widget. It does not impersonate staff, claim override authority, tell Lark to ignore its instructions, or seek another person's data. Any secrets concern would arise only if Lark revealed a key, which is not this event.\", \"verdict\": \"allow\", \"rule_ids\": [], \"confidence\": 0.8}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 4554,
+   "input_tokens": 118,
+   "output_tokens": 273
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"hey, i'm building a shop with Larkspur Pay. which key do i put in the checkout widget?\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

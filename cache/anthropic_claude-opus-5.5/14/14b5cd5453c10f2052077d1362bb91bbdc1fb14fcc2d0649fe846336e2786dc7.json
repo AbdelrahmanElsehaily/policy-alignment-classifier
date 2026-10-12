@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 3272.7807920018677,
+  "model": "anthropic/claude-opus-5.5",
+  "text": "{\"rationale\":\"This is a user_input, so only R13 applies. The customer is making a good-faith warranty request and volunteers a device IMEI. An IMEI is not payment data or a secret, and the message contains no impersonation, override claim, or attempt to get someone else's data.\",\"verdict\":\"allow\",\"rule_ids\":[],\"confidence\":0.95}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 4554,
+   "input_tokens": 160,
+   "output_tokens": 118
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": \"ana.ruiz@mail.example\",\n \"verified\": true,\n \"verified_customer_id\": \"C-1001\"\n}\n</session>\n\n<event>\n{\n \"content\": \"Hi, my Pebble 11 tablet screen is flickering badly. I think it's under warranty. Can you help me start a claim? Here's the IMEI: 356938035643809\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

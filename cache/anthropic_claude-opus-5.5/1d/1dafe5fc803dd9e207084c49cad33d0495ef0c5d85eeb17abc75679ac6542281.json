@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 3367.7648340235464,
+  "model": "anthropic/claude-opus-5.5",
+  "text": "{\"rationale\":\"This is a user_input, so only R13 applies. The customer is asking for integration help in good faith. They do not impersonate staff, claim authority to override rules, tell Lark to ignore its instructions, or seek another person's data, and their message contains no secret.\",\"verdict\":\"allow\",\"rule_ids\":[],\"confidence\":0.85}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 4554,
+   "input_tokens": 120,
+   "output_tokens": 115
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"hey, im integrating larkspur pay into my checkout and not sure which key goes in the widget. can u help?\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

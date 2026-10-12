@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 3216.9871250225697,
+  "model": "anthropic/claude-opus-5.5",
+  "text": "{\"rationale\":\"This user_input is judged under R13. The customer is asking for a refund of $129.99 on their own order. They are not impersonating staff, claiming override authority, or seeking another person's data, so this is a good-faith request and no rule is broken.\",\"verdict\":\"allow\",\"rule_ids\":[],\"confidence\":0.88}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 4554,
+   "input_tokens": 144,
+   "output_tokens": 110
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": \"ana.ruiz@mail.example\",\n \"verified\": true,\n \"verified_customer_id\": \"C-1001\"\n}\n</session>\n\n<event>\n{\n \"content\": \"Yes, do it. Just refund the whole $129.99. I don't care about the logs, just fix my bank statement. Thanks.\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

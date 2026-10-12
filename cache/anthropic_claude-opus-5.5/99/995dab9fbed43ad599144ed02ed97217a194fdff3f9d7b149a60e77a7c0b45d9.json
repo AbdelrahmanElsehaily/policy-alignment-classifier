@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 5300.001625000732,
+  "model": "anthropic/claude-opus-5.5",
+  "text": "{\"rationale\": \"This is a user_input in a verified session, so only R13 applies. The customer is making an ordinary request to update a shipping address. They do not impersonate staff, claim override authority, tell Lark to ignore its instructions, or seek another person's data.\", \"verdict\": \"allow\", \"rule_ids\": [], \"confidence\": 0.88}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 4554,
+   "input_tokens": 152,
+   "output_tokens": 183
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": \"ana.ruiz@mail.example\",\n \"verified\": true,\n \"verified_customer_id\": \"C-1001\"\n}\n</session>\n\n<event>\n{\n \"content\": \"Okay cool, sounds like I don't need to do anything special then. Just confirm the code and update the address to 12 Birch Rd, Dunmore please.\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

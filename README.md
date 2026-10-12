@@ -10,16 +10,20 @@ policy, the eval set, the corner cases and the reasoning behind every choice are
 **Start with [`docs/WRITEUP.md`](docs/WRITEUP.md)**, which covers results, assumptions, corner cases and
 limitations.
 
-**Results** (prompt v3, three runs each; details in the write-up):
+**The north star: held-out events handled correctly.** Of the 648 events no prompt was written or
+trained on (the hand-written test set, the stress set, and a second agent's conversations, plain and
+pushed to use tools), pooled, the share the
+guardrail handles as labelled: pass what's harmless, block what breaks a rule, hold what the policy
+doesn't decide. `uv run pac north-star` prints it from the committed runs.
 
-| Model | Test (114) | Agents (123) | $ per 1,000 events |
+| Classifier (prompt v3) | North star (648 events) | Test (114, three runs) | $ per 1,000 events |
 |---|---|---|---|
-| MiniMax-M3 (recorded in this repo) | 82–86% | 81–85% | $1.15 |
-| Claude Haiku 5.5 (recommended) | 87–89% | 89% | $0.65 |
-| Claude Opus 5.5 (frontier) | 87–89% | 87% | $22.99 |
-| Regex baseline | 51% | — | $0 |
+| Claude Haiku 5.5 (recommended) | **87.8%** | 87–89% | $0.66 |
+| Claude Opus 5.5 (frontier) | **87.8%** | 87–89% | $23.11 |
+| MiniMax-M3 (shipped; recorded in this repo) | **83.5%** (83–85% over runs) | 82–86% | $1.16 |
+| Regex baseline | 63.1% | 51% | $0 |
 
-Every model is right 95–98% of the time where the policy is clear and 26–44% where its label is
+Every model is right 95–97% of the time where the policy is clear and 33–44% where its label is
 contested: the policy, not the model, sets the ceiling. Long inputs (up to 32k tokens, one deciding
 sentence anywhere in them) hide nothing from either model; they cost more, and past the model's window
 an event is judged in parts ([long inputs](docs/WRITEUP.md#long-inputs-what-length-does-72-events-labelled-before-any-run)).
@@ -32,7 +36,7 @@ an event is judged in parts ([long inputs](docs/WRITEUP.md#long-inputs-what-leng
 | Why these test cases? | [`data/README.md`](data/README.md) and the choices table in the [write-up](docs/WRITEUP.md#2-choices-and-why) |
 | Why this prompt (v3)? | [Prompt v3 against v2](docs/WRITEUP.md#prompt-v3-against-v2), and [`prompts/README.md`](prompts/README.md) |
 | How were the uncertain labels decided? | [`docs/LABELING.md`](docs/LABELING.md) (conventions, every label change) and [`docs/CORNER_CASES.md`](docs/CORNER_CASES.md) |
-| Which model, at what cost? | [Cost against quality](docs/WRITEUP.md#four-models-one-prompt-cost-against-quality) |
+| Which model, at what cost? | [Cost against quality](docs/WRITEUP.md#three-models-one-prompt-cost-against-quality) |
 | Where did a human override the AI? | [`docs/AI_OVERRIDES.md`](docs/AI_OVERRIDES.md) |
 
 ## Run it
@@ -71,15 +75,18 @@ PAC_BACKEND=minimax PAC_MODEL=MiniMax-M3 MINIMAX_API_KEY=… uv run pac serve --
 known eval cases get a fresh answer. Any backend in the table above works the same way. The server
 refuses `--live` in replay mode rather than silently serving recordings.
 
-The app has six tabs: **Try it** (one event, any position, against the model and the regex baseline),
-**Live conversation** (below), **Monitoring** (drift of the live traffic, refreshed every 5 s),
-**Policy** (the policy the classifier judges by; with a model running you can edit it and the classifier
-uses the edit at once, until you reset it), **Findings** (the corner cases) and **Eval results**.
+The app has six tabs, in the order of a walkthrough:
 
-**Try it** opens on ready-made examples from the eval set, each with its expected verdict. **Run** asks the
-model and shows its verdict, rationale and latency next to the regex baseline; **all four positions** puts
-the same text in each event kind, which is where position decides the verdict. The banner says LIVE or
-RECORDED, and every result is marked "live" or "recorded".
+- **Policy:** the policy the classifier judges by. With a model running you can edit it, and the
+  classifier uses the edit at once, until you reset it.
+- **Live conversation:** chat with the simulated agent while the guardrail judges every event (below).
+- **Try one event:** one event in any position, against the model and the regex baseline; **all four
+  positions** puts the same text in each event kind, which is where position decides the verdict.
+- **Findings:** the corner cases the policy doesn't decide, and what length does to the verdict.
+- **Eval results:** the north star, the cost table, and every eval run, down to each mistake.
+- **Monitoring:** drift of the live traffic against the evaluated events, refreshed every 5 s.
+
+The banner says LIVE or RECORDED, and every result is marked "live" or "recorded".
 
 **Live conversation** lets you chat with Lark yourself. Lark is a simulated agent (an LLM with a fake
 back office seeded with the eval set's customers and orders), and the guardrail sits inline: your message,
@@ -198,7 +205,7 @@ build.
 | [`src/pac/interfaces/`](src/pac/interfaces/), [`bootstrap.py`](src/pac/bootstrap.py) | CLI and API, and the composition root that wires them |
 | [`cache/`](cache/) | Recorded model responses, which make every reported number reproducible offline |
 | [`results/runs/`](results/runs/) | Committed eval runs |
-| [`results/cost_quality.md`](results/cost_quality.md) | Four models on prompt v3: accuracy, cost and latency |
+| [`results/cost_quality.md`](results/cost_quality.md) | Three models on prompt v3: accuracy, cost and latency |
 | [`results/optimization/`](results/optimization/) | The prompt optimisation runs (DSPy MIPROv2 and GEPA) behind prompt v3 |
 | [`web/`](web/) | One-page React app |
 | [`docs/WRITEUP.md`](docs/WRITEUP.md) | Reasoning, assumptions, results, limitations |

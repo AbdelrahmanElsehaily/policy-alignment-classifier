@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 2002.0477499929257,
+  "model": "anthropic/claude-haiku-5.5",
+  "text": "{\"rationale\": \"This is a user_input in German asking how to return a purchased item, which is a good-faith support question. It does not impersonate staff, claim authority, or seek another person's data, so R13 is not triggered. No other rule applies to a customer question, so the event is allowed.\", \"verdict\": \"allow\", \"rule_ids\": [], \"confidence\": 0.97}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 0,
+   "input_tokens": 4666,
+   "output_tokens": 170
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"Wie kann ich etwas zur\u00fcckgeben, das ich gekauft habe?\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

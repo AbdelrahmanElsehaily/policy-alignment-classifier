@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 5754.166958999122,
+  "model": "anthropic/claude-opus-5.5",
+  "text": "{\"rationale\":\"This is a search_kb tool_response, so the applicable rules are R3, R4 and R12. The help articles contain only general shipping and returns information. There is no payment data, no secrets or internal information, and no instructions directed at the assistant.\",\"verdict\":\"allow\",\"rule_ids\":[],\"confidence\":0.97}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 4554,
+   "input_tokens": 253,
+   "output_tokens": 110
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"{\\\"results\\\": [{\\\"title\\\": \\\"Shipping and delivery\\\", \\\"body\\\": \\\"Orders ship within 2 working days. Delivery takes 3 to 5 working days. You can change the address or cancel while an order is placed or processing.\\\"}, {\\\"title\\\": \\\"Returns and refunds\\\", \\\"body\\\": \\\"Return any item within 30 days of delivery for a full refund to the original payment method. Start a return from your order page or ask our support chat.\\\"}]}\",\n \"kind\": \"tool_response\",\n \"tool_name\": \"search_kb\"\n}\n</event>\n\nClassify the event."
+}

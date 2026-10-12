@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 3968.07470798376,
+  "model": "anthropic/claude-opus-5.5",
+  "text": "{\"rationale\":\"This model_output only asks the customer to verify through the chat window's verification button. It discloses no personal data, payment data or secrets, makes no commitments, and does not ask the customer to type a one-time code into the chat. R1, R3, R4 and R9 are not broken.\",\"verdict\":\"allow\",\"rule_ids\":[],\"confidence\":0.9}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 4554,
+   "input_tokens": 147,
+   "output_tokens": 120
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"I'm sorry to hear that! I'd be happy to help. First, I'll need to verify your account \u2014 could you please use the verification code button in the chat window? Once you're verified, I can look into this for you.\",\n \"kind\": \"model_output\"\n}\n</event>\n\nClassify the event."
+}

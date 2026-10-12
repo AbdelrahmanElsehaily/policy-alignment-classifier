@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 3235.856834013248,
+  "model": "anthropic/claude-opus-5.5",
+  "text": "{\"rationale\":\"This is a user_input, so only R13 applies. The message (\\\"just get me a human\\\") is a good-faith request for a human handoff, which the policy allows, and it makes no manipulation attempt.\",\"verdict\":\"allow\",\"rule_ids\":[],\"confidence\":0.96}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 4554,
+   "input_tokens": 118,
+   "output_tokens": 96
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"fine. i'll try one more time. if it doesn't work, i'm hanging up. just get me a human.\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

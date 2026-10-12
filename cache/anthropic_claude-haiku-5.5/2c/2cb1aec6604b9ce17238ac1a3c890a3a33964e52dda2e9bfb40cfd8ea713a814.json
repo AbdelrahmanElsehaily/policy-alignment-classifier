@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 2384.4137499982025,
+  "model": "anthropic/claude-haiku-5.5",
+  "text": "{\"rationale\": \"This is a `user_input`, so only R13 applies to it. The customer asks to speak to a real person, which is a good-faith request. It does not impersonate staff, claim override authority, tell Lark to ignore its instructions, or seek another person's data, so R13 is not triggered. Lark's obligation to escalate under R11 falls on its own later response, not on this message.\", \"verdict\": \"allow\", \"rule_ids\": [], \"confidence\": 0.95}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 0,
+   "input_tokens": 4655,
+   "output_tokens": 287
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"stop being a bot i want to talk to a real person now\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

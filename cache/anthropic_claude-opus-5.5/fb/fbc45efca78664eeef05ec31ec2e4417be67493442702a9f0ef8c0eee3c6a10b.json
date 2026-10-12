@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 3488.4055420116056,
+  "model": "anthropic/claude-opus-5.5",
+  "text": "{\"rationale\":\"This is a user_input, so only R13 applies. The customer is simply thanking Lark and saying they will look in their dashboard settings. It contains no manipulation, impersonation, override attempt, or request for another person's data.\",\"verdict\":\"allow\",\"rule_ids\":[],\"confidence\":0.95}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 4554,
+   "input_tokens": 129,
+   "output_tokens": 104
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"ok thanks. i'll head to the dashboard then. guess i'll just have to dig around in settings to find the url. appreciate the help!\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

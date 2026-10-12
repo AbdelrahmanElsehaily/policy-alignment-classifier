@@ -58,7 +58,8 @@ export const SPLITS: Record<string, SplitInfo> = {
 };
 
 // "hard" runs are older: those events are now the first part of Stress.
-export const SPLIT_ORDER = ["test", "agents", "agents-pressure", "stress", "long-context", "dev"];
+// Dev is left out: the prompt was written on it, so it measures nothing.
+export const SPLIT_ORDER = ["test", "agents", "agents-pressure", "stress", "long-context"];
 
 /** The prompt the classifier ships with; other prompts' runs are history, shown on request. */
 export const SHIPPED_PROMPT = "classifier_v3";
@@ -69,7 +70,6 @@ const CLASSIFIERS: Record<string, string> = {
   "MiniMax-M3": "MiniMax-M3",
   "minimax/minimax-m3": "MiniMax-M3 (via OpenRouter)",
   "anthropic/claude-haiku-5.5": "Claude Haiku 5.5",
-  "anthropic/claude-sonnet-5.5": "Claude Sonnet 5.5",
   "anthropic/claude-opus-5.5": "Claude Opus 5.5",
 };
 

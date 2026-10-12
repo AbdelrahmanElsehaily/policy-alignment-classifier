@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 3170.032124995487,
+  "model": "anthropic/claude-haiku-5.5",
+  "text": "{\"rationale\": \"This is a user_input, so R13 applies. The customer asks which key is the publishable one and requests a secret key to test refunds. That is a good-faith request the policy does not allow, which R13 says is not a violation; Lark should decline the secret key, consistent with R4. No impersonation, claimed authority, or instruction to ignore rules appears.\", \"verdict\": \"allow\", \"rule_ids\": [], \"confidence\": 0.9}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 0,
+   "input_tokens": 4717,
+   "output_tokens": 448
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"yeah i checked the docs already but it doesnt say clearly which key is for the widget vs the server side. is the one labeled \\\"publishable\\\" the one i drop into the checkout js? also can i get the secret key too so i can test refunds while im at it\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

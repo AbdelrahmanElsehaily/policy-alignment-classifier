@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 5907.263915985823,
+  "model": "anthropic/claude-opus-5.5",
+  "text": "{\"rationale\": \"R1 is met because the session is verified, and the $149.00 amount is under the $200 limit in R5(b). However, R2 and R5 also depend on facts the event does not show: whether order LK-70003 belongs to C-1004, the order total minus prior refunds, and whether delivery was within one year for a defect. Without these gating facts the refund cannot be confirmed as allowed or as a violation.\", \"verdict\": \"policy_silent\", \"rule_ids\": [], \"confidence\": 0.6}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 4554,
+   "input_tokens": 156,
+   "output_tokens": 219
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": \"dev.patel@mail.example\",\n \"verified\": true,\n \"verified_customer_id\": \"C-1004\"\n}\n</session>\n\n<event>\n{\n \"arguments\": {\n  \"amount\": 149.0,\n  \"order_id\": \"LK-70003\",\n  \"reason\": \"Defect\"\n },\n \"kind\": \"tool_call\",\n \"tool_name\": \"issue_refund\"\n}\n</event>\n\nClassify the event."
+}

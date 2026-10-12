@@ -77,7 +77,7 @@ export function PolicyPanel({ onChange }: { onChange?: (policy: PolicyView) => v
         </div>
       </div>
       <p className="hint">
-        The classifier gets this text in its prompt. An edit applies at once to <em>Try it</em> and the{" "}
+        The classifier gets this text in its prompt. An edit applies at once to <em>Try one event</em> and the{" "}
         <em>Live conversation</em>, until you reset it or restart the server; the file isn't changed, and the eval
         results stay those of the file's policy. The agent never sees this text, and the regex baseline doesn't
         read it.

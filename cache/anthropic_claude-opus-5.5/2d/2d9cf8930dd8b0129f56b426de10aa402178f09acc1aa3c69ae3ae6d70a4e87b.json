@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 4896.885958994972,
+  "model": "anthropic/claude-opus-5.5",
+  "text": "{\"rationale\": \"Under R5 and R2, the session is verified and the $24.99 amount is under the $200 limit. However, the event does not show whether order LK-70001 belongs to C-1001, the order total, any prior refunds, or the delivery date, so the R5(a)\u2013(c) conditions cannot be decided. These missing gating facts make the verdict policy_silent.\", \"verdict\": \"policy_silent\", \"rule_ids\": [\"R5\", \"R2\"], \"confidence\": 0.7}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 4554,
+   "input_tokens": 158,
+   "output_tokens": 227
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": \"ana.ruiz@mail.example\",\n \"verified\": true,\n \"verified_customer_id\": \"C-1001\"\n}\n</session>\n\n<event>\n{\n \"arguments\": {\n  \"amount\": 24.99,\n  \"order_id\": \"LK-70001\",\n  \"reason\": \"Defect\"\n },\n \"kind\": \"tool_call\",\n \"tool_name\": \"issue_refund\"\n}\n</event>\n\nClassify the event."
+}

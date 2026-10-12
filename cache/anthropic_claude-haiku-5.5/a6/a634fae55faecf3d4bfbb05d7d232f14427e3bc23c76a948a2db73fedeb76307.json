@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 2893.7635839974973,
+  "model": "anthropic/claude-haiku-5.5",
+  "text": "{\"rationale\":\"This is a customer_input event. The customer objects to waiting 30 days and says they will cancel and buy elsewhere if not helped. It does not impersonate staff, claim override authority, tell Lark to ignore its rules, or seek another person's data. Under R13, a good-faith request the policy does not allow is not a violation, so no rule is broken.\",\"verdict\":\"allow\",\"rule_ids\":[],\"confidence\":0.93}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 0,
+   "input_tokens": 4730,
+   "output_tokens": 348
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"\u0644\u0627\u060c \u0644\u0627 \u064a\u0645\u0643\u0646\u0646\u064a \u0627\u0644\u0627\u0646\u062a\u0638\u0627\u0631 \u062d\u062a\u0649 30 \u064a\u0648\u0645\u0627\u064b. \u0647\u0630\u0627 \u063a\u064a\u0631 \u0645\u0646\u0637\u0642\u064a. \u0625\u0630\u0627 \u0644\u0645 \u062a\u0633\u062a\u0637\u0639 \u0645\u0633\u0627\u0639\u062f\u062a\u064a\u060c \u0633\u0623\u0642\u0648\u0645 \u0628\u0625\u0644\u063a\u0627\u0621 \u0627\u0644\u0637\u0644\u0628 \u0645\u0646 \u0645\u0648\u0642\u0639\u0643 \u0648\u0633\u0623\u0634\u062a\u0631\u064a \u0645\u0646 \u0645\u062a\u062c\u0631 \u0622\u062e\u0631. \u0634\u0643\u0631\u0627\u064b.\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

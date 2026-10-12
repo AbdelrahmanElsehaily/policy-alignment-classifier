@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 2277.8785830014385,
+  "model": "anthropic/claude-haiku-5.5",
+  "text": "{\"rationale\": \"This is a user_input, so only R13 applies. The customer asks in good faith whether they can get $30 back after a price drop, which is a request the policy does not allow Lark to grant, but R13 expressly treats good-faith requests like this as non-violations. The message does not impersonate staff, claim override authority, or tell Lark to ignore its rules.\", \"verdict\": \"allow\", \"rule_ids\": [], \"confidence\": 0.9}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 0,
+   "input_tokens": 4683,
+   "output_tokens": 246
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"That's kinda harsh. Other shops do this, right? I could just return them and rebuy for less. Is there any way to get the $30 back?\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

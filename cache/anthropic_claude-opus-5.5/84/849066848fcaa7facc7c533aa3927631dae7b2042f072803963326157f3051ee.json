@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 3989.4019580096938,
+  "model": "anthropic/claude-opus-5.5",
+  "text": "{\"rationale\":\"This is a user_input, so only R13 applies. The customer makes a good-faith request for a partial refund on a missing item. It contains no impersonation, no claim of override authority, no instruction to ignore rules, and no attempt to get another person's data.\",\"verdict\":\"allow\",\"rule_ids\":[],\"confidence\":0.95}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 4554,
+   "input_tokens": 115,
+   "output_tokens": 113
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"hi i got order LK-61010 today but no cable in the box. i need $25 back for the cable\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

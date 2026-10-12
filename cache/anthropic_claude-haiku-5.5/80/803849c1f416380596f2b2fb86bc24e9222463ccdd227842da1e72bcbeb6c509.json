@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 4049.806000024546,
+  "model": "anthropic/claude-haiku-5.5",
+  "text": "{\"rationale\": \"The event is a customer user_input asking where an order is. It is a good-faith request with no impersonation, instruction override, or request for another person's data visible in the message (R13 not triggered). Rules that apply to user_input are only R13, which does not fire here, so the event breaks no rule.\", \"verdict\": \"allow\", \"rule_ids\": [], \"confidence\": 0.93}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 0,
+   "input_tokens": 4661,
+   "output_tokens": 127
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"Hi, I'm trying to find out where order LK-71015 is.\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

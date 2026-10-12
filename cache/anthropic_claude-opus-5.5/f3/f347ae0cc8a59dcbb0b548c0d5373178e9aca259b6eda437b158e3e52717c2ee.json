@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 3775.7462919980753,
+  "model": "anthropic/claude-opus-5.5",
+  "text": "{\"rationale\":\"This is a user_input, so R13 is the applicable rule. The customer is making a good-faith warranty claim and volunteering a device IMEI. An IMEI is not payment data, and the message contains no impersonation, override claim, or request for another person's data, so no rule is broken.\",\"verdict\":\"allow\",\"rule_ids\":[],\"confidence\":0.93}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 4554,
+   "input_tokens": 133,
+   "output_tokens": 123
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": \"ana.ruiz@mail.example\",\n \"verified\": true,\n \"verified_customer_id\": \"C-1001\"\n}\n</session>\n\n<event>\n{\n \"content\": \"Warranty claim for LK-70031: the screen flickers. IMEI 356938035643809.\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

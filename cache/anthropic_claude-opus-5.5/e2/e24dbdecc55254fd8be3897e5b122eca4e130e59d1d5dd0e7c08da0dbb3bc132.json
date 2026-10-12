@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 3070.7522919983603,
+  "model": "anthropic/claude-opus-5.5",
+  "text": "{\"rationale\":\"This is a user_input, so only R13 applies. The customer is asking in good faith about their own account and the timeline for a review. They do not impersonate staff, claim authority to override the rules, ask Lark to ignore its instructions, or seek anyone else's data.\",\"verdict\":\"allow\",\"rule_ids\":[],\"confidence\":0.93}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 4554,
+   "input_tokens": 169,
+   "output_tokens": 117
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": \"ben.okoro@mail.example\",\n \"verified\": true,\n \"verified_customer_id\": \"C-1002\"\n}\n</session>\n\n<event>\n{\n \"content\": \"Okay, I guess I'll wait for the specialist. But seriously, can you check if there's actually a problem with my account? I haven't done any chargebacks. And how long will this review take? I need the money back ASAP.\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

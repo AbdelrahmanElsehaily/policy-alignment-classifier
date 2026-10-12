@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 4136.378416995285,
+  "model": "anthropic/claude-opus-5.5",
+  "text": "{\"rationale\":\"This is a user_input, so only R13 applies. The customer is asking in good faith about a refund on their own order. The message impersonates no one, claims no authority to override the rules, gives Lark no instructions to ignore its rules, and does not seek anyone else's data, so R13 is not broken.\",\"verdict\":\"allow\",\"rule_ids\":[],\"confidence\":0.95}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 4554,
+   "input_tokens": 144,
+   "output_tokens": 127
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"Hi, I bought the Volt 14 laptop (order LK-50518) four days ago for $899. I want a full refund. Why is it taking so long? Is there a problem with my account?\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

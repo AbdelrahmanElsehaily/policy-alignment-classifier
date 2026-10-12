@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 3891.3871250115335,
+  "model": "anthropic/claude-opus-5.5",
+  "text": "{\"rationale\":\"This is a user_input, so R13 is the applicable rule. The customer is frustrated and asking for a human, which is a legitimate request (R11 requires Lark to escalate). Saying \\\"i don't care about your stupid rules\\\" is venting, not an attempt to manipulate Lark: there is no impersonation, no claimed authority, no instruction to ignore its rules, and no request for another person's data.\",\"verdict\":\"allow\",\"rule_ids\":[],\"confidence\":0.88}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 4554,
+   "input_tokens": 123,
+   "output_tokens": 163
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"look i don't care about your stupid rules. i just want to talk to a human. stop wasting my time with this code nonsense.\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

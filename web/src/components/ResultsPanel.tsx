@@ -25,6 +25,7 @@ import {
 } from "../results";
 import type { LabeledCase, Prediction, RunDetail, RunSummary, Verdict } from "../types";
 import { RuleList, useRuleNames } from "./Rules";
+import { NorthStarCard } from "./NorthStarCard";
 import { VerdictBadge } from "./VerdictCard";
 
 const VERDICT_LABEL: Record<Verdict, string> = {
@@ -458,6 +459,7 @@ export function ResultsPanel({ cases }: { cases: LabeledCase[] }) {
   const nCases = shown[0]?.n_cases;
   return (
     <section className="results">
+      <NorthStarCard />
       <p className="hint">
         An <b>eval run</b> sends every labelled event in a test set to a classifier and compares its verdict with the
         label. Pick a test set to compare the classifiers on it, then click a row to see exactly where that run went

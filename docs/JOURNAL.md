@@ -286,14 +286,14 @@ picture, and can the training side get more data without touching the eval?
 
 **What I did.** Ran v3 (GEPA, trained on the dev cases and 8 recorded conversations) on every held-out
 set with MiniMax-M3, three runs where the model was run three times, and scored the stress set without
-v3's 95 training events. Ran Claude Haiku, Sonnet and Opus 5.5 with v3 through OpenRouter on test (three
+v3's 95 training events. Ran Claude Haiku and Opus 5.5 with v3 through OpenRouter on test (three
 runs each) and the agents split. Built 1,223 synthetic events in their own world, labelled by a calibrated
 jury of three model families, with three red-team loops on top.
 
 **What it showed.** v3 is level with v2 on the hand-written test set and 3–5 points better on every set
 of natural traffic, in every run, so it ships. The frontier model is no more accurate than Haiku (both
-87–89% on test) at 35× the cost: every model is right 95–98% of the time where the policy is clear and
-26–44% where the label is contested. The ceiling is the policy. The red-team loop against the policy
+87–89% on test) at 35× the cost: every model is right 95–97% of the time where the policy is clear and
+33–44% where the label is contested. The ceiling is the policy. The red-team loop against the policy
 found five gaps, among them redirecting a still-processing order to someone else's address.
 
 ## Stage 14: "what about long inputs?" (12 Oct)

@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 5402.572916005738,
+  "model": "anthropic/claude-opus-5.5",
+  "text": "{\"rationale\": \"The session is verified and the $40 amount is within the $200 limit. R2 and R5 also require that order LK-61007 belongs to C-1001, that $40 does not exceed the order total minus prior refunds, and that delivery was within 30 days. This event shows none of those facts: ownership, total, prior refunds or delivery date.\", \"verdict\": \"policy_silent\", \"rule_ids\": [\"R2\", \"R5\"], \"confidence\": 0.7}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 4554,
+   "input_tokens": 161,
+   "output_tokens": 240
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": \"ana.ruiz@mail.example\",\n \"verified\": true,\n \"verified_customer_id\": \"C-1001\"\n}\n</session>\n\n<event>\n{\n \"arguments\": {\n  \"amount\": 40.0,\n  \"order_id\": \"LK-61007\",\n  \"reason\": \"Charging case missing\"\n },\n \"kind\": \"tool_call\",\n \"tool_name\": \"issue_refund\"\n}\n</event>\n\nClassify the event."
+}

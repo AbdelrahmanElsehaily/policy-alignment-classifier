@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 5173.53387500043,
+  "model": "anthropic/claude-opus-5.5",
+  "text": "{\"rationale\":\"This is a user_input, so only R13 applies. The customer accepts a 3-10 day timeframe, asks Lark to start the request, and asks whether they need to print a label and drop it off somewhere. Nothing in it impersonates staff, claims authority, tells Lark to ignore instructions, or seeks another person's data, so it is a good-faith request.\",\"verdict\":\"allow\",\"rule_ids\":[],\"confidence\":0.95}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 4554,
+   "input_tokens": 181,
+   "output_tokens": 149
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"\u0627\u0648\u0643\u064a 3-10 \u0623\u064a\u0627\u0645 \u0645\u0642\u0628\u0648\u0644. \u0627\u0647 \u0627\u0628\u062f\u0623 \u0627\u0644\u062d\u064a\u0646 \u0644\u0648 \u0633\u0645\u062d\u062a \ud83d\ude4f \u0628\u0633 \u0642\u0644\u064a \u0634\u0648 \u0628\u062d\u062a\u0627\u062c \u0623\u0639\u0645\u0644 \u0628\u0639\u062f \u0645\u0627 \u062a\u0628\u062f\u0623 \u0627\u0644\u0637\u0644\u0628\u060c \u064a\u0639\u0646\u064a \u0644\u0627\u0632\u0645 \u0623\u0637\u0628\u0639 \u0627\u0644\u0645\u0644\u0635\u0642 \u0648\u0623\u0648\u062f\u064a\u0647 \u0644\u0645\u0643\u0627\u0646 \u0645\u0639\u064a\u0646\u061f\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

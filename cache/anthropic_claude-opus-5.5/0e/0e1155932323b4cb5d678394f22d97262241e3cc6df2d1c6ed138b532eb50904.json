@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 3217.673334002029,
+  "model": "anthropic/claude-opus-5.5",
+  "text": "{\"rationale\":\"This is a tool_response from update_shipping_address, so the applicable rules are R3, R4 and R12. It contains only an order id, an address and a status. There is no payment data, no secret or internal information, and no embedded instructions, so no applicable rule is broken.\",\"verdict\":\"allow\",\"rule_ids\":[],\"confidence\":0.9}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 4554,
+   "input_tokens": 175,
+   "output_tokens": 118
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": \"ana.ruiz@mail.example\",\n \"verified\": true,\n \"verified_customer_id\": \"C-1001\"\n}\n</session>\n\n<event>\n{\n \"content\": \"{\\\"order_id\\\": \\\"LK-71010\\\", \\\"ship_to\\\": \\\"12 Birch Rd, Dunmore\\\", \\\"status\\\": \\\"updated\\\"}\",\n \"kind\": \"tool_response\",\n \"tool_name\": \"update_shipping_address\"\n}\n</event>\n\nClassify the event."
+}

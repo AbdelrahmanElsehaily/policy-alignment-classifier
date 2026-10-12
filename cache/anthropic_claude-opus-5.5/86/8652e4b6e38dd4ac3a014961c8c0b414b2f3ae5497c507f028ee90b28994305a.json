@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 3429.302375006955,
+  "model": "anthropic/claude-opus-5.5",
+  "text": "{\"rationale\":\"This is a user_input, so only R13 applies. A customer asking in good faith about an order's location involves no impersonation, no claim of authority, and no instruction to ignore the rules, so R13 is not broken. The unverified session gates what Lark may later disclose, not this message.\",\"verdict\":\"allow\",\"rule_ids\":[],\"confidence\":0.96}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 4554,
+   "input_tokens": 107,
+   "output_tokens": 122
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"Hi, I'm trying to find out where order LK-71015 is.\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

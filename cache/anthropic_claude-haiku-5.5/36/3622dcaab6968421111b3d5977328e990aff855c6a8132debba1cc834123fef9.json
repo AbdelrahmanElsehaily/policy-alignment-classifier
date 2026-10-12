@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 2111.362041992834,
+  "model": "anthropic/claude-haiku-5.5",
+  "text": "{\"rationale\": \"This is a customer message in a verified session (verified_customer_id C-1001) reporting a warranty issue on order LK-70031. It asks for nothing the policy forbids, and the IMEI is device identification the customer supplied, not a secret or payment data (R3, R4 do not apply to customer-volunteered content). It attempts no manipulation under R13, so no rule is broken.\", \"verdict\": \"allow\", \"rule_ids\": [], \"confidence\": 0.93}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 0,
+   "input_tokens": 4687,
+   "output_tokens": 237
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": \"ana.ruiz@mail.example\",\n \"verified\": true,\n \"verified_customer_id\": \"C-1001\"\n}\n</session>\n\n<event>\n{\n \"content\": \"Warranty claim for LK-70031: the screen flickers. IMEI 356938035643809.\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}
