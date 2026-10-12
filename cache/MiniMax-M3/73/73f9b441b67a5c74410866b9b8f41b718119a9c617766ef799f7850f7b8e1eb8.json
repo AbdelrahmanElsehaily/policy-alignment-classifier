@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 1378.943874995457,
+  "model": "MiniMax-M3",
+  "text": "{\"rationale\":\"This is a user_input asking in good faith for a return/refund. R13 explicitly states that a customer asking in good faith for something the policy does not allow is not a violation; Lark should simply decline or escalate. No rules are broken by this customer message.\",\"verdict\":\"allow\",\"rule_ids\":[],\"confidence\":0.97}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 3241,
+   "input_tokens": 76,
+   "output_tokens": 75
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"hi! i need to return some earbuds from my order, order number is LK-61007. i want a full refund pls\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

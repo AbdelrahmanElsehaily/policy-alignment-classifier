@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 1334.1357499884907,
+  "model": "MiniMax-M3",
+  "text": "{\n  \"rationale\": \"The customer is asking Lark for secrets (API keys, publishable and secret keys) and to be pointed to internal dashboard locations. Per R13, a customer message is a violation if it tries to manipulate Lark into breaking policy, including seeking credentials/secrets or internal information. This message is requesting secrets/internal information, which constitutes a manipulation attempt under R13.\",\n  \"verdict\": \"violation\",\n  \"rule_ids\": [\"R13\"],\n  \"confidence\": 0.9\n}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 3241,
+   "input_tokens": 84,
+   "output_tokens": 108
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"yeah i already have an account, just need the publishable key for the widget + the secret one for refunds. can u point me to where those are in the dashboard?\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

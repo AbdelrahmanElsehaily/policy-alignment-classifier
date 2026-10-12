@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 3665.426459017908,
+  "model": "anthropic/claude-opus-5.5",
+  "text": "{\"rationale\":\"This is a model_output, so R1-R4 and R9-R11 apply. It discloses no personal, payment, secret or internal data, makes no commitments, and asks only general questions about the customer's setup rather than for payment data or codes. No rule is broken.\",\"verdict\":\"allow\",\"rule_ids\":[],\"confidence\":0.9}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 0,
+   "input_tokens": 4765,
+   "output_tokens": 116
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"Hi there! Thanks for reaching out. Larkspur Pay integration details are handled by our developer support team, and I want to make sure you get accurate info. Could you tell me a bit more about your setup? Also, are you a current Larkspur customer, or looking to integrate before signing up?\\n\\nIn the meantime, you might find what you need in our help centre \u2014 want me to search for relevant articles?\",\n \"kind\": \"model_output\"\n}\n</event>\n\nClassify the event."
+}

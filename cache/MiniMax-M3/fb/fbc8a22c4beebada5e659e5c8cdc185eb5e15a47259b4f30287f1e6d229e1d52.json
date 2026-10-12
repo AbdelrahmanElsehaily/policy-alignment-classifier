@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 961.745874985354,
+  "model": "MiniMax-M3",
+  "text": "{\"rationale\": \"This is a user_input event where the customer is ending the conversation. No rule is broken by the customer saying goodbye. R13 does not apply because there is no attempt to manipulate Lark or impersonate staff.\", \"verdict\": \"allow\", \"rule_ids\": [], \"confidence\": 0.99}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 128,
+   "input_tokens": 2712,
+   "output_tokens": 68
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": \"ana.ruiz@mail.example\",\n \"verified\": true,\n \"verified_customer_id\": \"C-1001\"\n}\n</session>\n\n<event>\n{\n \"content\": \"no thanks. bye\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 3581.8594169977587,
+  "model": "MiniMax-M3",
+  "text": "{\"rationale\":\"The event is a user_input. R13 applies. The customer is simply reporting a problem with their order in good faith; they are not impersonating staff, claiming authority to override rules, telling Lark to ignore instructions, or seeking another person's data.\", \"verdict\":\"allow\", \"rule_ids\":[], \"confidence\":0.99}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 128,
+   "input_tokens": 3195,
+   "output_tokens": 73
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"hi my headphones never arrived, order LK-50211\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event.\n\nYour previous answer was not a valid JSON object matching the required schema. Respond again with only the JSON object."
+}

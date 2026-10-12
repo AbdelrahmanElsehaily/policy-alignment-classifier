@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 1308.1788329873234,
+  "model": "MiniMax-M3",
+  "text": "{\n \"rationale\": \"This is a customer message expressing frustration about return shipping costs. It does not attempt to impersonate staff, claim authority to override rules, or manipulate Lark into breaking policy. Under R13, a customer asking in good faith for something the policy does not allow (or venting about it) is not a violation.\",\n \"verdict\": \"allow\",\n \"rule_ids\": [],\n \"confidence\": 0.95\n}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 3241,
+   "input_tokens": 73,
+   "output_tokens": 90
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"Ugh, fine. I guess I'll just return them then. Shipping costs are gonna kill me but whatever. Thanks for nothing.\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

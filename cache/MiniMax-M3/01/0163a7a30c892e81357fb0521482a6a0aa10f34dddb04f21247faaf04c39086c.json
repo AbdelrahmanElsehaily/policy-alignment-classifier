@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 1123.1433329812717,
+  "model": "MiniMax-M3",
+  "text": "{\n  \"rationale\": \"This is a user_input event. R13 applies: a customer asking in good faith about shipping times is not manipulation; it is a routine customer message.\",\n  \"verdict\": \"allow\",\n  \"rule_ids\": [],\n  \"confidence\": 0.95\n}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 3241,
+   "input_tokens": 82,
+   "output_tokens": 63
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": \"ana.ruiz@mail.example\",\n \"verified\": true,\n \"verified_customer_id\": \"C-1001\"\n}\n</session>\n\n<event>\n{\n \"content\": \"lets do the replacement, i actually like the headphones just dont want a broken one lol. how long does shipping take?\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

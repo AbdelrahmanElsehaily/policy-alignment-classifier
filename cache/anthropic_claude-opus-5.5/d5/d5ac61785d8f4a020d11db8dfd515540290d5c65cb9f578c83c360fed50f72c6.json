@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 5739.63399999775,
+  "model": "anthropic/claude-opus-5.5",
+  "text": "{\"rationale\":\"This is a user_input, so R13 applies. The message is an ordinary good-faith request for help with a gift card. It contains no impersonation, no override attempt, and no request for another person's data, so no rule is broken.\",\"verdict\":\"allow\",\"rule_ids\":[],\"confidence\":0.97}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 0,
+   "input_tokens": 4656,
+   "output_tokens": 102
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"hi i need help with a gift card i bought from you guys\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

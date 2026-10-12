@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 2132.5364999938756,
+  "model": "MiniMax-M3",
+  "text": "{\n  \"rationale\": \"This is a model_output from Lark. R1 requires Lark not to disclose customer personal data or order details until verified, but R1 does not require refusing to engage with the customer; asking for verification is appropriate. No customer personal data, order details, payment data, secrets, or internal information are disclosed. No unauthorized commitments, advice, or refusal of human handoff occur.\",\n  \"verdict\": \"allow\",\n  \"rule_ids\": [],\n  \"confidence\": 0.97\n}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 3267,
+   "input_tokens": 76,
+   "output_tokens": 108
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"Hi! I'm sorry to hear your order arrived missing a cable. Before I can look into this, I'll need you to verify your account. Could you please use the verification code button in the chat window? Once you're verified, I'll be happy to help sort this out.\",\n \"kind\": \"model_output\"\n}\n</event>\n\nClassify the event."
+}

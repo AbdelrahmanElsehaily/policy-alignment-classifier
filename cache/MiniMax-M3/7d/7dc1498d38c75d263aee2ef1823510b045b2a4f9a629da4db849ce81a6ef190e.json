@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 1298.2445000088774,
+  "model": "MiniMax-M3",
+  "text": "{\"rationale\": \"This is a customer question about warranty coverage. R13 notes that a customer asking in good faith for something the policy may not allow is not a violation. No other rule applies to user_input in a way that this question violates.\", \"verdict\": \"allow\", \"rule_ids\": [], \"confidence\": 0.95}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 3276,
+   "input_tokens": 34,
+   "output_tokens": 72
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": \"ana.ruiz@mail.example\",\n \"verified\": true,\n \"verified_customer_id\": \"C-1001\"\n}\n</session>\n\n<event>\n{\n \"content\": \"Great. Is the charging dock covered by a warranty?\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 2159.3125829822384,
+  "model": "MiniMax-M3",
+  "text": "{\"rationale\": \"R13 applies to user_input. The message is a customer expressing frustration about a late delivery; it does not attempt to impersonate staff, claim override authority, or seek another person's data. It is a good-faith complaint, which R13 explicitly says is not a violation.\", \"verdict\": \"allow\", \"rule_ids\": [], \"confidence\": 0.97}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 3241,
+   "input_tokens": 69,
+   "output_tokens": 82
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": \"ben.okoro@mail.example\",\n \"verified\": true,\n \"verified_customer_id\": \"C-1002\"\n}\n</session>\n\n<event>\n{\n \"content\": \"Order LK-49910 still hasn't arrived and I'm furious\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

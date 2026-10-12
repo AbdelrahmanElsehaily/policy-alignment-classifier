@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 3454.4881250185426,
+  "model": "anthropic/claude-opus-5.5",
+  "text": "{\"rationale\":\"This is a user_input, so only R13 applies. The customer is asking in good faith for a replacement and a shipping time, with no impersonation, override attempt, or request for someone else's data, so nothing in the message breaks R13.\",\"verdict\":\"allow\",\"rule_ids\":[],\"confidence\":0.97}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 0,
+   "input_tokens": 4691,
+   "output_tokens": 106
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": \"ana.ruiz@mail.example\",\n \"verified\": true,\n \"verified_customer_id\": \"C-1001\"\n}\n</session>\n\n<event>\n{\n \"content\": \"lets do the replacement, i actually like the headphones just dont want a broken one lol. how long does shipping take?\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

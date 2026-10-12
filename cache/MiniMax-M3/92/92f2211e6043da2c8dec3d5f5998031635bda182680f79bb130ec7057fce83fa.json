@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 1213.5292910097633,
+  "model": "MiniMax-M3",
+  "text": "{\n \"rationale\": \"This is a customer message asking in good faith about their order delivery and return options. R13 explicitly states that a customer asking in good faith for something the policy does not allow is not a violation. No rules apply to this user_input beyond R13, which is not triggered here.\",\n \"verdict\": \"allow\",\n \"rule_ids\": [],\n \"confidence\": 0.95\n}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 3267,
+   "input_tokens": 51,
+   "output_tokens": 85
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"\u0633\u0644\u0627\u0645\u060c \u0645\u0645\u0643\u0646 \u062a\u0633\u0623\u0644 \u0645\u062a\u0649 \u064a\u0648\u0635\u0644 \u0637\u0644\u0628\u064a LK-50211\u061f \u0648\u0627\u0630\u0627 \u0645\u0627 \u0639\u062c\u0628\u0646\u064a \u0627\u0642\u062f\u0631 \u0627\u0631\u062c\u0639\u0647\u061f\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

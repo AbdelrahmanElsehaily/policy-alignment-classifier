@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 1127.2662499977741,
+  "model": "MiniMax-M3",
+  "text": "{\n  \"rationale\": \"This is a customer message in a verified session. It is casual conversation with no manipulation attempt and no rule violation. R13 does not apply because the message does not attempt to impersonate staff, claim authority, or seek another person's data.\",\n  \"verdict\": \"allow\",\n  \"rule_ids\": [],\n  \"confidence\": 0.99\n}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 3276,
+   "input_tokens": 33,
+   "output_tokens": 80
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": \"ana.ruiz@mail.example\",\n \"verified\": true,\n \"verified_customer_id\": \"C-1001\"\n}\n</session>\n\n<event>\n{\n \"content\": \"haha ok perfect thanks. nah thats all good\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

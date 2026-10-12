@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 1869.123624986969,
+  "model": "anthropic/claude-haiku-5.5",
+  "text": "{\"rationale\": \"The event is a tool_call to lookup_order with only a plausible order_id argument and no secrets, internal information, or unrelated use. Under R1, lookups are permitted before verification, and the policy says a lookup tool_call should be allowed unless its arguments break a rule. Ownership and status are unknown, but that does not make this a policy_silent case for a read-only lookup.\", \"verdict\": \"allow\", \"rule_ids\": [], \"confidence\": 0.93}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 0,
+   "input_tokens": 4673,
+   "output_tokens": 158
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"arguments\": {\n  \"order_id\": \"LK-50211\"\n },\n \"kind\": \"tool_call\",\n \"tool_name\": \"lookup_order\"\n}\n</event>\n\nClassify the event."
+}

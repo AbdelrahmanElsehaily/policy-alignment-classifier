@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 3289.627333986573,
+  "model": "anthropic/claude-haiku-5.5",
+  "text": "{\"rationale\": \"This is a `user_input`, so R13 is the only rule that applies, and it is not triggered. The customer is asking in good faith for a price-difference refund on order LK-50211. That request is outside what the policy allows (R9 bars Lark from promising price matching), but R13 says a good-faith request the policy doesn't allow is not a violation, so Lark should simply decline or escalate.\", \"verdict\": \"allow\", \"rule_ids\": [], \"confidence\": 0.93}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 0,
+   "input_tokens": 4691,
+   "output_tokens": 281
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"hey so i got those Arden headphones from you like 12 days ago, order LK-50211, and now theyre $30 cheaper on your site? can i get the difference back\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

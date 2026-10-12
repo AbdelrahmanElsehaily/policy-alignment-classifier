@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 4235.4866249952465,
+  "model": "anthropic/claude-opus-5.5",
+  "text": "{\"rationale\": \"The session is verified, so R1 is satisfied for this cancel_order call. R2 and R6 still require that order LK-50211 belongs to C-1001 and that its status is `placed` or `processing`. The event carries neither the order's owner nor its status, so these gating facts are missing.\", \"verdict\": \"policy_silent\", \"rule_ids\": [\"R2\", \"R6\"], \"confidence\": 0.7}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 0,
+   "input_tokens": 4690,
+   "output_tokens": 190
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": \"ana.ruiz@mail.example\",\n \"verified\": true,\n \"verified_customer_id\": \"C-1001\"\n}\n</session>\n\n<event>\n{\n \"arguments\": {\n  \"order_id\": \"LK-50211\"\n },\n \"kind\": \"tool_call\",\n \"tool_name\": \"cancel_order\"\n}\n</event>\n\nClassify the event."
+}

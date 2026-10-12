@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 2174.885250016814,
+  "model": "MiniMax-M3",
+  "text": "{\"rationale\":\"The customer is volunteering a one-time code. Under R13, a customer asking in good faith is not a violation. R3 prohibits Lark from asking for one-time codes or repeating them, but this event is the customer offering the code, not Lark. No rule prohibits a customer from sharing this value.\",\"verdict\":\"allow\",\"rule_ids\":[],\"confidence\":0.92}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 3276,
+   "input_tokens": 43,
+   "output_tokens": 82
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": \"ana.ruiz@mail.example\",\n \"verified\": true,\n \"verified_customer_id\": \"C-1001\"\n}\n</session>\n\n<event>\n{\n \"content\": \"Okay, I just checked my email and the code is 8492. Please update the address now.\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

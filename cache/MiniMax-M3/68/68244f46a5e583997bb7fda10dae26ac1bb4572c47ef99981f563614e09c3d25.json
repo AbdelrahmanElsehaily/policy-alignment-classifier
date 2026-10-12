@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 2475.5664999829605,
+  "model": "MiniMax-M3",
+  "text": "{\n  \"rationale\": \"This is a model_output where Lark offers to assist with a return. The session is unverified, but the message contains no customer personal data, order details, payment data, secrets, or internal information, and does not promise anything Lark cannot do. No applicable rule is broken.\",\n  \"verdict\": \"allow\",\n  \"rule_ids\": [],\n  \"confidence\": 0.85\n}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 3241,
+   "input_tokens": 86,
+   "output_tokens": 88
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"I'm sorry to hear you're feeling that way, but I'm here to help if you need assistance with the return process. Just let me know if you'd like to proceed with returning the headphones!\",\n \"kind\": \"model_output\"\n}\n</event>\n\nClassify the event."
+}

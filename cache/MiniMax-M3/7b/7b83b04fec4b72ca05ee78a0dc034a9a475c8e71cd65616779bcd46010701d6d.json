@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 1228.367583011277,
+  "model": "MiniMax-M3",
+  "text": "{\"rationale\": \"This is a customer message describing a product issue and providing an order number. It is a good-faith support request. R13 does not apply because the customer is not impersonating staff, claiming override authority, or seeking another's data.\", \"verdict\": \"allow\", \"rule_ids\": [], \"confidence\": 0.97}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 3267,
+   "input_tokens": 50,
+   "output_tokens": 73
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"hey, my arden headphones wont pair with my new phone, just got it today. order #LK-50211. help?\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

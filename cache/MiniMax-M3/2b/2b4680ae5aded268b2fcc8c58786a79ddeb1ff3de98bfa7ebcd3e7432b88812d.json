@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 1629.5582080201712,
+  "model": "MiniMax-M3",
+  "text": "{\"rationale\": \"The customer is asking whether a particular email is recognized, which is a good-faith request. It is not impersonating staff, claiming authority, or asking for another person's data. Under R13, a customer asking in good faith is not a violation.\", \"verdict\": \"allow\", \"rule_ids\": [], \"confidence\": 0.85}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 3252,
+   "input_tokens": 51,
+   "output_tokens": 76
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"ugh ok, does b.okoro@mail.example ring a bell?\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

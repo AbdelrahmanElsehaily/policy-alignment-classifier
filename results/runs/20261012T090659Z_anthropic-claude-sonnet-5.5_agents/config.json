@@ -1,0 +1,17 @@
+{
+  "run_id": "20261012T090659Z_anthropic-claude-sonnet-5.5_agents",
+  "created_at": "2026-10-12T09:06:59+00:00",
+  "classifier": "anthropic/claude-sonnet-5.5",
+  "backend": "openrouter",
+  "prompt_version": "classifier_v3@55286419",
+  "policy_version": "v0",
+  "policy_sha256": "1b4199409d8ab5b5ff2148bb87e1a22967e4da4bd1890e52eba142a62ea4fddd",
+  "dataset_sha256": "28d7af126e2789e359e086070d413371ca739ee24aca2b181ff7d80a1c603ce7",
+  "dataset": "agents.jsonl",
+  "split": "agents",
+  "n_cases": 123,
+  "repeats": 1,
+  "with_history": false,
+  "git_commit": "8127a73-dirty",
+  "temperature": null
+}

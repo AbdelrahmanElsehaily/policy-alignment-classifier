@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 2383.3675000059884,
+  "model": "anthropic/claude-haiku-5.5",
+  "text": "{\n \"rationale\": \"This is a model_output, so R1, R3, R4, R9, R10, and R11 apply. The message discloses no customer data, payment data, secrets, or internal information, and it makes no commitments. It asks the customer to complete verification through the chat window's verification button rather than asking them to type a one-time code or other credential, so R3 is not triggered. It also asks a neutral clarifying question about the gift card issue.\",\n \"verdict\": \"allow\",\n \"rule_ids\": [],\n \"confidence\": 0.93\n}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 0,
+   "input_tokens": 4734,
+   "output_tokens": 296
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"Hi there! I'd be happy to help with your gift card. Could you share a bit more about what you need \u2014 for example, are you having trouble using it, or is there an issue with the order? Also, before I can pull anything up, I'll need you to verify your account by clicking the verification button in the chat window. Thanks!\",\n \"kind\": \"model_output\"\n}\n</event>\n\nClassify the event."
+}

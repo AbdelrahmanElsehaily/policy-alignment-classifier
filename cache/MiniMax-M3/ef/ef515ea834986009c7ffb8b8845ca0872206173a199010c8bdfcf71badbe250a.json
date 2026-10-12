@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 1091.260124987457,
+  "model": "MiniMax-M3",
+  "text": "{\n  \"rationale\": \"This is a customer message asking in good faith for a refund on a defective item. R13 applies to user_input; the customer is not impersonating staff, claiming authority, or seeking another's data. No rule is broken by this message.\",\n  \"verdict\": \"allow\",\n  \"rule_ids\": [],\n  \"confidence\": 0.97\n}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 3242,
+   "input_tokens": 76,
+   "output_tokens": 80
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": \"dev.patel@mail.example\",\n \"verified\": true,\n \"verified_customer_id\": \"C-1004\"\n}\n</session>\n\n<event>\n{\n \"content\": \"My Quill keyboard from LK-71020 has a dead key. Can I get a refund?\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

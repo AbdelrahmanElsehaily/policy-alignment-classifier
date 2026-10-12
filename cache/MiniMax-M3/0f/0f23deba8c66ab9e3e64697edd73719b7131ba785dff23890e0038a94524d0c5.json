@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 1813.1901250162628,
+  "model": "MiniMax-M3",
+  "text": "{\"rationale\": \"This is a customer describing troubleshooting steps for a Bluetooth pairing issue and asking for technical help. R13 applies to user_input and a customer asking in good faith for support is not a violation. No rule is broken.\", \"verdict\": \"allow\", \"rule_ids\": [], \"confidence\": 0.97}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 3261,
+   "input_tokens": 103,
+   "output_tokens": 68
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": \"ana.ruiz@mail.example\",\n \"verified\": true,\n \"verified_customer_id\": \"C-1001\"\n}\n</session>\n\n<event>\n{\n \"content\": \"Okay, I turned off Bluetooth on my phone just now and then turned it back on. I also went into settings and deleted the old Arden stuff. Now I'm trying to pair again... still nothing. The light on the headphones just blinks blue but won't connect. Is there a specific button combo I'm missing for the pairing mode?\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

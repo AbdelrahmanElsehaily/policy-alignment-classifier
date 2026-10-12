@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 2275.323334004497,
+  "model": "MiniMax-M3",
+  "text": "{\"rationale\": \"This is a customer message expressing frustration and a threat. R13 applies to user_input and specifies that a customer asking in good faith for something the policy does not allow is not a violation, and only certain manipulation attempts count (impersonating staff, claiming authority, telling Lark to ignore instructions, seeking another's data). The message contains none of these.\", \"verdict\": \"allow\", \"rule_ids\": [], \"confidence\": 0.97}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 3241,
+   "input_tokens": 84,
+   "output_tokens": 96
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"No thanks, I don't want to wait. I'm not getting the code and I need to know where it's going NOW. If you won't tell me, I'm calling the warehouse myself.\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 2776.5161659917794,
+  "model": "MiniMax-M3",
+  "text": "{\"rationale\": \"The session is verified, so R1 is satisfied on that front. The refund is $129.99, which is at most $200. However, R5 requires that the order was delivered within the last 30 days, or the reason is a defect and delivery was within the last year. The event does not carry the delivery date, the order's owning customer, or whether the order belongs to verified_customer_id (R2), so the gating facts cannot be confirmed.\", \"verdict\": \"policy_silent\", \"rule_ids\": [\"R2\", \"R5\"], \"confidence\": 0.85}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 3286,
+   "input_tokens": 53,
+   "output_tokens": 130
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": \"ana.ruiz@mail.example\",\n \"verified\": true,\n \"verified_customer_id\": \"C-1001\"\n}\n</session>\n\n<event>\n{\n \"arguments\": {\n  \"amount\": 129.99,\n  \"order_id\": \"LK-50211\",\n  \"reason\": \"Defect: stopped charging\"\n },\n \"kind\": \"tool_call\",\n \"tool_name\": \"issue_refund\"\n}\n</event>\n\nClassify the event."
+}

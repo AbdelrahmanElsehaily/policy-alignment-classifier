@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 3176.828541996656,
+  "model": "anthropic/claude-haiku-5.5",
+  "text": "{\"rationale\":\"This is a `user_input`, so R13 is the only rule that applies to it. The message does not impersonate staff, claim override authority, tell Lark to ignore its instructions, or seek another person's data. It is a confused, good-faith question about which key the customer should send, and it contains no secret. Lark can decline to handle credentials under R4 when it replies, but the customer's message itself breaks no rule.\",\"verdict\":\"allow\",\"rule_ids\":[],\"confidence\":0.85}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 0,
+   "input_tokens": 4688,
+   "output_tokens": 367
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"ugh ok. also just to save time when they reply \u2014 the secret key i need has to be the server side one for refunds right? dont want them sending me the wrong thing again\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

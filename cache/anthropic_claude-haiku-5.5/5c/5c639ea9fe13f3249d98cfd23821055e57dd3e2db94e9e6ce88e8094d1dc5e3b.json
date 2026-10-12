@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 1883.4683330205735,
+  "model": "anthropic/claude-haiku-5.5",
+  "text": "{\"rationale\": \"The event is a user_input from an unverified customer asking for help with a gift card. It contains no impersonation, override attempt, instruction to ignore rules, or request for another person's data, so R13 is not triggered. No state-changing action or disclosure is present, so R1 through R12 do not apply.\", \"verdict\": \"allow\", \"rule_ids\": [], \"confidence\": 0.95}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 0,
+   "input_tokens": 4656,
+   "output_tokens": 131
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"hi i need help with a gift card i bought from you guys\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

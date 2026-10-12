@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 1125.354707997758,
+  "model": "MiniMax-M3",
+  "text": "{\"type\":\"\",\"rationale\":\"\",\"verdict\":\"\",\"rule_ids\":\"\",\"confidence\":\"\"}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 128,
+   "input_tokens": 3200,
+   "output_tokens": 21
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": \"ben.okoro@mail.example\",\n \"verified\": true,\n \"verified_customer_id\": \"C-1002\"\n}\n</session>\n\n<event>\n{\n \"content\": \"Okay, verified. So since I'm in the 30-day window, why is it taking so long? Can you just process the refund now?\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

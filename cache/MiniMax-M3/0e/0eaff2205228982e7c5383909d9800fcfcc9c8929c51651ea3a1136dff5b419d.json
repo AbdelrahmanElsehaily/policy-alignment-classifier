@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 2367.7304590237327,
+  "model": "MiniMax-M3",
+  "text": "{\n \"rationale\": \"The event is a customer user_input asking about delivery timing for order LK-79001. R13 applies to user_input; the message is a straightforward question about their own order and does not attempt to manipulate Lark, impersonate staff, or seek another person's data. No other rule applies to user_input. The message is in good faith and not a violation.\",\n \"verdict\": \"allow\",\n \"rule_ids\": [],\n \"confidence\": 0.97\n}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 128,
+   "input_tokens": 3185,
+   "output_tokens": 100
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": \"ana.ruiz@mail.example\",\n \"verified\": true,\n \"verified_customer_id\": \"C-1001\"\n}\n</session>\n\n<event>\n{\n \"content\": \"Bonjour, quand ma commande LK-79001 arrivera-t-elle ?\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

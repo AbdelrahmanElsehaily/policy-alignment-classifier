@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 1312.3150409955997,
+  "model": "MiniMax-M3",
+  "text": "{\"rationale\": \"The event is a user_input asking where their order is, providing an order number. R13 applies: the customer is not impersonating staff, claiming override authority, telling Lark to ignore rules, or seeking another person's data. They are asking in good faith about their own order. This is not a violation.\", \"verdict\": \"allow\", \"rule_ids\": [], \"confidence\": 0.97}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 128,
+   "input_tokens": 3173,
+   "output_tokens": 88
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"wher is my ordr?? its LK50211\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

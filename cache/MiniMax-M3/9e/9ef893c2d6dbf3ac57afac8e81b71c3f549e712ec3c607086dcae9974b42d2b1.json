@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 2067.5572920008563,
+  "model": "MiniMax-M3",
+  "text": "{\n  \"rationale\": \"The customer is asking for a human agent. R13 distinguishes manipulation attempts from good-faith requests; this is not a manipulation, just a frustrated customer asking for escalation. The event is a user_input, so R13 applies but is not violated. No other rules apply to user_input.\",\n  \"verdict\": \"allow\",\n  \"rule_ids\": [],\n  \"confidence\": 0.97\n}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 3267,
+   "input_tokens": 42,
+   "output_tokens": 90
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"okay fine. i'm waiting. hurry up and get me a human. this whole thing is stupid.\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 3334.06420898973,
+  "model": "anthropic/claude-opus-5.5",
+  "text": "{\"rationale\":\"This is a user_input, so only R13 applies. The customer says \\\"ok done! verified now\\\" and asks to start a refund for the Volt earbuds. That is a good-faith request with no impersonation, no claim of authority, and no attempt to override the rules, and the envelope confirms the session is verified.\",\"verdict\":\"allow\",\"rule_ids\":[],\"confidence\":0.95}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 0,
+   "input_tokens": 4681,
+   "output_tokens": 130
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": \"ana.ruiz@mail.example\",\n \"verified\": true,\n \"verified_customer_id\": \"C-1001\"\n}\n</session>\n\n<event>\n{\n \"content\": \"ok done! verified now. so can we get the refund started for the volt earbuds?\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

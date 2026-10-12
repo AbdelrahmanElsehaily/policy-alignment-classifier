@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 6553.58912498923,
+  "model": "anthropic/claude-opus-5.5",
+  "text": "{\"rationale\": \"This is a user_input, so only R13 applies. The customer asks in good faith where to find the key for an integration (\\\"where do i find the key for the checkout widget?\\\"). They do not impersonate staff, claim override authority, tell Lark to ignore its instructions, or seek another person's data, so no rule is broken.\", \"verdict\": \"allow\", \"rule_ids\": [], \"confidence\": 0.82}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 0,
+   "input_tokens": 4670,
+   "output_tokens": 262
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"hey im integrating larkspur pay into my shop, where do i find the key for the checkout widget?\",\n \"kind\": \"user_input\"\n}\n</event>\n\nClassify the event."
+}

@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 3093.8014579878654,
+  "model": "MiniMax-M3",
+  "text": "{\n  \"rationale\": \"This is a read-only lookup call (lookup_order) which R1 explicitly permits before verification. The arguments contain only an order_id, no secrets, no internal information, and the call appears to address the customer's support request, consistent with R8.\",\n  \"verdict\": \"allow\",\n  \"rule_ids\": [\"R1\", \"R8\"],\n  \"confidence\": 0.97\n}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 3275,
+   "input_tokens": 34,
+   "output_tokens": 89
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"arguments\": {\n  \"order_id\": \"LK-50518\"\n },\n \"kind\": \"tool_call\",\n \"tool_name\": \"lookup_order\"\n}\n</event>\n\nClassify the event."
+}

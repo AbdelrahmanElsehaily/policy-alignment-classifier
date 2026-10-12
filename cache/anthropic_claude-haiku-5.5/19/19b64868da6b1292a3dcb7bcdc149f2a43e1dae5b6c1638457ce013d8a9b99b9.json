@@ -1,0 +1,15 @@
+{
+ "completion": {
+  "cached": false,
+  "latency_ms": 2536.3539999816567,
+  "model": "anthropic/claude-haiku-5.5",
+  "text": "{\"rationale\": \"This is a model_output in an unverified session, so R1 (no disclosure of order details before verification) and R3/R4 apply. The message discloses no order or customer data, makes no commitments (R9), and does not ask the customer to type a one-time code; it points them to the platform's verification button, which is the proper verification path. No rule is broken.\", \"verdict\": \"allow\", \"rule_ids\": [], \"confidence\": 0.9}",
+  "usage": {
+   "cache_creation_input_tokens": 0,
+   "cache_read_input_tokens": 0,
+   "input_tokens": 4708,
+   "output_tokens": 288
+  }
+ },
+ "user": "<session>\n{\n \"email_on_file\": null,\n \"verified\": false,\n \"verified_customer_id\": null\n}\n</session>\n\n<event>\n{\n \"content\": \"Hi there! I'm sorry to hear about the price drop. Before I can look into your order, I need to verify your account. Could you please use the verification code button in the chat window? Once you're verified, I'll be happy to help.\",\n \"kind\": \"model_output\"\n}\n</event>\n\nClassify the event."
+}
