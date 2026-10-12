@@ -110,7 +110,7 @@
   "best_idx": 1
  },
  "exported": {
-  "path": "/private/tmp/claude-501/-Users-sehaily-PersonalRepos-policy-alignment-classifier/ef9f4855-1dcb-4b78-a008-f5174f9ddb45/scratchpad/natural/classifier_v3_gepa_natural.md",
+  "path": "prompts/classifier_v3.md",
   "version": "classifier_v3_gepa_natural@55286419",
   "demos": 0,
   "demo_case_ids": [],
