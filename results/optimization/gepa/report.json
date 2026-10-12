@@ -109,7 +109,7 @@
   "best_idx": 1
  },
  "exported": {
-  "path": "prompts/classifier_v3_gepa.md",
+  "path": "prompts/experiments/classifier_v3_gepa.md",
   "version": "classifier_v3_gepa@f48193be",
   "demos": 0,
   "demo_case_ids": [],

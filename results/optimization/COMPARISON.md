@@ -10,8 +10,8 @@ The optimisers never saw the test or stress splits. These are the numbers that c
 | Prompt | Test (114) | Stress (355) | Run ids (`results/runs/`) |
 |---|---|---|---|
 | **v2 (production)** | **86.8%** [79.4–91.9] (99) | 79.4% [74.9–83.3] (282) | `20261011T171645Z_minimax-m3_test`, `20261011T115312Z_minimax-m3_stress` |
-| MIPROv2 (`classifier_v3_mipro.md`) | 83.3% [75.4–89.1] (95) | 81.1% [76.7–84.9] (288) | `20261011T164146Z_…_test`, `20261011T164413Z_…_stress` |
-| GEPA, MiniMax reflection (`classifier_v3_gepa.md`) | 82.5% [74.4–88.3] (94) | **83.1%** [78.9–86.6] (295) | `20261011T165054Z_…_test`, `20261011T165306Z_…_stress` |
+| MIPROv2 (`prompts/experiments/classifier_v3_mipro.md`) | 83.3% [75.4–89.1] (95) | 81.1% [76.7–84.9] (288) | `20261011T164146Z_…_test`, `20261011T164413Z_…_stress` |
+| GEPA, MiniMax reflection (`prompts/experiments/classifier_v3_gepa.md`) | 82.5% [74.4–88.3] (94) | **83.1%** [78.9–86.6] (295) | `20261011T165054Z_…_test`, `20261011T165306Z_…_stress` |
 | GEPA, Claude reflection (`classifier_v3_gepa_claude.md`) | 81.6% [73.5–87.6] (93) | 79.7% [75.2–83.6] (283) | `20261011T175919Z_…_test`, `20261011T180222Z_…_stress` |
 
 ## In-sample results (the optimiser's own selection set)

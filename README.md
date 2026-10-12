@@ -10,6 +10,29 @@ policy, the eval set, the corner cases and the reasoning behind every choice are
 **Start with [`docs/WRITEUP.md`](docs/WRITEUP.md)**, which covers results, assumptions, corner cases and
 limitations.
 
+**Results** (prompt v3, three runs each; details in the write-up):
+
+| Model | Test (114) | Agents (123) | $ per 1,000 events |
+|---|---|---|---|
+| MiniMax-M3 (recorded in this repo) | 82–86% | 81–85% | $1.15 |
+| Claude Haiku 5.5 (recommended) | 87–89% | 89% | $0.65 |
+| Claude Opus 5.5 (frontier) | 87–89% | 87% | $22.99 |
+| Regex baseline | 51% | — | $0 |
+
+Every model is right 95–98% of the time where the policy is clear and 26–44% where its label is
+contested: the policy, not the model, sets the ceiling.
+
+**Every choice, with its reason:**
+
+| Question | Where it's answered |
+|---|---|
+| Why this policy? | [`docs/POLICY_RATIONALE.md`](docs/POLICY_RATIONALE.md) |
+| Why these test cases? | [`data/README.md`](data/README.md) and the choices table in the [write-up](docs/WRITEUP.md#2-choices-and-why) |
+| Why this prompt (v3)? | [Prompt v3 against v2](docs/WRITEUP.md#prompt-v3-against-v2), and [`prompts/README.md`](prompts/README.md) |
+| How were the uncertain labels decided? | [`docs/LABELING.md`](docs/LABELING.md) (conventions, every label change) and [`docs/CORNER_CASES.md`](docs/CORNER_CASES.md) |
+| Which model, at what cost? | [Cost against quality](docs/WRITEUP.md#four-models-one-prompt-cost-against-quality) |
+| Where did a human override the AI? | [`docs/AI_OVERRIDES.md`](docs/AI_OVERRIDES.md) |
+
 ## Run it
 
 ```bash
@@ -20,8 +43,8 @@ This installs Python dependencies, builds the React app on first run (needs Node
 UI and API on <http://127.0.0.1:8000>.
 
 **No API key needed.** By default (`PAC_BACKEND=replay`) the app answers from the **recorded** model
-responses committed in `cache/`. Those cover every eval case (dev and test, as the UI sends them) and the
-position-demo presets. An event that was never recorded is not guessed at. It fails closed and shows as
+responses of MiniMax-M3 with prompt v3, committed in `cache/`. Those cover every eval case (as the UI
+sends them) and the position-demo presets. An event that was never recorded is not guessed at. It fails closed and shows as
 "error → human review", and the regex baseline still answers. To classify *new* events live, pick a
 backend:
 
@@ -31,28 +54,30 @@ backend:
 | Any OpenAI-compatible endpoint | `PAC_BACKEND=openai PAC_MODEL=… OPENAI_API_KEY=… PAC_OPENAI_BASE_URL=…` | OpenAI, vLLM, Together, Groq, …; `PAC_OPENAI_EXTRA_BODY` (JSON) for provider-specific fields |
 | MiniMax-M3 | `PAC_BACKEND=minimax PAC_MODEL=MiniMax-M3 MINIMAX_API_KEY=…` | An OpenAI-compatible preset; thinking disabled for latency |
 | Claude | `PAC_BACKEND=anthropic PAC_MODEL=claude-haiku-5-5 ANTHROPIC_API_KEY=…` | Structured outputs plus prompt caching of the policy |
-| Local (Ollama) | `PAC_BACKEND=ollama PAC_MODEL=qwen3.5` | The model behind every committed result (each run's `config.json` records its backend, prompt hash and commit) |
-| Recorded only (default) | `PAC_BACKEND=replay PAC_MODEL=qwen3.5` | Offline; serves the committed cache, and unseen events fail closed |
+| Local (Ollama) | `PAC_BACKEND=ollama PAC_MODEL=qwen3.5` | The model behind the v1.x results (each run's `config.json` records its backend, prompt hash and commit) |
+| Recorded only (default) | `PAC_BACKEND=replay PAC_MODEL=MiniMax-M3` | Offline; serves the committed cache, and unseen events fail closed |
 
 Copy [`.env.example`](.env.example) to `.env` to set these.
 
 ## Live demo (real model calls)
 
 ```bash
-PAC_BACKEND=ollama PAC_MODEL=qwen3.5 uv run pac serve --live
+PAC_BACKEND=minimax PAC_MODEL=MiniMax-M3 MINIMAX_API_KEY=… uv run pac serve --live
 ```
 
 `--live` sends **every request to the model**. The response cache is neither read nor written, so even
-known eval cases get a fresh answer. For MiniMax, use `PAC_BACKEND=minimax PAC_MODEL=MiniMax-M3
-MINIMAX_API_KEY=… uv run pac serve --live`. The server refuses `--live` in replay mode rather than
-silently serving recordings.
+known eval cases get a fresh answer. Any backend in the table above works the same way. The server
+refuses `--live` in replay mode rather than silently serving recordings.
 
-The UI opens on **Examples**: 14 curated scenarios from the eval set, each showing the expected verdict and
-what to look for. **Run** asks the live model and shows its verdict, rationale and latency next to the
-regex baseline. **Run with history** (on the refund and address-change cases) shows the earlier events
-settling a case the single event can't decide. **Run all** goes through them one at a time, which is about
-2–3 minutes on a laptop with the local 9.7B model. The banner says LIVE or RECORDED, and every result is
-marked "live" or "recorded".
+The app has six tabs: **Try it** (one event, any position, against the model and the regex baseline),
+**Live conversation** (below), **Monitoring** (drift of the live traffic, refreshed every 5 s),
+**Policy** (the policy the classifier judges by; with a model running you can edit it and the classifier
+uses the edit at once, until you reset it), **Findings** (the corner cases) and **Eval results**.
+
+**Try it** opens on ready-made examples from the eval set, each with its expected verdict. **Run** asks the
+model and shows its verdict, rationale and latency next to the regex baseline; **all four positions** puts
+the same text in each event kind, which is where position decides the verdict. The banner says LIVE or
+RECORDED, and every result is marked "live" or "recorded".
 
 **Live conversation** lets you chat with Lark yourself. Lark is a simulated agent (an LLM with a fake
 back office seeded with the eval set's customers and orders), and the guardrail sits inline: your message,
@@ -63,8 +88,8 @@ office. The regex baseline is shown alongside and never blocks. Pick the session
 of the ten scenarios, which each aim at a rule or a documented corner case, or type freely. Toggle
 whether the guardrail sees the conversation so far.
 
-On one local model, the agent and the guardrail share the GPU and evict each other's cached prompt, so
-each event waits 20–40 s for its verdict. Set `PAC_AGENT_MODEL` to let a different model play Lark (same backend), or use MiniMax for both.
+Set `PAC_AGENT_MODEL` to let a different model play Lark (same backend). On one local model the agent and
+the guardrail share the GPU, so each event waits 20–40 s; a hosted model takes about 2 s.
 
 ## Evaluate
 
@@ -159,16 +184,20 @@ build.
 |---|---|
 | [`policy/policy_v0.md`](policy/policy_v0.md) | The policy the classifier is measured against (frozen) |
 | [`policy/policy_v1_proposed.md`](policy/policy_v1_proposed.md) | Amendments the corner cases argue for |
-| [`prompts/`](prompts/) | Versioned classifier prompts (v1 kept for traceability; v2 is the default), and the simulated agent's instructions |
+| [`prompts/`](prompts/) | Versioned classifier prompts (v3 ships; v1 and v2 kept for traceability, optimiser candidates in `experiments/`), and the simulated agent's instructions |
 | [`data/README.md`](data/README.md) | What each eval set is, where it lives, and how it was built |
 | [`data/builders/build_cases.py`](data/builders/build_cases.py) | The eval set, with each label's reasoning; generates `data/eval/dev_test.jsonl` |
 | [`data/builders/build_hard_cases.py`](data/builders/build_hard_cases.py) | The hard cases (round 2), labelled before any model run; they open `data/eval/stress.jsonl` |
 | [`src/pac/guardrail/`](src/pac/guardrail/) | Core domain: judging one event. Domain model, the LLM classifier use case, model adapters, regex baseline |
 | [`src/pac/evaluation/`](src/pac/evaluation/) | Measuring a guardrail: labelled cases, metrics, eval use cases, run storage |
 | [`src/pac/simulation/`](src/pac/simulation/) | The live demo's stand-in agent: Lark played by an LLM, and its simulated back office |
+| [`src/pac/monitoring/`](src/pac/monitoring/) | Drift of live traffic against a reference built from labelled events |
+| [`src/pac/synthesis/`](src/pac/synthesis/), [`scripts/synthesize.py`](scripts/synthesize.py) | Synthetic data: jury labelling, red-team loops ([`data/synthetic/`](data/synthetic/README.md)) |
 | [`src/pac/interfaces/`](src/pac/interfaces/), [`bootstrap.py`](src/pac/bootstrap.py) | CLI and API, and the composition root that wires them |
 | [`cache/`](cache/) | Recorded model responses, which make every reported number reproducible offline |
 | [`results/runs/`](results/runs/) | Committed eval runs |
+| [`results/cost_quality.md`](results/cost_quality.md) | Four models on prompt v3: accuracy, cost and latency |
+| [`results/optimization/`](results/optimization/) | The prompt optimisation runs (DSPy MIPROv2 and GEPA) behind prompt v3 |
 | [`web/`](web/) | One-page React app |
 | [`docs/WRITEUP.md`](docs/WRITEUP.md) | Reasoning, assumptions, results, limitations |
 | [`docs/JOURNAL.md`](docs/JOURNAL.md) | How the classifier and its evaluation evolved, stage by stage, including reversals |

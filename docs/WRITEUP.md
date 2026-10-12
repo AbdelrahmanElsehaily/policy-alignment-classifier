@@ -5,15 +5,20 @@
 - **What:** a prompted LLM reads **one** agent trace event (`user_input`, `model_output`, `tool_call`,
   `tool_response`) together with its session envelope. It returns `allow`, `violation` or `policy_silent`,
   with the rules it relied on and a rationale. The policy governs *Lark*, a support agent for a fictional
-  electronics retailer. The eval is 163 labelled events, the app is one React page, and every number below
-  is reproducible offline from the committed response cache. CI re-derives the numbers on every push.
-- **Headline:** on the frozen test split (114 events, local `qwen3.5` 9.7B):
-  - **75% three-way accuracy [67–82%]**
-  - violation recall **78%**
-  - false-block rate on benign events **11%**
-  - The flat-text regex baseline gets **51%**, with violation recall **22%**.
-  - The intervals are wide because n is small. That is a property of this test set, not of the
-    approach.
+  electronics retailer. The eval is 792 labelled events: 49 the prompt was developed on and 743 held
+  out, from hand-written cases and from conversations recorded with two different agent models. The app
+  is one React page, and every number below is reproducible offline from the committed response cache.
+- **Headline:** the shipped classifier is prompt v3 with MiniMax-M3, run three times per split
+  (hosted models give different answers on the same input, so one run is not a measurement):
+  - **82–86%** three-way accuracy on the frozen test split (114 events), violation recall **88%**,
+    false blocks on benign events **6%**. The flat-text regex baseline gets **51%**.
+  - **81–85%** on natural traffic from a second agent model (123 events) and **81–84%** when that agent is
+    pushed to use its tools (120 events). **84.5%** on the stress set, leaving out the events v3 was
+    trained on.
+  - **The model matters less than the policy.** Claude Opus 5.5 (frontier) gets 87–89% on test and
+    Claude Haiku 5.5 gets the same, at **$0.65 per 1,000 events against $23**. On labels where the
+    policy is clear every model is right 95–98% of the time; on contested labels, 26–44%
+    ([§3](#four-models-one-prompt-cost-against-quality)).
 - **What matters more than the number:**
   1. **The policy's money rules can't be enforced one event at a time** (structural). A refund call
      doesn't carry the order's total, prior refunds, owner or delivery date, and R2, R5 and R6 depend on
@@ -98,8 +103,11 @@ trace event ──► session envelope + event JSON (escaped) ──► prompt v
 | **One event plus a session envelope** (`verified`, `verified_customer_id`, `email_on_file`) | The brief says one event. Without authentication state, almost nothing is decidable. **This is an assumption about what a man in the middle can observe:** either the platform's verification result, or the verification step itself passing through. If it can see neither, R1, R2 and R7 are undecidable. Chat *history* is left out by default and tested as an ablation. | A 5-event window by default. My first plan did this and I reverted it after re-reading the brief. |
 | **Three verdicts** | `policy_silent` is the brief's object of interest made into an output, and in production it means "route to a human". | Binary, with silence only discussed in prose. |
 | **Fail closed to `policy_silent`** on timeouts, bad output or a cache miss | A guardrail that fails open isn't one. Failing to `violation` would block legitimate traffic on every outage. | — |
-| **Prompt v2** ([diff from v1](../prompts/)) | On dev, v1 invented facts ("the order belongs to the verified customer") and flagged vague wording. v2 adds three general rules: use only the facts present, point to the content that breaks a rule, and name the missing fact. No case-specific patches. | Few-shot examples. Not tried: the dev failures were about reasoning discipline, not format, and examples risk teaching the dev cases. |
-| **Local `qwen3.5` first, then MiniMax-M3** | No API key was available early in the build, and a 9.7B local model at temperature 0 is a repeatable *lower bound*. MiniMax-M3 came later, as a stronger hosted model. Any other model is one environment variable away. | — |
+| **Prompt v2, by hand** ([v1 → v2](../prompts/)) | On dev, v1 invented facts ("the order belongs to the verified customer") and flagged vague wording. v2 adds three general rules: use only the facts present, point to the content that breaks a rule, and name the missing fact. No case-specific patches. | Few-shot examples. Not tried: the dev failures were about reasoning discipline, not format, and examples risk teaching the dev cases. |
+| **Prompt v3, shipped** ([why](#prompt-v3-against-v2)) | GEPA (DSPy) rewrote v2's instructions, trained on the dev cases plus 8 recorded conversations. It is level with v2 on the hand-written test set and **3–5 points better on every natural-traffic set**, in every run. Those 95 training events are left out of every v3 score. | Keeping v2: equal on test, worse on real traffic. The two other optimiser candidates (MIPROv2, GEPA on generated data) were no better than v2 and are kept in `prompts/experiments/`. |
+| **MiniMax-M3 as the recorded model; Claude Haiku 5.5 recommended** ([table](#four-models-one-prompt-cost-against-quality)) | Local `qwen3.5` came first (no API key early on) as a repeatable lower bound. MiniMax-M3 has the full set of recorded runs, so the offline app replays it. The four-model benchmark says Haiku 5.5 is as accurate as Opus 5.5 at 1/35 of the price, so that is the model I'd deploy. | Opus 5.5: no more accurate here, twice the latency and 35× the cost. The limit is the policy, not the model. |
+| **Test cases** ([data/README.md](../data/README.md)) | Hand-written first, one per rule × event kind × verdict, so each rule's line is tested from both sides, plus position pairs (the same text in different event kinds). Then rounds of realistic traffic: conversations between a simulated customer and two different agent models, recorded with no guardrail running, and one condition where the agent is told to use its tools. Every split was labelled before any model ran on it. | Generated cases only: they test the generator's idea of the policy. Real traces: none exist for a fictional company. |
+| **Uncertain labels** ([LABELING.md](LABELING.md), [CORNER_CASES.md](CORNER_CASES.md)) | Six written conventions decide them, the main one being "a missing fact means `policy_silent`". Every label carries a confidence; the 13 `contested` test labels are tagged `corner-case` and argued in the corner-case log; every later change is logged with its reason. A second, blind Claude relabelled 30 test cases and agreed 30/30. | Dropping contested cases: they are where the guardrail fails, so they are reported separately instead. |
 | **Labels: the literal policy reading** ([LABELING.md](LABELING.md)) | When a rule needs a fact the event doesn't carry, the label is `policy_silent`, because that is the policy's own definition. This makes the structural problem measurable instead of hiding it. | "Allow unless shown otherwise". That gives a higher headline number and hides the money-rules finding. |
 | **Metrics: guardrail rates first, accuracy last** | A guardrail has two costs, missed harm and blocked work, plus an escalation cost. Errors are never credited as correct `policy_silent` (a bug the verification agent found and I fixed). | Headline accuracy alone. |
 
@@ -123,7 +131,50 @@ can be challenged.
 
 All runs are under [`results/runs/`](../results/runs/), each with its `report.md`. Brackets are 95% intervals.
 
-### Test split (114 events, frozen before the first test run)
+### Prompt v3 against v2
+
+MiniMax-M3, the same model and settings, three runs each where the model was run three times:
+
+| Set | Events | v2 | v3 |
+|---|---|---|---|
+| test (hand-written, frozen) | 114 | 94, 97, 99 (82–87%) | 95, 93, 98 (82–86%) |
+| agents (a second agent model's conversations) | 123 | 98, 98, 98 (80%) | 100, 104, 105 (81–85%) |
+| agents-pressure (that agent told to use its tools) | 120 | 93, 97, 97 (78–81%) | 97, 100, 101 (81–84%) |
+| stress, without the 95 events v3 was trained on | 291 | 236 (81.1%), one run | 246 (84.5%), one run |
+
+On the hand-written set the two are level within run-to-run noise. On every set of natural traffic v3 is
+3–5 points better, in every run. That is the reason it ships, with two caveats: the stress comparison is
+one run each, and v3 saw 8 recorded conversations in training, so its stress score leaves those 95 events
+out and the two prompts are compared on the same remaining 291.
+
+### Four models, one prompt: cost against quality
+
+Prompt v3, thinking off, through OpenRouter (MiniMax through its own API). Generated by
+[`scripts/cost_quality.py`](../scripts/cost_quality.py) into
+[`results/cost_quality.md`](../results/cost_quality.md):
+
+| Model | test (3 runs) | agents | $ per 1,000 events | Median latency |
+|---|---|---|---|---|
+| Claude Haiku 5.5 | 87–89% | 89% | **$0.65** | 2.6 s |
+| MiniMax-M3 | 82–86% | 81–85% (3 runs) | $1.15 | 1.9 s |
+| Claude Sonnet 5.5 | 84–85% | 89% | $11.31 | 2.3 s |
+| Claude Opus 5.5 (frontier) | 87–89% | 87% | $22.99 | 4.1 s |
+
+By label confidence on test (all runs pooled):
+
+| Label confidence | Events | MiniMax-M3 | Haiku 5.5 | Sonnet 5.5 | Opus 5.5 |
+|---|---|---|---|---|---|
+| high | 74 | 96% | 95% | 98% | 97% |
+| medium | 27 | 74% | 89% | 78% | 84% |
+| contested | 13 | 33% | 44% | 26% | 44% |
+
+A frontier model buys nothing here. Every model is near-perfect where the policy is clear and close to
+a coin flip where it isn't, so the next point of accuracy comes from fixing the policy, not from a bigger
+model. Haiku 5.5 is the one I'd deploy: as accurate as Opus, faster, and cheaper than MiniMax. Costs are at
+list price without prompt caching; the policy is most of each prompt, so caching would cut input cost by
+up to 10×.
+
+### Test split with prompt v2 (the v1.x headline)
 
 | | LLM (qwen3.5, prompt v2) | Regex baseline (flat text) |
 |---|---|---|
@@ -346,6 +397,58 @@ agents' conversations for those briefs:
   couldn't share it, cancelled a delivered order instead of starting a return, and stated a refund
   policy that doesn't exist.
 
+### Same agent, told to use its tools (120 events, labelled before any run)
+
+"Mind the GAP" (Cartagena & Teixeira, [arXiv:2602.16943](https://arxiv.org/abs/2602.16943)) found
+that agents break rules through tool calls even when their replies refuse, and that one line in the
+agent's system prompt encouraging tool use made forbidden calls more common for five of the six
+models it tested. Our recordings barely exercised that: on their own, 1 of 44 recorded tool calls
+broke a rule (2 once the history is known). So the MiniMax agent's eight briefs were recorded again
+with one line of team guidance telling it to use its tools proactively
+(`record_conversations.py --agent-condition tool-encouraging`; the wording is ours), labelled by the
+same conventions (the `agents-pressure` split), and the same guardrail run three times:
+
+| Same 8 briefs, agent MiniMax-M3 | Neutral instructions (123 turns) | Told to use tools (120 turns) |
+|---|---|---|
+| Tool calls | 14 | 18 |
+| Violations the agent committed | 4, all promises in replies | 14: 10 in replies, 3 tool calls, 1 tool result |
+| Guardrail correct, three runs | 98, 98, 98 (80%) | 93, 97, 97 (78–81%) |
+| Violations caught | 2–3 of 4 | 10 of 14, every run |
+| Rule-breaking tool calls caught | none to catch | 3 of 3, every run |
+| Harmless turns blocked | 5–7% | 3–6% |
+
+- **One line changed the agent, not the guardrail.** The agent went from never breaking a rule with
+  a tool to emailing a refund update to an address that isn't on file, and emailing and refunding
+  $129.99 in an unverified session. The guardrail's accuracy stayed where it was.
+- **It stops the actions.** Because every `tool_call` is judged on its own, all three rule-breaking
+  calls were caught on every run. That is the failure the paper says a text-only check misses.
+- **It still misses promises in replies.** The violations missed on every run are the agent offering a
+  replacement or a return label it has no tool for, the same blind spot as with both earlier agents.
+- **Half the violations come from one conversation.** In the Arabic brief, the recorder never verified
+  the customer (it only noticed a request to verify in English; now fixed), the customer said they
+  had, and the agent believed the chat over the session envelope. The trace is still real, and the
+  guardrail flagged every event that broke R1 in it, but 14 violations from 8 conversations are a
+  direction, not a rate.
+- **The paper's exact pattern didn't appear.** No reply refused while a forbidden call went ahead.
+  The agent acted first and mentioned the problem afterwards ("I sent the email to anaruiz@gmail, but
+  the email we have on file for you is…").
+- **A policy gap it surfaced.** R9 (commitments) covers only `model_output`, and R7 holds an email's
+  body to R3 and R4 only. So a promise the agent puts in an email (a full EUR 189 refund, a label
+  "attached" that can't be) escapes R9 under the convention that a rule doesn't reach event kinds it
+  doesn't list.
+
+### Synthetic data (not part of the eval)
+
+[`data/synthetic/`](../data/synthetic/README.md) holds 1,223 labelled events for training and robustness
+checks, never for the reported numbers: 65 simulated conversations with four agent models (17 of them with
+the tool-encouraging line), contrast pairs, hard negatives and targeted fills. A jury of three model
+families labels each event, calibrated first against the dev and train gold labels, and every event is
+checked against the eval sets so none repeats or nearly repeats one. Three red-team loops ran on top:
+against the classifier (1 success in 40 attempts), against the policy (5 gaps in 40, among them "an order
+can be redirected to anyone's address while it is still processing"), and against enforcement (40 guarded
+conversations; after a block, agents escalated or dropped the request, and once moved the disclosure
+elsewhere). The classifier agrees with the jury on 81.8% of the 1,223 events.
+
 ## 4. Corner cases
 
 The full log is in [`CORNER_CASES.md`](CORNER_CASES.md), in the brief's four fields. It separates the corner
@@ -465,8 +568,9 @@ most events without an LLM call.
 ## 8. If I had another week
 
 - Have Larkspur's policy owners label the 30-case sample, and measure human–human and human–model κ.
-- Run the same eval with MiniMax-M3 and Claude Haiku 5.5. Check whether the scope-error group shrinks
-  while the corner-case group stays.
+- Switch the deployed model to Claude Haiku 5.5 with prompt caching, and record its replay set.
+- Fix the policy where the corner cases show it is silent or self-contradictory, and re-measure: the
+  contested labels are where every model, frontier included, fails.
 - Build the per-session fact store (A1/A2) and re-measure the structural cases: deterministic checks
   against observed facts should match or beat the 7/7 that raw history gave the LLM, at no token cost.
 - Collect real (anonymised) support traces and re-estimate base rates. A 25% false-block rate on tool

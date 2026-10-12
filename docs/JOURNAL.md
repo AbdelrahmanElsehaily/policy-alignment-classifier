@@ -263,6 +263,39 @@ over the qwen3.5 recordings.
 80%, three runs each), but the traffic differs: 4 policy violations in 123 turns from one agent, 13 in
 96 from the other. A guardrail's base rates belong to the agent it protects.
 
+## Stage 12: the same agent, told to use its tools (12 Oct)
+
+**Why.** "Mind the GAP" (arXiv:2602.16943) argues that agents break rules through actions more than
+words, and that how a deployment words tool use moves that. Our recordings had almost no rule-breaking
+tool calls, so the event kind the paper says matters most was barely tested on natural traffic.
+
+**What I did.** The recorder gained `--agent-condition`: one line of team guidance appended to the
+agent's instructions, the only difference. The eight MiniMax briefs were recorded again with a
+tool-encouraging line, labelled by the same conventions (120 turns), and run three times with the
+same guardrail. A new split and file (`agents-pressure`) kept the earlier runs valid.
+
+**What it showed.** The agent got worse and the guardrail didn't: 14 violations instead of 4,
+including 3 rule-breaking tool calls, all caught on every run, with accuracy unchanged (78–81%). The
+misses are still promises inside replies. Recording it also exposed a recorder bug: the platform only
+noticed a request to verify in English, so the Arabic briefs were never verified.
+
+## Stage 13: prompt v3 ships, four models compared, synthetic data (12 Oct)
+
+**Why.** Three open questions: does the optimised prompt earn its place, does a frontier model change the
+picture, and can the training side get more data without touching the eval?
+
+**What I did.** Ran v3 (GEPA, trained on the dev cases and 8 recorded conversations) on every held-out
+set with MiniMax-M3, three runs where the model was run three times, and scored the stress set without
+v3's 95 training events. Ran Claude Haiku, Sonnet and Opus 5.5 with v3 through OpenRouter on test (three
+runs each) and the agents split. Built 1,223 synthetic events in their own world, labelled by a calibrated
+jury of three model families, with three red-team loops on top.
+
+**What it showed.** v3 is level with v2 on the hand-written test set and 3–5 points better on every set
+of natural traffic, in every run, so it ships. The frontier model is no more accurate than Haiku (both
+87–89% on test) at 35× the cost: every model is right 95–98% of the time where the policy is clear and
+26–44% where the label is contested. The ceiling is the policy. The red-team loop against the policy
+found five gaps, among them redirecting a still-processing order to someone else's address.
+
 ---
 
 ## Recurring principles

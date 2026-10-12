@@ -6,22 +6,25 @@ data/
   builders/   the scripts that write eval/ and train/: the source of truth for every label
   train/      events for optimising the prompt; never used to report a result
   sources/    raw material, never edited: recorded conversations and the blind relabel
+  synthetic/  generated, jury-labelled events for training and robustness checks; never used to report a result
 ```
 
 ## What the eval measures on
 
-672 labelled events. The prompt was written against 49 of them, so those never count in a result; the
-other 623 are held out, grouped by where they came from. The natural conversations come from two agent
-models, because the guardrail sits in front of whichever agent it protects.
+792 labelled events. The prompt was written against 49 of them, so those never count in a result; the
+other 743 are held out, grouped by where they came from. The natural conversations come from two agent
+models, and from one of them under two deployments, because the guardrail sits in front of whichever
+agent it protects, however that agent is instructed.
 
 | Events | Count | allow / violation / silent | What they are |
 |---|---|---|---|
 | Prompt written against | 49 | 28 / 14 / 7 | Hand-written; used to develop the prompt |
-| **Held out** | **623** | 375 / 114 / 134 | |
+| **Held out** | **743** | 469 / 128 / 146 | |
 | · hand-written | 114 | 53 / 41 / 20 | Realistic single events, never tuned on: the headline |
 | · hand-written, hard | 31 | 11 / 8 / 12 | Events the policy mostly doesn't decide, written after v1 |
 | · recorded conversations, agent qwen3.5 | 191 | 135 / 35 / 21 | A simulated customer talking to the agent, unscripted |
 | · recorded conversations, agent MiniMax-M3 | 123 | 104 / 4 / 15 | Eight of the same briefs, with another model as the agent |
+| · the same, agent told to use tools proactively | 120 | 94 / 14 / 12 | The same eight briefs and models; one line added to the agent's instructions |
 | · scripted conversations | 62 | 45 / 6 / 11 | Five conversations, each built around one trap |
 | · targeted probes | 102 | 27 / 20 / 55 | One family of events per corner case, plus history windows |
 
@@ -37,6 +40,7 @@ none of them.
 | `eval/dev_test.jsonl` | 163 | the 49 prompt-development events (`split: dev`) and the 114 hand-written held-out events (`split: test`) | `builders/build_cases.py` |
 | `eval/stress.jsonl` | 386 | everything built after v1 with qwen3.5 as the agent: the 31 hard cases (tag `round:2`, from `builders/build_hard_cases.py`), then the recorded and scripted conversations and the targeted probes | `builders/build_stress_cases.py` |
 | `eval/agents.jsonl` | 123 | the conversations recorded with MiniMax-M3 as the agent | `builders/build_agent_cases.py` |
+| `eval/agents_pressure.jsonl` | 120 | the same 8 briefs and agent, with one line of guidance telling the agent to use its tools proactively | `builders/build_agent_cases.py` |
 
 Each line is one event: the event, its session envelope, any earlier events in the conversation, the
 label, the rules it rests on, a confidence (`high`, `medium`, `contested`) and a written reason. Every
@@ -73,6 +77,10 @@ Each builder also has `--check`, which CI runs to fail on a stale file.
   conversations.
 - `sources/recordings/qwen3.5/`: 16 conversations with qwen3.5 as the agent and the customer.
 - `sources/recordings/minimax-m3/`: 8 of the same briefs with MiniMax-M3 as the agent and the customer.
+- `sources/recordings/minimax-m3-tool-encouraging/`: the same 8 briefs again, recorded with
+  `--agent-condition tool-encouraging`: one line of team guidance added to the agent's instructions,
+  the system-prompt change that most raised forbidden tool calls in "Mind the GAP"
+  ([arXiv:2602.16943](https://arxiv.org/abs/2602.16943)).
 
   Both were recorded with no guardrail running (`scripts/record_conversations.py`), so each trace is
   what the agent does on its own. Recordings are never edited; their turns are labelled in the
@@ -81,3 +89,12 @@ Each builder also has `--check`, which CI runs to fail on a stale file.
   agreement. See its README.
 
 The web app's curated examples and readable case names live with the app, in `web/src/data/`.
+
+## Synthetic
+
+`synthetic/` is separate from everything above: 1,223 generated events (train / dev / test of their own,
+in their own fictional world of customers and orders), labelled by a jury of three model families and
+checked so that none repeats or nearly repeats an eval event. It exists to train and stress the
+classifier, never to report it. How it was built, and the three red-team loops run on it, are in
+[`synthetic/README.md`](synthetic/README.md).
+
