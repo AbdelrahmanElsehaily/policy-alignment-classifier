@@ -7,6 +7,39 @@ An LLM-prompted classifier that reads **one agent trace event** (`user_input`, `
 The deployment is **Lark**, a customer-support agent for *Larkspur Electronics*, a fictional retailer. The
 policy, the eval set, the corner cases and the reasoning behind every choice are in this repo.
 
+## Run it
+
+```bash
+uv run pac serve
+```
+
+That is the one command: no API key needed. To run it live instead, so that every request calls a model
+(the live conversation and policy editing need this), give it a model and a key:
+
+```bash
+PAC_BACKEND=openrouter PAC_MODEL=anthropic/claude-haiku-5.5 OPENROUTER_API_KEY=… uv run pac serve --live
+```
+
+The first command installs Python dependencies, builds the React app on first run (needs Node.js 22.12+), and serves the
+UI and API on <http://127.0.0.1:8000>.
+
+**No API key needed.** By default (`PAC_BACKEND=replay`) the app answers from the **recorded** model
+responses of MiniMax-M3 with prompt v3, committed in `cache/`. Those cover every eval case (as the UI
+sends them) and the position-demo presets. An event that was never recorded is not guessed at. It fails closed and shows as
+"error → human review", and the regex baseline still answers. To classify *new* events live, pick a
+backend:
+
+| Backend | Set | Notes |
+|---|---|---|
+| Any model on OpenRouter | `PAC_BACKEND=openrouter PAC_MODEL=anthropic/claude-haiku-5.5 OPENROUTER_API_KEY=…` | One key for Claude, GPT, Llama, Qwen and others |
+| Any OpenAI-compatible endpoint | `PAC_BACKEND=openai PAC_MODEL=… OPENAI_API_KEY=… PAC_OPENAI_BASE_URL=…` | OpenAI, vLLM, Together, Groq, …; `PAC_OPENAI_EXTRA_BODY` (JSON) for provider-specific fields |
+| MiniMax-M3 | `PAC_BACKEND=minimax PAC_MODEL=MiniMax-M3 MINIMAX_API_KEY=…` | An OpenAI-compatible preset; thinking disabled for latency |
+| Claude | `PAC_BACKEND=anthropic PAC_MODEL=claude-haiku-5-5 ANTHROPIC_API_KEY=…` | Structured outputs plus prompt caching of the policy |
+| Local (Ollama) | `PAC_BACKEND=ollama PAC_MODEL=qwen3.5` | The model behind the v1.x results (each run's `config.json` records its backend, prompt hash and commit) |
+| Recorded only (default) | `PAC_BACKEND=replay PAC_MODEL=MiniMax-M3` | Offline; serves the committed cache, and unseen events fail closed |
+
+Copy [`.env.example`](.env.example) to `.env` to set these.
+
 **Start with [`docs/WRITEUP.md`](docs/WRITEUP.md)**, which covers results, assumptions, corner cases and
 limitations.
 
@@ -39,36 +72,10 @@ an event is judged in parts ([long inputs](docs/WRITEUP.md#long-inputs-what-leng
 | Which model, at what cost? | [Cost against quality](docs/WRITEUP.md#three-models-one-prompt-cost-against-quality) |
 | Where did a human override the AI? | [`docs/AI_OVERRIDES.md`](docs/AI_OVERRIDES.md) |
 
-## Run it
-
-```bash
-uv run pac serve
-```
-
-This installs Python dependencies, builds the React app on first run (needs Node.js 22.12+), and serves the
-UI and API on <http://127.0.0.1:8000>.
-
-**No API key needed.** By default (`PAC_BACKEND=replay`) the app answers from the **recorded** model
-responses of MiniMax-M3 with prompt v3, committed in `cache/`. Those cover every eval case (as the UI
-sends them) and the position-demo presets. An event that was never recorded is not guessed at. It fails closed and shows as
-"error → human review", and the regex baseline still answers. To classify *new* events live, pick a
-backend:
-
-| Backend | Set | Notes |
-|---|---|---|
-| Any model on OpenRouter | `PAC_BACKEND=openrouter PAC_MODEL=anthropic/claude-haiku-5.5 OPENROUTER_API_KEY=…` | One key for Claude, GPT, Llama, Qwen and others |
-| Any OpenAI-compatible endpoint | `PAC_BACKEND=openai PAC_MODEL=… OPENAI_API_KEY=… PAC_OPENAI_BASE_URL=…` | OpenAI, vLLM, Together, Groq, …; `PAC_OPENAI_EXTRA_BODY` (JSON) for provider-specific fields |
-| MiniMax-M3 | `PAC_BACKEND=minimax PAC_MODEL=MiniMax-M3 MINIMAX_API_KEY=…` | An OpenAI-compatible preset; thinking disabled for latency |
-| Claude | `PAC_BACKEND=anthropic PAC_MODEL=claude-haiku-5-5 ANTHROPIC_API_KEY=…` | Structured outputs plus prompt caching of the policy |
-| Local (Ollama) | `PAC_BACKEND=ollama PAC_MODEL=qwen3.5` | The model behind the v1.x results (each run's `config.json` records its backend, prompt hash and commit) |
-| Recorded only (default) | `PAC_BACKEND=replay PAC_MODEL=MiniMax-M3` | Offline; serves the committed cache, and unseen events fail closed |
-
-Copy [`.env.example`](.env.example) to `.env` to set these.
-
 ## Live demo (real model calls)
 
 ```bash
-PAC_BACKEND=minimax PAC_MODEL=MiniMax-M3 MINIMAX_API_KEY=… uv run pac serve --live
+PAC_BACKEND=openrouter PAC_MODEL=anthropic/claude-haiku-5.5 OPENROUTER_API_KEY=… uv run pac serve --live
 ```
 
 `--live` sends **every request to the model**. The response cache is neither read nor written, so even
