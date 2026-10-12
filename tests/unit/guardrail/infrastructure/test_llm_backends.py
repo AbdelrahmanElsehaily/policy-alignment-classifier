@@ -378,3 +378,19 @@ def test_generic_provider_takes_extra_request_fields(
     assert built._extra_body == {"reasoning_effort": "low"}
     with pytest.raises(BackendError, match="OPENROUTER_API_KEY"):
         build_backend(Settings(backend="openrouter", cache_dir=tmp_path))
+
+
+@respx.mock
+async def test_claude_through_openrouter_marks_the_system_prompt_for_caching() -> None:
+    reply = {"choices": [{"message": {"content": "{}"}, "finish_reason": "stop"}]}
+    route = respx.post("http://openrouter.test/v1/chat/completions").respond(json=reply)
+    for model in ("anthropic/claude-haiku-5.5", "openai/gpt-6-luna"):
+        backend = OpenAICompatibleBackend(
+            model, base_url="http://openrouter.test/v1", api_key="test-key"
+        )
+        await backend.complete(REQUEST)
+    claude, other = (json.loads(c.request.content)["messages"][0] for c in route.calls)
+    assert claude["content"] == [
+        {"type": "text", "text": REQUEST.system, "cache_control": {"type": "ephemeral"}}
+    ]
+    assert other["content"] == REQUEST.system

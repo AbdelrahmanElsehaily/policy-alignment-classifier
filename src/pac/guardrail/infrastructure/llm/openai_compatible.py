@@ -53,11 +53,18 @@ class OpenAICompatibleBackend:
         return self._model
 
     async def complete(self, request: LLMRequest) -> Completion:
+        system: Any = request.system
+        if self._model.startswith("anthropic/"):
+            # Claude through OpenRouter: mark the system prompt (most of it is the policy) for
+            # prompt caching, so repeat calls read it at a tenth of the input price.
+            system = [
+                {"type": "text", "text": request.system, "cache_control": {"type": "ephemeral"}}
+            ]
         payload = {
             "model": self._model,
             "max_completion_tokens": request.max_tokens,
             "messages": [
-                {"role": "system", "content": request.system},
+                {"role": "system", "content": system},
                 {"role": "user", "content": request.user},
             ],
             **self._extra_body,
