@@ -79,9 +79,9 @@ The app has six tabs, in the order of a walkthrough:
 
 - **Policy:** the policy the classifier judges by. With a model running you can edit it, and the
   classifier uses the edit at once, until you reset it.
-- **Live conversation:** chat with the simulated agent while the guardrail judges every event (below).
 - **Try one event:** one event in any position, against the model and the regex baseline; **all four
   positions** puts the same text in each event kind, which is where position decides the verdict.
+- **Live conversation:** chat with the simulated agent while the guardrail judges every event (below).
 - **Findings:** the corner cases the policy doesn't decide, and what length does to the verdict.
 - **Eval results:** the north star, the cost table, and every eval run, down to each mistake.
 - **Monitoring:** drift of the live traffic against the evaluated events, refreshed every 5 s.

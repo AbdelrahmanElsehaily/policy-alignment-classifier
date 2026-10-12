@@ -11,7 +11,7 @@ import { TryItPanel } from "./components/TryItPanel";
 import { ruleBook } from "./rules";
 import type { Health, LabeledCase, PolicyView } from "./types";
 
-const TABS = ["Policy", "Live conversation", "Try one event", "Findings", "Eval results", "Monitoring"] as const;
+const TABS = ["Policy", "Try one event", "Live conversation", "Findings", "Eval results", "Monitoring"] as const;
 type Tab = (typeof TABS)[number];
 
 export function App() {
