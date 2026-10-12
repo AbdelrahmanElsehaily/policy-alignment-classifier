@@ -103,20 +103,17 @@ the guardrail share the GPU, so each event waits 20–40 s; a hosted model takes
 ## Evaluate
 
 ```bash
-uv run pac check-data                                  # validate the eval set against the policy
-uv run pac eval --split dev                            # iterate here
-uv run pac eval --split test                           # the reported numbers
-uv run pac eval --split test --classifier baseline     # flat-text regex baseline
-uv run pac eval --split test --with-history            # ablation: give the classifier prior events
-uv run pac eval --split test --no-cache --repeats 3    # run-to-run variance
-uv run pac eval --split hard --with-history            # round 2: hard real-world cases
+uv run pac north-star                                   # the one number, from the committed runs
+uv run pac check-data                                   # validate every eval set against the policy
+uv run pac eval --split test                            # the hand-written held-out set
+uv run pac eval --split stress                          # also: agents, agents-pressure, long-context
+uv run pac eval --split test --classifier baseline      # the flat-text regex baseline
+uv run pac eval --split test --with-history             # ablation: give the classifier prior events
+uv run pac eval --split test --no-cache --repeats 3     # run-to-run variance of a hosted model
+PAC_MAX_EVENT_CHARS=16000 uv run pac eval --split long-context   # long events judged in parts
 ```
 
-The 31 hard events (now the first part of `data/eval/stress.jsonl`, tag `round:2`) were written after v1.0 and labelled before any
-model ran on it. It holds realistic events the policy mostly doesn't decide: a refund retried after a
-timeout, euros against a dollar cap, IMEIs that look like card numbers, gift card codes, publishable keys,
-and more. A few, such as planted key-shaped strings that trigger blocks, turned out to be decided by the
-policy and are listed as other findings. See [`docs/CORNER_CASES.md`](docs/CORNER_CASES.md).
+What each set is, how it was built and why, is in [`data/README.md`](data/README.md).
 
 Each run writes `results/runs/<run_id>/` containing `config.json` (prompt, policy and dataset hashes, git
 commit), `predictions.jsonl`, `metrics.json` and a readable `report.md`. Every proportion carries a 95%
@@ -145,7 +142,7 @@ when it recovers.
 
 ```bash
 uv run pac monitor reference                                 # expected traffic + gold labels
-uv run pac monitor compare 20261011T125927Z_qwen3.5_stress   # exits 4 on major drift (CI/cron)
+uv run pac monitor compare 20261012T085018Z_minimax-m3_stress   # exits 4 on major drift (CI/cron)
 curl localhost:8000/api/monitoring                           # live counts and drift, as JSON
 curl localhost:8000/metrics                                  # the same for Prometheus
 ```
@@ -164,7 +161,7 @@ the `X-Request-ID` header, or yours if you send one), eval run (`run=`), case (`
 conversation turn (`turn=`):
 
 ```text
-16:42:17.385 WARNING guardrail.llm.caching [request=debug-123] no recording for this request model=qwen3.5
+16:42:17.385 WARNING guardrail.llm.caching [request=debug-123] no recording for this request model=MiniMax-M3
 16:42:17.385 ERROR   guardrail.llm_classifier [request=debug-123] failed closed: held for a human kind=user_input reason="…"
 16:42:17.385 INFO    interfaces.api [request=debug-123] POST /api/classify 200 ms=1
 ```

@@ -80,20 +80,24 @@ trace event ──► session envelope + event JSON (escaped) ──► prompt v
 - **The eval harness** reports a 95% Wilson interval on every proportion, a bootstrap interval for
   macro-F1, breakdowns by kind, label confidence and tag, calibration, latency, tokens and cost.
 - **The regression test** replays every committed run and requires identical verdicts and metrics.
-- **The app** has four tabs. `pac serve --live` makes every click a real model call.
-  - **Try one event:** classify any event, starting from a curated example, and place the same text in all four
-    positions.
+- **The app** has six tabs, in the order of a walkthrough. `pac serve --live` makes every click a real
+  model call.
+  - **Policy:** the policy the classifier judges by; with a model running, an edit applies at once.
+  - **Try one event:** classify any event, starting from a curated example, and place the same text in
+    all four positions.
   - **Live conversation:** chat with a simulated agent (an LLM with a fake back office) while the
     guardrail sits inline. Each event waits for its verdict and is passed, blocked or held.
-  - **Findings:** the corner cases.
-  - **Eval results:** every run, its mistakes, and drift monitoring.
+  - **Findings:** the corner cases, and what length does to the verdict.
+  - **Eval results:** the north star, the cost table, every run and its mistakes.
+  - **Monitoring:** drift of the live traffic against the evaluated events.
 
   See the [README](../README.md).
-- **The code** has four bounded contexts, each layered into domain, application and infrastructure:
+- **The code** has five bounded contexts, each layered into domain, application and infrastructure:
   - `guardrail` judges an event; it is the only one production needs;
   - `evaluation` measures a judge on labelled cases;
   - `monitoring` watches live traffic for drift;
-  - `simulation` is the demo's stand-in agent.
+  - `simulation` is the demo's stand-in agent;
+  - `synthesis` builds the synthetic data and runs the red-team loops.
 
   The dependency rules are import-linter contracts enforced in CI: the guardrail imports none of the
   others ([`ARCHITECTURE.md`](ARCHITECTURE.md)).
