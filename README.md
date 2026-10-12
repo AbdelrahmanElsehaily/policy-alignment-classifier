@@ -10,17 +10,19 @@ policy, the eval set, the corner cases and the reasoning behind every choice are
 ## Run it
 
 ```bash
-uv run pac serve
-```
-
-That is the one command: no API key needed. To run it live instead, so that every request calls a model
-(the live conversation and policy editing need this), give it a model and a key:
-
-```bash
 PAC_BACKEND=openrouter PAC_MODEL=anthropic/claude-haiku-5.5 OPENROUTER_API_KEY=… uv run pac serve --live
 ```
 
-The first command installs Python dependencies, builds the React app on first run (needs Node.js 22.12+), and serves the
+Every request calls the model (Claude Haiku 5.5, the recommended one), so the live conversation, policy
+editing and any new event all work. Any backend in the table below works the same way.
+
+No API key? Run the recorded version, which replays committed answers:
+
+```bash
+uv run pac serve
+```
+
+Either command installs Python dependencies, builds the React app on first run (needs Node.js 22.12+), and serves the
 UI and API on <http://127.0.0.1:8000>.
 
 **No API key needed.** By default (`PAC_BACKEND=replay`) the app answers from the **recorded** model
