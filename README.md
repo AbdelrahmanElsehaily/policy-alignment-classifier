@@ -25,11 +25,10 @@ uv run pac serve
 Either command installs Python dependencies, builds the React app on first run (needs Node.js 22.12+), and serves the
 UI and API on <http://127.0.0.1:8000>.
 
-**No API key needed.** By default (`PAC_BACKEND=replay`) the app answers from the **recorded** model
+**The recorded version** (`PAC_BACKEND=replay`, the default) answers from the **recorded** model
 responses of MiniMax-M3 with prompt v3, committed in `cache/`. Those cover every eval case (as the UI
 sends them) and the position-demo presets. An event that was never recorded is not guessed at. It fails closed and shows as
-"error → human review", and the regex baseline still answers. To classify *new* events live, pick a
-backend:
+"error → human review", and the regex baseline still answers. The backends for the live version:
 
 | Backend | Set | Notes |
 |---|---|---|
