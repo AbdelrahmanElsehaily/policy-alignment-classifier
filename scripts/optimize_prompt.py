@@ -694,6 +694,13 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
         "--resume", action="store_true", help="continue the GEPA run in --gepa-state-dir"
     )
     parser.add_argument("--skip-train-eval", action="store_true", help="save ~200 calls")
+    parser.add_argument(
+        "--extra-train",
+        type=Path,
+        action="append",
+        default=[],
+        help="JSONL of more labelled cases, added to the train side only (never validation)",
+    )
     parser.add_argument("--dry-run", action="store_true", help="print the split; no model calls")
     args = parser.parse_args(argv)
     args.budget = args.budget if args.budget is not None else DEFAULT_BUDGET[args.optimizer]
@@ -789,13 +796,16 @@ def main(argv: list[str]) -> int:
     base_text = args.base_prompt.read_text(encoding="utf-8")
     frame = po.Frame.split(base_text)
     cases = load_cases(settings.train_cases_path)
-    identifiers = po.case_identifiers(cases, base_text + policy.text)
+    extra = [c for path in args.extra_train for c in load_cases(path)]
+    identifiers = po.case_identifiers([*cases, *extra], base_text + policy.text)
     train, val = po.holdout_split(cases, seed=args.seed)
+    train = [*train, *extra]
     held_out = sorted({po.template_of(c) for c in val})
     split = {
         "train": len(train),
         "validation": len(val),
         "validation_templates": held_out,
+        "extra_train": len(extra),
         "identifier_terms": len(identifiers),
     }
     logger.info(
