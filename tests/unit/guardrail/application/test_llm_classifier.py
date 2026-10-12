@@ -73,6 +73,7 @@ async def test_retries_provider_errors_then_fails_closed(
     result = await _classifier(fake, policy, prompt).classify(refund_request)
     assert result.decision.verdict == "policy_silent"
     assert result.error == "HTTP 529 overloaded"
+    assert not result.cached
     assert len(fake.requests) == 2
 
 

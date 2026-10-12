@@ -53,6 +53,16 @@ class LLMClassifier:
     def name(self) -> str:
         return self._backend.model
 
+    def with_policy(self, policy: Policy, prompt: PromptTemplate) -> LLMClassifier:
+        """The same classifier (backend, timeout, attempts) judging by another policy."""
+        return LLMClassifier(
+            self._backend,
+            policy,
+            prompt,
+            timeout_s=self._timeout_s,
+            max_attempts=self._max_attempts,
+        )
+
     @property
     def prompt(self) -> PromptTemplate:
         return self._prompt
@@ -62,6 +72,7 @@ class LLMClassifier:
         usage = Usage()
         model_latency_ms = 0.0
         cached = True
+        completions = 0
         repair = False
         error = "no attempts made"
 
@@ -88,6 +99,7 @@ class LLMClassifier:
                 logger.exception("unexpected backend failure", extra={"attempt": attempt})
                 continue
 
+            completions += 1
             usage += completion.usage
             model_latency_ms += completion.latency_ms
             cached = cached and completion.cached
@@ -121,7 +133,8 @@ class LLMClassifier:
             started,
             usage,
             model_latency_ms,
-            cached=cached,
+            # Nothing came back at all (provider errors, timeouts): a live call, not a replay.
+            cached=cached and completions > 0,
             error=error,
         )
 

@@ -16,6 +16,7 @@ from pac.evaluation.infrastructure.case_store import load_cases
 from pac.evaluation.infrastructure.run_store import FileRunStore
 from pac.guardrail.application.llm_classifier import LLMClassifier
 from pac.guardrail.application.ports import BackendError, LLMBackend
+from pac.guardrail.application.prompting import PromptTemplate
 from pac.guardrail.domain.policy import Policy
 from pac.guardrail.infrastructure.files import load_policy, load_prompt
 from pac.guardrail.infrastructure.llm.anthropic import AnthropicBackend
@@ -107,17 +108,21 @@ def build_classifier(settings: Settings, backend: LLMBackend | None = None) -> L
             )
         backend = build_backend(settings, use_cache=False)
     policy = build_policy(settings)
-    prompt = load_prompt(
+    return LLMClassifier(
+        backend if backend is not None else build_backend(settings),
+        policy,
+        build_prompt(settings, policy),
+        timeout_s=settings.timeout_s,
+    )
+
+
+def build_prompt(settings: Settings, policy: Policy) -> PromptTemplate:
+    """The classifier prompt with ``policy`` in it (the file's, or one edited in the app)."""
+    return load_prompt(
         settings.prompt_path,
         policy,
         max_tokens=settings.max_output_tokens,
         temperature=settings.temperature,
-    )
-    return LLMClassifier(
-        backend if backend is not None else build_backend(settings),
-        policy,
-        prompt,
-        timeout_s=settings.timeout_s,
     )
 
 
@@ -129,11 +134,12 @@ def build_run_store(settings: Settings) -> FileRunStore:
     return FileRunStore(settings.results_dir / "runs")
 
 
-def build_agent(settings: Settings) -> SimulatedAgent:
+def build_agent(settings: Settings, guidance: str = "") -> SimulatedAgent:
     """The simulated agent for the live conversation. Never cached: every turn is new.
 
     It needs live mode, which also keeps the classifier off the response cache, so a chat never
-    writes recordings next to the committed eval cache.
+    writes recordings next to the committed eval cache. ``guidance`` is appended to Lark's
+    instructions as one team-guidance line, to record the same briefs under another deployment.
     """
     if not settings.live or settings.backend == "replay":
         raise BackendError(
@@ -142,9 +148,12 @@ def build_agent(settings: Settings) -> SimulatedAgent:
         )
     if settings.agent_model is not None:
         settings = settings.model_copy(update={"model": settings.agent_model})
+    instructions = settings.agent_prompt_path.read_text()
+    if guidance:
+        instructions = f"{instructions.rstrip()}\n\n## Team guidance\n\n- {guidance}\n"
     return SimulatedAgent(
         build_backend(settings, use_cache=False),
-        settings.agent_prompt_path.read_text(),
+        instructions,
         max_tokens=settings.max_output_tokens,
     )
 
@@ -157,6 +166,8 @@ def dataset_path(settings: Settings, split: Split | None) -> Path:
         return settings.agents_cases_path
     if split == "train":
         return settings.train_cases_path
+    if split == "agents-pressure":
+        return settings.agents_pressure_cases_path
     return settings.cases_path
 
 
@@ -176,6 +187,7 @@ def dataset_file(settings: Settings, name: str) -> Path:
         settings.cases_path,
         settings.stress_cases_path,
         settings.agents_cases_path,
+        settings.agents_pressure_cases_path,
     ):
         if path.name == wanted:
             return path
@@ -188,6 +200,7 @@ def load_all_cases(settings: Settings) -> list[LabeledCase]:
     for extra in (
         settings.stress_cases_path,
         settings.agents_cases_path,
+        settings.agents_pressure_cases_path,
         settings.train_cases_path,
     ):
         if extra.exists():

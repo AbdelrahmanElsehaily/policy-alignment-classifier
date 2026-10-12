@@ -202,3 +202,14 @@ details.corner[open] > summary { border-bottom: 1px solid var(--border); }
 .mistake-detail pre.event { margin-top: 0; }
 details.section-fold { margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1rem; }
 details.section-fold > summary { cursor: pointer; font-weight: 600; font-size: 1.1rem; }
+
+/* Policy */
+.policy-panel { display: flex; flex-direction: column; gap: 10px; }
+.policy-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.policy-locked { background: var(--surface); border: 1px dashed var(--silent); border-radius: 8px; padding: 8px 12px; margin: 0; color: var(--text); }
+.policy-body { font-size: 0.95em; line-height: 1.5; }
+.policy-editor { width: 100%; box-sizing: border-box; min-height: 70vh; font-size: 0.85em; line-height: 1.45; }
+.policy-text h3, .policy-text h4, .policy-text h5 { margin: 14px 0 6px; }
+.policy-text table { margin: 6px 0; }
+.policy-text ul { padding-left: 20px; }
+button.link { background: none; border: none; padding: 0; color: var(--silent); text-decoration: underline; cursor: pointer; font: inherit; }

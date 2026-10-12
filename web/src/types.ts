@@ -257,3 +257,14 @@ export interface MonitoringSnapshot {
   has_reference: boolean;
   drift: DriftReport | null;
 }
+
+export interface PolicyView {
+  version: string;
+  sha256: string;
+  rule_ids: string[];
+  text: string;
+  /** The classifier judges by an edited policy, not the policy file. */
+  edited: boolean;
+  /** Why it can't be edited here (replay mode, no model), or null. */
+  locked: string | null;
+}

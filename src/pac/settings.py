@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     # Default: serve the committed recordings, so a fresh clone works with no keys or model.
     # Set PAC_BACKEND / PAC_MODEL (see .env.example) to classify new events live.
     backend: BackendName = "replay"
-    model: str = "qwen3.5"
+    model: str = "MiniMax-M3"
 
     anthropic_api_key: SecretStr | None = Field(default=None, validation_alias="ANTHROPIC_API_KEY")
     minimax_api_key: SecretStr | None = Field(default=None, validation_alias="MINIMAX_API_KEY")
@@ -51,6 +51,7 @@ class Settings(BaseSettings):
     cases_path: Path = REPO_ROOT / "data" / "eval" / "dev_test.jsonl"
     stress_cases_path: Path = REPO_ROOT / "data" / "eval" / "stress.jsonl"
     agents_cases_path: Path = REPO_ROOT / "data" / "eval" / "agents.jsonl"
+    agents_pressure_cases_path: Path = REPO_ROOT / "data" / "eval" / "agents_pressure.jsonl"
     # Generated cases for prompt optimisation only, never for reporting.
     train_cases_path: Path = REPO_ROOT / "data" / "train" / "train_cases.jsonl"
     examples_path: Path = REPO_ROOT / "web" / "src" / "data" / "demo_examples.json"

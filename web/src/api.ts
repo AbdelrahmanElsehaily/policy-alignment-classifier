@@ -9,6 +9,7 @@ import type {
   Health,
   LabeledCase,
   MonitoringSnapshot,
+  PolicyView,
   RunDetail,
   RunSummary,
   TurnRequest,
@@ -38,7 +39,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 export type { Engine };
 
 /** Must match API_VERSION in src/pac/interfaces/api.py. */
-export const API_VERSION = 4;
+export const API_VERSION = 5;
 
 /** A server started before the last API change, still running, serving this newer page. */
 export function isStaleServer(health: Health): boolean {
@@ -61,6 +62,10 @@ export const api = {
       method: "POST",
       body: JSON.stringify(body),
     }),
+  policy: () => request<PolicyView>("/api/policy"),
+  editPolicy: (text: string) =>
+    request<PolicyView>("/api/policy", { method: "PUT", body: JSON.stringify({ text }) }),
+  resetPolicy: () => request<PolicyView>("/api/policy", { method: "DELETE" }),
   conversation: () => request<ConversationSetup>("/api/conversation"),
   monitoring: () => request<MonitoringSnapshot>("/api/monitoring"),
   runDrift: (id: string) => request<DriftReport>(`/api/monitoring/runs/${encodeURIComponent(id)}`),

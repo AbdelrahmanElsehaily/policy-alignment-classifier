@@ -11,7 +11,7 @@ from typing import Annotated, Any, Literal
 from fastapi import FastAPI, HTTPException, Query, Request, Response
 from fastapi.responses import FileResponse, PlainTextResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from pac.bootstrap import (
     build_agent,
@@ -19,6 +19,7 @@ from pac.bootstrap import (
     build_classifier,
     build_monitor,
     build_policy,
+    build_prompt,
     build_run_store,
     load_all_cases,
     profile_of_run,
@@ -28,6 +29,7 @@ from pac.evaluation.domain.cases import LabeledCase
 from pac.evaluation.domain.metrics import Metrics, Rate
 from pac.evaluation.domain.prediction import Prediction
 from pac.evaluation.domain.run import RunConfig
+from pac.guardrail.application.llm_classifier import LLMClassifier
 from pac.guardrail.application.ports import BackendError
 from pac.guardrail.domain.classification import Classification, EventClassifier
 from pac.guardrail.domain.events import ClassificationRequest
@@ -54,7 +56,7 @@ logger = logging.getLogger(__name__)
 # Bump when a request or response shape the web app relies on changes. The app is read from disk
 # on every page load but the server's code only at startup, so a server started before a change can
 # end up serving a newer page; the page compares versions and asks for a restart.
-API_VERSION = 4
+API_VERSION = 5
 
 
 class Health(BaseModel):
@@ -72,6 +74,14 @@ class PolicyView(BaseModel):
     sha256: str
     rule_ids: list[str]
     text: str
+    # The policy the classifier judges by differs from the policy file (edited in the app).
+    edited: bool = False
+    # Why it can't be edited here (replay mode, no model), or None.
+    locked: str | None = None
+
+
+class PolicyEdit(BaseModel):
+    text: str = Field(min_length=1, max_length=100_000)
 
 
 class RunSummary(BaseModel):
@@ -117,10 +127,47 @@ class _Services:
         self._classifier_error: str | None = None
         self._agent = agent
         self._agent_error: str | None = None
+        self._policy_override: Policy | None = None
 
     @cached_property
-    def policy(self) -> Policy:
+    def file_policy(self) -> Policy:
         return build_policy(self.settings)
+
+    @property
+    def policy(self) -> Policy:
+        """The policy the classifier judges by: the file's, unless edited in the app."""
+        return self._policy_override or self.file_policy
+
+    def policy_locked(self) -> str | None:
+        """Why the policy can't be edited right now, or None."""
+        if self.settings.backend == "replay":
+            return (
+                "Replay mode only has recorded answers for the policy file, so an edited policy "
+                "would get none. Start the server with a model to edit it, for example "
+                "PAC_BACKEND=minimax PAC_MODEL=MiniMax-M3 uv run pac serve --live."
+            )
+        if self.classifier_error is not None:
+            return f"No classifier to apply it to: {self.classifier_error}"
+        classifier = self._classifier
+        if isinstance(classifier, MonitoredClassifier):
+            classifier = classifier.inner
+        if not isinstance(classifier, LLMClassifier):
+            return "This classifier doesn't take a policy."
+        return None
+
+    def set_policy(self, policy: Policy | None) -> None:
+        """Judge by ``policy`` from now on (None: the file's), with the same backend and monitor.
+
+        The agent's instructions don't change: the guardrail's policy is never shown to it.
+        """
+        classifier = self.classifier()
+        if isinstance(classifier, MonitoredClassifier):
+            classifier = classifier.inner
+        if not isinstance(classifier, LLMClassifier):
+            raise ValueError("this classifier doesn't take a policy")
+        target = policy or self.file_policy
+        self._classifier = classifier.with_policy(target, build_prompt(self.settings, target))
+        self._policy_override = policy
 
     @cached_property
     def cases(self) -> list[LabeledCase]:
@@ -193,15 +240,7 @@ def create_app(
             llm_error=error,
         )
 
-    @app.get("/api/policy")
-    def policy() -> PolicyView:
-        p = services.policy
-        return PolicyView(
-            version=p.version,
-            sha256=p.sha256,
-            rule_ids=p.ordered_rule_ids(),
-            text=p.text,
-        )
+    _policy_routes(app, services)
 
     @app.get("/api/cases")
     def cases() -> list[LabeledCase]:
@@ -314,6 +353,50 @@ def create_app(
 
     _mount_frontend(app, services.settings)
     return app
+
+
+def _policy_routes(app: FastAPI, services: _Services) -> None:
+    """The policy the classifier judges by: read it, edit it (with a model), reset it."""
+
+    def policy_view() -> PolicyView:
+        p = services.policy
+        return PolicyView(
+            version=p.version,
+            sha256=p.sha256,
+            rule_ids=p.ordered_rule_ids(),
+            text=p.text,
+            edited=p.sha256 != services.file_policy.sha256,
+            locked=services.policy_locked(),
+        )
+
+    @app.get("/api/policy")
+    def policy() -> PolicyView:
+        return policy_view()
+
+    @app.put("/api/policy")
+    def edit_policy(edit: PolicyEdit) -> PolicyView:
+        """Judge by an edited policy until reset or restart; the policy file is not changed."""
+        locked = services.policy_locked()
+        if locked is not None:
+            raise HTTPException(status_code=409, detail=locked)
+        try:
+            edited = Policy.from_text(edit.text)
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+        same = edited.sha256 == services.file_policy.sha256
+        services.set_policy(None if same else edited)
+        logger.info(
+            "policy changed",
+            extra={"sha256": edited.sha256[:12], "rules": len(edited.rule_ids), "file": same},
+        )
+        return policy_view()
+
+    @app.delete("/api/policy")
+    def reset_policy() -> PolicyView:
+        if services.policy is not services.file_policy:
+            services.set_policy(None)
+            logger.info("policy reset to the file")
+        return policy_view()
 
 
 def _monitoring_routes(app: FastAPI, services: _Services) -> None:

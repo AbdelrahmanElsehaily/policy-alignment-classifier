@@ -4,11 +4,12 @@ import { api, isStalePage, isStaleServer } from "./api";
 import { ConversationPanel } from "./components/ConversationPanel";
 import { CornerCases } from "./components/CornerCases";
 import { MonitoringPanel } from "./components/MonitoringPanel";
+import { PolicyPanel } from "./components/PolicyPanel";
 import { ResultsPanel } from "./components/ResultsPanel";
 import { TryItPanel } from "./components/TryItPanel";
-import type { Health, LabeledCase } from "./types";
+import type { Health, LabeledCase, PolicyView } from "./types";
 
-const TABS = ["Try it", "Live conversation", "Findings", "Eval results"] as const;
+const TABS = ["Try it", "Live conversation", "Monitoring", "Policy", "Findings", "Eval results"] as const;
 type Tab = (typeof TABS)[number];
 
 export function App() {
@@ -19,6 +20,7 @@ export function App() {
   const [health, setHealth] = useState<Health | null>(null);
   const [cases, setCases] = useState<LabeledCase[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [policy, setPolicy] = useState<PolicyView | null>(null);
   // A case another tab asked Try it to open; the counter makes a repeat request count.
   const [toTry, setToTry] = useState<{ id: string; n: number } | null>(null);
   const known = useMemo(() => new Set(cases.map((c) => c.id)), [cases]);
@@ -26,6 +28,7 @@ export function App() {
   useEffect(() => {
     api.health().then(setHealth).catch((e: Error) => setError(e.message));
     api.cases().then(setCases).catch((e: Error) => setError(e.message));
+    api.policy().then(setPolicy).catch((e: Error) => setError(e.message));
   }, []);
 
   function open(next: Tab) {
@@ -41,16 +44,10 @@ export function App() {
   const panels: Record<Tab, JSX.Element> = {
     "Try it": <TryItPanel cases={cases} health={health} request={toTry} />,
     "Live conversation": <ConversationPanel />,
+    Monitoring: <MonitoringPanel />,
+    Policy: <PolicyPanel onChange={setPolicy} />,
     Findings: <CornerCases known={known} onTry={tryCase} />,
-    "Eval results": (
-      <>
-        <ResultsPanel cases={cases} />
-        <details className="section-fold">
-          <summary>Monitoring: is live traffic drifting from what was evaluated?</summary>
-          <MonitoringPanel />
-        </details>
-      </>
-    ),
+    "Eval results": <ResultsPanel cases={cases} />,
   };
 
   return (
@@ -58,7 +55,16 @@ export function App() {
       <header>
         <h1>Policy alignment classifier</h1>
         <p className="hint">
-          Lark, the support agent for Larkspur Electronics (fictional), with policy v0.{" "}
+          Lark, the support agent for Larkspur Electronics (fictional), with policy {policy?.version ?? "v0"}
+          {policy?.edited && (
+            <>
+              {" "}
+              <button className="link" onClick={() => open("Policy")}>
+                (edited)
+              </button>
+            </>
+          )}
+          .{" "}
           {health &&
             (health.llm_available ? (
               <span className={health.live ? "mode live" : "mode recorded"}>
