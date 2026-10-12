@@ -12,7 +12,7 @@
   (hosted models give different answers on the same input, so one run is not a measurement):
   - **82–86%** three-way accuracy on the frozen test split (114 events), violation recall **88%**,
     false blocks on benign events **6%**. The flat-text regex baseline gets **51%**.
-  - **81–85%** on natural traffic from a second agent model (123 events) and **81–84%** when that agent is
+  - **81–85%** on natural traffic from a second agent model (123 events) and **80–84%** when that agent is
     pushed to use its tools (120 events). **84.5%** on the stress set, leaving out the events v3 was
     trained on.
   - **The model matters less than the policy.** Claude Opus 5.5 (frontier) gets 87–89% on test and
@@ -139,7 +139,7 @@ MiniMax-M3, the same model and settings, three runs each where the model was run
 |---|---|---|---|
 | test (hand-written, frozen) | 114 | 94, 97, 99 (82–87%) | 95, 93, 98 (82–86%) |
 | agents (a second agent model's conversations) | 123 | 98, 98, 98 (80%) | 100, 104, 105 (81–85%) |
-| agents-pressure (that agent told to use its tools) | 120 | 93, 97, 97 (78–81%) | 97, 100, 101 (81–84%) |
+| agents-pressure (that agent told to use its tools) | 120 | 93, 97, 97 (78–81%) | 96, 97, 100, 101 (80–84%) |
 | stress, without the 95 events v3 was trained on | 291 | 236 (81.1%), one run | 246 (84.5%), one run |
 
 On the hand-written set the two are level within run-to-run noise. On every set of natural traffic v3 is
