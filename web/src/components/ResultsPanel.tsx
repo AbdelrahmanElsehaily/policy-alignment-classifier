@@ -12,6 +12,7 @@ import {
   mistakeOf,
   percent,
   range,
+  spread,
   runModel,
   runName,
   runSetting,
@@ -23,6 +24,7 @@ import {
   tagValue,
 } from "../results";
 import type { LabeledCase, Prediction, RunDetail, RunSummary, Verdict } from "../types";
+import { RuleList, useRuleNames } from "./Rules";
 import { VerdictBadge } from "./VerdictCard";
 
 const VERDICT_LABEL: Record<Verdict, string> = {
@@ -109,10 +111,21 @@ function RunTable({
                 {runSetting(r) && <div className="small">{runSetting(r)}</div>}
               </td>
               <td>
-                <strong>{percent(r.accuracy.value)}</strong>{" "}
-                <span className="small">
-                  {r.accuracy.k}/{r.accuracy.n} · range {range(ci[0], ci[1])}
-                </span>
+                {r.accuracy_by_run.length > 1 ? (
+                  <>
+                    <strong>{spread(r.accuracy_by_run)}</strong>{" "}
+                    <span className="small" title="Lowest to highest of the repeated runs">
+                      over {r.accuracy_by_run.length} runs
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <strong>{percent(r.accuracy.value)}</strong>{" "}
+                    <span className="small" title="Where the true accuracy plausibly lies, given how few events there are">
+                      {r.accuracy.k}/{r.accuracy.n} · 95% interval {range(ci[0], ci[1])}
+                    </span>
+                  </>
+                )}
               </td>
               <td>{fraction(r.violation_recall)}</td>
               <td>{fraction(r.false_block_rate)}</td>
@@ -246,20 +259,21 @@ function BreakdownTable({ predictions }: { predictions: Prediction[] }) {
 }
 
 function MistakeDetail({ p, c }: { p: Prediction; c: LabeledCase | undefined }) {
+  const named = useRuleNames();
   return (
     <div className="mistake-detail">
       <pre className="event">{c ? describeEvent(c.request.event) : "(event not found)"}</pre>
       <div className="two-col">
         <div>
           <div className="small">Right answer</div>
-          <VerdictBadge verdict={p.gold} /> <span className="small">{p.gold_rules.join(", ")}</span>
-          <p className="small">{c?.rationale}</p>
+          <VerdictBadge verdict={p.gold} /> <RuleList ids={p.gold_rules} />
+          <p className="small">{named(c?.rationale)}</p>
         </div>
         <div>
           <div className="small">Classifier said</div>
           <VerdictBadge verdict={p.result.decision.verdict} error={p.result.error} />{" "}
-          <span className="small">{p.result.decision.rule_ids.join(", ")}</span>
-          <p className="small">{p.result.error ?? p.result.decision.rationale}</p>
+          <RuleList ids={p.result.decision.rule_ids} />
+          <p className="small">{p.result.error ?? named(p.result.decision.rationale)}</p>
         </div>
       </div>
     </div>
@@ -471,10 +485,16 @@ export function ResultsPanel({ cases }: { cases: LabeledCase[] }) {
       )}
 
       <RunTable runs={shown} selected={current?.run_id ?? ""} onSelect={setSelected} />
+      {shown.some((r) => r.accuracy_by_run.length > 1) && (
+        <p className="small">
+          A model run several times shows the lowest to highest accuracy of its runs (hosted models answer differently
+          each time); its other columns are from the first run.
+        </p>
+      )}
       {(hidden > 0 || includeOlder) && (
         <label className="inline small">
           <input type="checkbox" checked={includeOlder} onChange={(e) => setIncludeOlder(e.target.checked)} />
-          &nbsp;also show older reruns of the same classifier and setting
+          &nbsp;also show earlier prompts (v1, v2) and runs replaced by later ones
           {hidden > 0 && ` (${hidden} hidden)`}
         </label>
       )}

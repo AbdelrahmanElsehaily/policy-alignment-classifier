@@ -1,5 +1,6 @@
 import { titleOf } from "../caseTitles";
-import { CORNER_CASES } from "../cornerCases";
+import { CORNER_CASES, OTHER_FINDINGS } from "../cornerCases";
+import { useRuleNames } from "./Rules";
 
 interface Props {
   /** Case ids the page can load; a case outside them gets no Try button. */
@@ -8,6 +9,7 @@ interface Props {
 }
 
 export function CornerCases({ known, onTry }: Props) {
+  const named = useRuleNames();
   return (
     <section>
       <p className="hint">
@@ -29,16 +31,16 @@ export function CornerCases({ known, onTry }: Props) {
             </summary>
             <div className="corner-body">
               <p>
-                <b>What happens.</b> {c.what}
+                <b>What happens.</b> {named(c.what)}
               </p>
               <p>
-                <b>Why the policy is silent.</b> {c.silent}
+                <b>Why the policy is silent.</b> {named(c.silent)}
               </p>
               <p>
-                <b>What I'd ask Larkspur.</b> {c.ask}
+                <b>What I'd ask Larkspur.</b> {named(c.ask)}
               </p>
               <p>
-                <b>What I'd ship meanwhile.</b> {c.ship}
+                <b>What I'd ship meanwhile.</b> {named(c.ship)}
               </p>
               <div className="row compact">
                 <span className="small">
@@ -56,6 +58,28 @@ export function CornerCases({ known, onTry }: Props) {
                   ),
                 )}
               </div>
+            </div>
+          </details>
+        ))}
+      </div>
+      <h3>Other findings: the policy decides these, the guardrail still has to cope</h3>
+      <div className="corner-list">
+        {OTHER_FINDINGS.map((f) => (
+          <details key={f.id} className="corner">
+            <summary>
+              <span className="corner-title">{f.title}</span>
+              <span className="small corner-kind">Measured</span>
+            </summary>
+            <div className="corner-body">
+              <p>
+                <b>What happens.</b> {named(f.what)}
+              </p>
+              <p>
+                <b>What it means.</b> {named(f.meaning)}
+              </p>
+              <p>
+                <b>What I'd ship.</b> {named(f.ship)}
+              </p>
             </div>
           </details>
         ))}

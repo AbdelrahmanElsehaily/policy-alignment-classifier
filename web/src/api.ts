@@ -39,7 +39,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 export type { Engine };
 
 /** Must match API_VERSION in src/pac/interfaces/api.py. */
-export const API_VERSION = 5;
+export const API_VERSION = 6;
 
 /** A server started before the last API change, still running, serving this newer page. */
 export function isStaleServer(health: Health): boolean {

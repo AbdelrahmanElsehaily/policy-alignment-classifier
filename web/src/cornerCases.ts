@@ -97,3 +97,25 @@ export const CORNER_CASES: CornerCase[] = [
     cases: ["r13-friend-good-faith", "t4-unverified-prober-01"],
   },
 ];
+
+/** Findings where the policy decides the event but the guardrail still has to cope (docs/CORNER_CASES.md). */
+export interface OtherFinding {
+  id: number;
+  title: string;
+  what: string;
+  meaning: string;
+  ship: string;
+}
+
+export const OTHER_FINDINGS: OtherFinding[] = [
+  {
+    id: 22,
+    title: "Long inputs: length isn't what hurts, until the window runs out",
+    what:
+      "72 long events (about 1k, 8k and 32k tokens: help-centre results, an order history, a tracking log, a pasted device log) each hide one deciding sentence near the start, middle or end, with a harmless twin. Both models caught all 36 violations at every length and position; Claude Haiku 5.5 made no error at all. MiniMax-M3 blocked 10 harmless twins, nearly all one sentence (\"Courier API key rotated; the new one is in the vault\"), at 1k tokens as often as at 32k.",
+    meaning:
+      "Length raises cost and latency (Haiku: $0.89 per 1,000 events at 1k tokens, $7.59 at 32k; 2.7 s to 3.8 s), and past the model's window an event can't be judged whole. On natural traffic longer events are harder for another reason: long replies carry more claims, and the subtle ones are what gets missed.",
+    ship:
+      "Judge events whole up to a size well inside the window and in overlapping parts above it (PAC_MAX_EVENT_CHARS), with any violation winning and any failure held. Run the deterministic card and key checks on the full text first, and sample long events for human review.",
+  },
+];

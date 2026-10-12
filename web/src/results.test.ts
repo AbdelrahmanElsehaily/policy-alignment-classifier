@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { mistakeOf, runName, runsForSplit, scoreBy, summarise, tagValue } from "./results";
+import { mistakeOf, runName, runsForSplit, scoreBy, spread, summarise, tagValue } from "./results";
 import type { Prediction, Rate, RunSummary, Verdict } from "./types";
 
 const rate = (k: number, n: number): Rate => ({ k, n, value: n ? k / n : null, ci_low: null, ci_high: null });
@@ -23,6 +23,8 @@ const run = (over: Partial<RunSummary> = {}): RunSummary => ({
   silent_recall: rate(0, 1),
   classifier_errors: rate(0, 10),
   latency_p50_ms: 900,
+  accuracy_by_run: [],
+  max_event_chars: null,
   ...over,
 });
 
@@ -49,12 +51,13 @@ const pred = (gold: Verdict, said: Verdict, tags: string[] = [], error: string |
 
 describe("eval results helpers", () => {
   it("names runs for people, not for machines", () => {
-    expect(runName(run())).toBe("qwen3.5, local 9.7B · event only");
+    expect(runName(run())).toBe("qwen3.5 (local, 9.7B) · prompt v2");
     expect(runName(run({ with_history: true, prompt_version: "classifier_v1@x" }))).toBe(
-      "qwen3.5, local 9.7B · with conversation history · prompt v1",
+      "qwen3.5 (local, 9.7B) · prompt v1 · with conversation history",
     );
     expect(runName(run({ classifier: "regex-baseline" }))).toBe("Regex baseline (flat text)");
-    expect(runName(run({ repeats: 3 }))).toContain("3 repeats");
+    expect(runName(run({ repeats: 3, classifier: "anthropic/claude-haiku-5.5" }))).toBe("Claude Haiku 5.5 · prompt v2 · 3 runs");
+    expect(spread([0.816, 0.86, 0.833])).toBe("82%–86%");
   });
 
   it("summarises a run in one sentence", () => {
@@ -81,18 +84,19 @@ describe("eval results helpers", () => {
     expect(tagValue({ tags: [] }, "ctx")).toBeNull();
   });
 
-  it("shows the latest run of each setting, pairs each model's settings, baseline last", () => {
+  it("shows the shipped prompt by default, one row per setting, the repeated run first, baseline last", () => {
+    const v3 = "classifier_v3@abc";
     const runs = [
-      run({ run_id: "old", created_at: "2026-10-10T10:00", with_history: false }),
-      run({ run_id: "new", created_at: "2026-10-11T10:00", with_history: false }),
-      run({ run_id: "hist", created_at: "2026-10-10T11:00", with_history: true }),
+      run({ run_id: "v2", created_at: "2026-10-11T10:00" }),
+      run({ run_id: "v3-once", created_at: "2026-10-12T11:00", prompt_version: v3 }),
+      run({ run_id: "v3-thrice", created_at: "2026-10-12T10:00", prompt_version: v3, repeats: 3 }),
       run({ run_id: "regex", created_at: "2026-10-11T09:00", classifier: "regex-baseline" }),
-      run({ run_id: "mm", created_at: "2026-10-11T09:00", classifier: "MiniMax-M3" }),
-      run({ run_id: "dev", split: "dev" }),
+      run({ run_id: "haiku", created_at: "2026-10-12T09:00", classifier: "anthropic/claude-haiku-5.5", prompt_version: v3 }),
+      run({ run_id: "dev", split: "dev", prompt_version: v3 }),
     ];
     const { shown, hidden } = runsForSplit(runs, "test");
-    expect(shown.map((r) => r.run_id)).toEqual(["mm", "new", "hist", "regex"]);
-    expect(hidden).toBe(1);
+    expect(shown.map((r) => r.run_id)).toEqual(["haiku", "v3-thrice", "regex"]);
+    expect(hidden).toBe(2);
     expect(runsForSplit(runs, "test", true).shown).toHaveLength(5);
   });
 });

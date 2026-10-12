@@ -13,6 +13,7 @@ import {
   type LabeledCase,
   type TraceEvent,
 } from "../types";
+import { RuleList, useRuleNames } from "./Rules";
 import { VerdictBadge, VerdictCard } from "./VerdictCard";
 
 interface Pair {
@@ -62,6 +63,7 @@ interface Props {
 }
 
 export function TryItPanel({ cases, health, request }: Props) {
+  const named = useRuleNames();
   const [examples, setExamples] = useState<DemoExample[]>([]);
   const [draft, setDraft] = useState<Draft>(START);
   const [sessionKey, setSessionKey] = useState("verified as Ana (C-1001)");
@@ -266,8 +268,8 @@ export function TryItPanel({ cases, health, request }: Props) {
           {expected && (
             <div className="row compact">
               <span className="small">Expected</span> <VerdictBadge verdict={expected.verdict} />
-              <span className="small">{expected.rules.join(", ")}</span>
-              {loaded && <span className="small">· {loaded.case.rationale}</span>}
+              <RuleList ids={expected.rules} />
+              {loaded && <span className="small">· {named(loaded.case.rationale)}</span>}
             </div>
           )}
           {!expected && loaded && result && <p className="small">Edited, so the eval label no longer applies.</p>}
@@ -326,10 +328,10 @@ export function TryItPanel({ cases, health, request }: Props) {
                         "error"
                       )}
                     </td>
-                    <td>{missing ? "" : cell?.llm?.decision.rule_ids.join(", ")}</td>
+                    <td>{missing ? "" : <RuleList ids={cell?.llm?.decision.rule_ids ?? []} />}</td>
                     <td>{cell?.baseline ? <VerdictBadge verdict={cell.baseline.decision.verdict} /> : "…"}</td>
                     <td className="small">
-                      {missing ? "" : (cell?.llm?.error ?? cell?.llm?.decision.rationale ?? cell?.error)}
+                      {missing ? "" : (cell?.llm?.error ?? named(cell?.llm?.decision.rationale) ?? cell?.error)}
                     </td>
                   </tr>
                 );

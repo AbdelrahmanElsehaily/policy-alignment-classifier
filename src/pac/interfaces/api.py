@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 import time
-from collections.abc import AsyncIterator, Awaitable, Callable
+from collections.abc import AsyncIterator, Awaitable, Callable, Sequence
 from functools import cached_property
 from typing import Annotated, Any, Literal
 
@@ -56,7 +56,7 @@ logger = logging.getLogger(__name__)
 # Bump when a request or response shape the web app relies on changes. The app is read from disk
 # on every page load but the server's code only at startup, so a server started before a change can
 # end up serving a newer page; the page compares versions and asks for a restart.
-API_VERSION = 5
+API_VERSION = 6
 
 
 class Health(BaseModel):
@@ -105,6 +105,10 @@ class RunSummary(BaseModel):
     silent_recall: Rate
     classifier_errors: Rate
     latency_p50_ms: float | None
+    # Accuracy of each run, when the eval ran the set more than once (the headline is run 1).
+    accuracy_by_run: list[float] = []
+    # Events longer than this were judged in parts.
+    max_event_chars: int | None = None
 
 
 class RunDetail(BaseModel):
@@ -337,6 +341,10 @@ def create_app(
                     silent_recall=metrics.silent_recall,
                     classifier_errors=metrics.operational.classifier_errors,
                     latency_p50_ms=metrics.operational.model_latency_p50_ms,
+                    accuracy_by_run=_accuracy_by_run(saved.predictions)
+                    if config.repeats > 1
+                    else [],
+                    max_event_chars=config.max_event_chars,
                 )
             )
         return summaries
@@ -353,6 +361,17 @@ def create_app(
 
     _mount_frontend(app, services.settings)
     return app
+
+
+def _accuracy_by_run(predictions: Sequence[Prediction]) -> list[float]:
+    """Each repeat's share of correct verdicts; a failed call counts as wrong."""
+    right: dict[int, int] = {}
+    total: dict[int, int] = {}
+    for p in predictions:
+        total[p.repeat] = total.get(p.repeat, 0) + 1
+        ok = p.result.error is None and p.result.decision.verdict == p.gold
+        right[p.repeat] = right.get(p.repeat, 0) + ok
+    return [right[r] / total[r] for r in sorted(total)]
 
 
 def _policy_routes(app: FastAPI, services: _Services) -> None:

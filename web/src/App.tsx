@@ -5,8 +5,10 @@ import { ConversationPanel } from "./components/ConversationPanel";
 import { CornerCases } from "./components/CornerCases";
 import { MonitoringPanel } from "./components/MonitoringPanel";
 import { PolicyPanel } from "./components/PolicyPanel";
+import { RulesContext } from "./components/Rules";
 import { ResultsPanel } from "./components/ResultsPanel";
 import { TryItPanel } from "./components/TryItPanel";
+import { ruleBook } from "./rules";
 import type { Health, LabeledCase, PolicyView } from "./types";
 
 const TABS = ["Try it", "Live conversation", "Monitoring", "Policy", "Findings", "Eval results"] as const;
@@ -24,6 +26,8 @@ export function App() {
   // A case another tab asked Try it to open; the counter makes a repeat request count.
   const [toTry, setToTry] = useState<{ id: string; n: number } | null>(null);
   const known = useMemo(() => new Set(cases.map((c) => c.id)), [cases]);
+  // The rules of the policy the classifier judges by, so every panel can name them.
+  const rules = useMemo(() => ruleBook(policy?.text ?? ""), [policy]);
 
   useEffect(() => {
     api.health().then(setHealth).catch((e: Error) => setError(e.message));
@@ -96,11 +100,13 @@ export function App() {
         </p>
       )}
       {error && <p className="error">{error}</p>}
-      {TABS.filter((t) => opened.has(t)).map((t) => (
-        <div key={t} hidden={t !== tab}>
-          {panels[t]}
-        </div>
-      ))}
+      <RulesContext.Provider value={rules}>
+        {TABS.filter((t) => opened.has(t)).map((t) => (
+          <div key={t} hidden={t !== tab}>
+            {panels[t]}
+          </div>
+        ))}
+      </RulesContext.Provider>
     </main>
   );
 }

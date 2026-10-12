@@ -5,6 +5,7 @@ import { applyUpdate, type Row, speaker, toHistory } from "../conversation";
 import { ms } from "../format";
 import type { ConversationSetup, Gate, Session, Suggestion, TraceEvent } from "../types";
 import { VerdictBadge } from "./VerdictCard";
+import { RuleList, useRuleNames } from "./Rules";
 
 const UNVERIFIED: Session = { verified: false, verified_customer_id: null, email_on_file: null };
 
@@ -31,15 +32,16 @@ function Verdicts({ row }: { row: Row }) {
   if (row.byGuardrail) return <span className="small">stand-in, not judged</span>;
   const llm = row.verdicts.llm;
   const baseline = row.verdicts.baseline;
+  const named = useRuleNames();
   return (
     <div className="verdicts">
       {llm ? (
         <details>
           <summary>
             <VerdictBadge verdict={llm.decision.verdict} error={llm.error} />{" "}
-            <span className="small">{llm.decision.rule_ids.join(", ")}</span>
+            <RuleList ids={llm.decision.rule_ids} />
           </summary>
-          <p className="small rationale">{llm.error ?? llm.decision.rationale}</p>
+          <p className="small rationale">{llm.error ?? named(llm.decision.rationale)}</p>
           <p className="small">
             {llm.model} · {ms(llm.model_latency_ms)}
           </p>
@@ -50,7 +52,7 @@ function Verdicts({ row }: { row: Row }) {
       {row.gate && <span className={`gate gate-${row.gate}`}>{GATE_LABEL[row.gate]}</span>}
       {baseline && (
         <div className="small">
-          regex <VerdictBadge verdict={baseline.decision.verdict} /> {baseline.decision.rule_ids.join(", ")}
+          regex <VerdictBadge verdict={baseline.decision.verdict} /> <RuleList ids={baseline.decision.rule_ids} />
         </div>
       )}
     </div>

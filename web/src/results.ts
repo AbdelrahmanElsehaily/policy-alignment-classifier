@@ -11,14 +11,14 @@ export interface SplitInfo {
 /** What each test set is and how far its numbers can be trusted, in one place. */
 export const SPLITS: Record<string, SplitInfo> = {
   test: {
-    title: "Test",
+    title: "Test (hand-written)",
     about:
       "The headline set: realistic events written and labelled before any classifier ran on them, then frozen. The write-up's numbers come from here.",
     comparable: "The reference. Use these numbers to judge the classifier.",
   },
   dev: {
-    title: "Dev",
-    about: "Events used while improving the prompt (v1 to v2). The prompt was tuned on them.",
+    title: "Dev (tuned on)",
+    about: "The 49 events the prompt was developed on (v1 to v2, and part of v3's training). Not a measure of anything.",
     comparable: "Optimistic: the prompt was shaped by these cases.",
   },
   hard: {
@@ -41,6 +41,13 @@ export const SPLITS: Record<string, SplitInfo> = {
     comparable:
       "Compare with the same briefs in Stress (recorded with qwen3.5 as the agent). Events within a conversation are related.",
   },
+  "long-context": {
+    title: "Long inputs",
+    about:
+      "72 long events (about 1k, 8k and 32k tokens: help-centre results, an order history, a tracking log, a pasted log), each with one deciding sentence near the start, middle or end, and a harmless twin.",
+    comparable:
+      "Asks one question: does length hide what decides the verdict? Runs \"in parts\" judged anything over the limit as overlapping parts.",
+  },
   "agents-pressure": {
     title: "Agent pushed to use tools",
     about:
@@ -50,60 +57,86 @@ export const SPLITS: Record<string, SplitInfo> = {
   },
 };
 
-export const SPLIT_ORDER = ["test", "dev", "hard", "stress", "agents", "agents-pressure"];
+// "hard" runs are older: those events are now the first part of Stress.
+export const SPLIT_ORDER = ["test", "agents", "agents-pressure", "stress", "long-context", "dev"];
+
+/** The prompt the classifier ships with; other prompts' runs are history, shown on request. */
+export const SHIPPED_PROMPT = "classifier_v3";
 
 const CLASSIFIERS: Record<string, string> = {
   "regex-baseline": "Regex baseline (flat text)",
-  "qwen3.5": "qwen3.5, local 9.7B",
-  "MiniMax-M3": "MiniMax-M3, hosted",
+  "qwen3.5": "qwen3.5 (local, 9.7B)",
+  "MiniMax-M3": "MiniMax-M3",
+  "minimax/minimax-m3": "MiniMax-M3 (via OpenRouter)",
+  "anthropic/claude-haiku-5.5": "Claude Haiku 5.5",
+  "anthropic/claude-sonnet-5.5": "Claude Sonnet 5.5",
+  "anthropic/claude-opus-5.5": "Claude Opus 5.5",
 };
 
-/** The classifier, for people: "qwen3.5, local 9.7B". */
+type Named = Pick<RunSummary, "classifier" | "with_history" | "prompt_version" | "repeats"> &
+  Partial<Pick<RunSummary, "max_event_chars">>;
+
+/** The classifier, for people: "Claude Haiku 5.5". */
 export function runModel(run: Pick<RunSummary, "classifier">): string {
   return CLASSIFIERS[run.classifier] ?? run.classifier;
 }
 
-/** What the classifier saw, and anything unusual about the run. Empty for the regex baseline. */
-export function runSetting(run: Pick<RunSummary, "classifier" | "with_history" | "prompt_version" | "repeats">): string {
+/** "v3", from "classifier_v3@55286419"; empty for the regex baseline. */
+export function promptOf(run: Pick<RunSummary, "classifier" | "prompt_version">): string {
+  return run.classifier === "regex-baseline" ? "" : run.prompt_version.split("@")[0]!.replace("classifier_", "");
+}
+
+/** What the classifier saw and how often it ran: "prompt v3 · 3 runs". Empty for the regex baseline. */
+export function runSetting(run: Named): string {
   if (run.classifier === "regex-baseline") return "";
-  const parts = [run.with_history ? "with conversation history" : "event only"];
-  const prompt = run.prompt_version.split("@")[0];
-  if (prompt !== "classifier_v2") parts.push(`prompt ${prompt.replace("classifier_", "")}`);
-  if (run.repeats > 1) parts.push(`${run.repeats} repeats (variance check)`);
+  const parts = [`prompt ${promptOf(run)}`];
+  if (run.with_history) parts.push("with conversation history");
+  if (run.max_event_chars) parts.push(`long events in parts of ${run.max_event_chars.toLocaleString("en")} chars`);
+  if (run.repeats > 1) parts.push(`${run.repeats} runs`);
   return parts.join(" · ");
 }
 
-/** A readable name for a run: who classified, with what context, and anything unusual. */
-export function runName(run: Pick<RunSummary, "classifier" | "with_history" | "prompt_version" | "repeats">): string {
+/** A readable name for a run: who classified, with what, and how often. */
+export function runName(run: Named): string {
   const setting = runSetting(run);
   return setting ? `${runModel(run)} · ${setting}` : runModel(run);
 }
 
-function variantKey(r: RunSummary): string {
-  return [r.classifier, r.with_history, r.prompt_version, r.repeats].join("|");
+/** "82–86%" over a model's repeated runs, or one number when they agree. */
+export function spread(values: number[]): string {
+  const [low, high] = [Math.min(...values), Math.max(...values)];
+  return percent(low) === percent(high) ? percent(low) : `${percent(low)}–${percent(high)}`;
+}
+
+function settingKey(r: RunSummary): string {
+  return [r.classifier, r.with_history, r.prompt_version, r.max_event_chars ?? ""].join("|");
 }
 
 /**
- * The runs to show for one test set: the latest of each classifier and setting (older reruns
- * hidden unless asked for), each model's event-only run just above its with-history run, and the
- * regex baseline last.
+ * The runs to show for one test set: by default only the shipped prompt (and the regex baseline),
+ * one row per classifier and setting (the repeated run if there is one, else the latest). Earlier
+ * prompts and replaced runs are shown on request.
  */
-export function runsForSplit(runs: RunSummary[], split: string, includeOlder = false): { shown: RunSummary[]; hidden: number } {
+export function runsForSplit(runs: RunSummary[], split: string, showAll = false): { shown: RunSummary[]; hidden: number } {
   const inSplit = runs.filter((r) => r.split === split);
-  const latest = new Map<string, RunSummary>();
-  for (const r of inSplit) {
-    const key = variantKey(r);
-    const seen = latest.get(key);
-    if (!seen || r.created_at > seen.created_at) latest.set(key, r);
+  const current = inSplit.filter(
+    (r) => r.classifier === "regex-baseline" || r.prompt_version.startsWith(SHIPPED_PROMPT),
+  );
+  const best = new Map<string, RunSummary>();
+  for (const r of current) {
+    const key = settingKey(r);
+    const seen = best.get(key);
+    const better = !seen || r.repeats > seen.repeats || (r.repeats === seen.repeats && r.created_at > seen.created_at);
+    if (better) best.set(key, r);
   }
-  const kept = includeOlder ? inSplit : [...latest.values()];
+  const kept = showAll ? inSplit : [...best.values()];
   const rank = (r: RunSummary) =>
     [
       r.classifier === "regex-baseline" ? 1 : 0,
+      r.prompt_version.startsWith(SHIPPED_PROMPT) ? 0 : 1,
       r.classifier,
-      r.prompt_version,
-      r.repeats,
       r.with_history ? 1 : 0,
+      r.max_event_chars ?? 0,
       r.created_at,
     ] as const;
   const shown = [...kept].sort((a, b) => {

@@ -1,5 +1,6 @@
 import { ms, pct } from "../format";
 import type { Classification, Verdict } from "../types";
+import { RuleList, useRuleNames } from "./Rules";
 
 export function VerdictBadge({ verdict, error }: { verdict: Verdict; error?: string | null }) {
   if (error) {
@@ -15,14 +16,19 @@ export function VerdictBadge({ verdict, error }: { verdict: Verdict; error?: str
 
 export function VerdictCard({ title, result }: { title: string; result: Classification }) {
   const { decision } = result;
+  const named = useRuleNames();
   return (
     <div className="card">
       <div className="card-head">
         <strong>{title}</strong>
         <VerdictBadge verdict={decision.verdict} error={result.error} />
       </div>
-      {decision.rule_ids.length > 0 && <div className="rules">Rules: {decision.rule_ids.join(", ")}</div>}
-      <p className="rationale">{decision.rationale}</p>
+      {decision.rule_ids.length > 0 && (
+        <div className="rules">
+          Rules broken: <RuleList ids={decision.rule_ids} />
+        </div>
+      )}
+      <p className="rationale">{named(decision.rationale)}</p>
       {result.error && <p className="error">Fail-closed: {result.error}</p>}
       <div className="meta">
         {result.model === "regex-baseline" ? "regex" : result.cached ? "recorded answer" : "live call"} · model{" "}

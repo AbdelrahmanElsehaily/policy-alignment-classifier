@@ -40,8 +40,10 @@ export function psiWidth(psi: number | null): number {
 }
 
 /** "200-400 12% → 28%" for the categories that moved most. */
-export function moves(f: FeatureDrift): string[] {
-  return f.movers.map(([category, before, after]) => `${category} ${Math.round(before * 100)}% → ${Math.round(after * 100)}%`);
+export function moves(f: FeatureDrift, name: (category: string) => string = (c) => c): string[] {
+  return f.movers.map(
+    ([category, before, after]) => `${name(category)} ${Math.round(before * 100)}% → ${Math.round(after * 100)}%`,
+  );
 }
 
 export function average(sum: number, n: number): number | null {

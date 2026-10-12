@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 import { api } from "../api";
 import { ms } from "../format";
 import { average, FEATURES, moves, psiWidth, STATUS } from "../monitoring";
 import { runName, SPLITS } from "../results";
+import { ruleLabel } from "../rules";
 import type { DriftReport, DriftStatus, MonitoringSnapshot, RunSummary } from "../types";
+import { RulesContext } from "./Rules";
 
 const REFRESH_MS = 5000;
 
@@ -27,6 +29,7 @@ function PsiBar({ psi }: { psi: number | null }) {
 }
 
 function DriftTable({ report }: { report: DriftReport }) {
+  const book = useContext(RulesContext);
   return (
     <div>
       <p>
@@ -34,6 +37,11 @@ function DriftTable({ report }: { report: DriftReport }) {
         <span className="small">
           {report.current_events} events compared with {report.reference_events} reference events.
         </span>
+      </p>
+      <p className="small">
+        Each share reads <b>reference → this traffic</b>: "tool_call 19% → 28%" means 19% of the reference events
+        (the labelled events the classifier was evaluated on) were tool calls, against 28% of the events checked
+        here.
       </p>
       {(["input", "output"] as const).map((group) => (
         <div key={group}>
@@ -48,7 +56,9 @@ function DriftTable({ report }: { report: DriftReport }) {
                 <th>Feature</th>
                 <th>Shift (PSI; marks at 0.1 and 0.25)</th>
                 <th>Status</th>
-                <th>What moved</th>
+                <th title="Share of events in the reference → share in the traffic checked here">
+                  What moved (reference → now)
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -73,7 +83,7 @@ function DriftTable({ report }: { report: DriftReport }) {
                           NEW {c}
                         </span>
                       ))}
-                      {moves(f).join(" · ")}
+                      {moves(f, f.feature === "rules" ? (id) => ruleLabel(id, book) : undefined).join(" · ")}
                     </td>
                   </tr>
                 ))}

@@ -142,6 +142,10 @@ export interface RunSummary {
   silent_recall: Rate;
   classifier_errors: Rate;
   latency_p50_ms: number | null;
+  /** Accuracy of each run when the set was run more than once; the other columns are run 1. */
+  accuracy_by_run: number[];
+  /** Events longer than this were judged in parts. */
+  max_event_chars: number | null;
 }
 
 export interface Prediction {
