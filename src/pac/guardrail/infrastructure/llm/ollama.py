@@ -38,7 +38,10 @@ class OllamaBackend:
             "stream": False,
             "think": False,
             "format": request.json_schema,
-            "options": {"temperature": 0, "num_predict": request.max_tokens},
+            "options": {
+                "temperature": 0 if request.temperature is None else request.temperature,
+                "num_predict": request.max_tokens,
+            },
             "messages": [
                 {"role": "system", "content": request.system},
                 {"role": "user", "content": request.user},

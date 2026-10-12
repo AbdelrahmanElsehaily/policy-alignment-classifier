@@ -47,7 +47,9 @@ def _classifier_for(config: RunConfig) -> EventClassifier:
     policy = load_policy(SETTINGS.policy_path)
     assert policy.sha256 == config.policy_sha256, "policy changed since this run was recorded"
     stem = config.prompt_version.split("@")[0]
-    prompt = load_prompt(REPO_ROOT / "prompts" / f"{stem}.md", policy)
+    prompt = load_prompt(
+        REPO_ROOT / "prompts" / f"{stem}.md", policy, temperature=config.temperature
+    )
     assert prompt.version == config.prompt_version, f"{stem}.md changed since this run"
     replay = CachingBackend(SETTINGS.cache_dir, inner=None, model=config.classifier)
     return LLMClassifier(replay, policy, prompt)

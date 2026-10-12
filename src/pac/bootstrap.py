@@ -107,7 +107,12 @@ def build_classifier(settings: Settings, backend: LLMBackend | None = None) -> L
             )
         backend = build_backend(settings, use_cache=False)
     policy = build_policy(settings)
-    prompt = load_prompt(settings.prompt_path, policy, max_tokens=settings.max_output_tokens)
+    prompt = load_prompt(
+        settings.prompt_path,
+        policy,
+        max_tokens=settings.max_output_tokens,
+        temperature=settings.temperature,
+    )
     return LLMClassifier(
         backend if backend is not None else build_backend(settings),
         policy,
@@ -152,6 +157,8 @@ def dataset_path(settings: Settings, split: Split | None) -> Path:
         return settings.stress_cases_path
     if split == "agents":
         return settings.agents_cases_path
+    if split == "train":
+        return settings.train_cases_path
     return settings.cases_path
 
 
@@ -180,7 +187,12 @@ def dataset_file(settings: Settings, name: str) -> Path:
 def load_all_cases(settings: Settings) -> list[LabeledCase]:
     """Every labelled case from every dataset file, with ids unique across files."""
     cases = load_cases(settings.cases_path)
-    for extra in (settings.hard_cases_path, settings.stress_cases_path, settings.agents_cases_path):
+    for extra in (
+        settings.hard_cases_path,
+        settings.stress_cases_path,
+        settings.agents_cases_path,
+        settings.train_cases_path,
+    ):
         if extra.exists():
             cases += load_cases(extra)
     ensure_unique_ids(cases)

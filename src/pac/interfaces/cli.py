@@ -99,7 +99,8 @@ class SplitOption(StrEnum):
     hard = "hard"
     stress = "stress"
     agents = "agents"
-    all = "all"  # dev + test (hard and stress are run on their own)
+    train = "train"  # for prompt optimisation (scripts/optimize_prompt.py), never for reporting
+    all = "all"  # dev + test (the later splits are run on their own)
 
 
 BackendOpt = Annotated[
@@ -223,6 +224,7 @@ def evaluate(
         repeats=repeats,
         with_history=with_history,
         git_commit=git_commit(),
+        temperature=None if backend_name == "regex" else settings.temperature,
     )
     with log_context(run=run_dir.name):
         metrics = record_run(FileRunStore(run_dir.parent), config, predictions).metrics
@@ -250,6 +252,7 @@ _SPLITS: dict[SplitOption, Split] = {
     SplitOption.hard: "hard",
     SplitOption.stress: "stress",
     SplitOption.agents: "agents",
+    SplitOption.train: "train",
 }
 
 
@@ -325,7 +328,8 @@ def check_data() -> None:
     by_split = Counter(c.split for c in cases)
     typer.echo(
         f"OK: {len(cases)} cases ({by_split['dev']} dev, {by_split['test']} test, "
-        f"{by_split['hard']} hard, {by_split['stress']} stress, {by_split['agents']} agents)"
+        f"{by_split['hard']} hard, {by_split['stress']} stress, {by_split['agents']} agents, "
+        f"{by_split['train']} train)"
     )
 
 

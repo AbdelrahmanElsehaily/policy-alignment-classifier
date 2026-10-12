@@ -63,6 +63,7 @@ def dataset(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     monkeypatch.setenv("PAC_HARD_CASES_PATH", str(tmp_path / "hard_cases.jsonl"))
     monkeypatch.setenv("PAC_STRESS_CASES_PATH", str(tmp_path / "no-stress.jsonl"))
     monkeypatch.setenv("PAC_AGENTS_CASES_PATH", str(tmp_path / "agents.jsonl"))
+    monkeypatch.setenv("PAC_TRAIN_CASES_PATH", str(tmp_path / "no-train.jsonl"))
     monkeypatch.setenv("PAC_RESULTS_DIR", str(tmp_path / "results"))
     monkeypatch.setenv("PAC_CACHE_DIR", str(tmp_path / "cache"))
     return path
@@ -71,7 +72,7 @@ def dataset(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
 def test_check_data(dataset: Path) -> None:
     result = runner.invoke(app, ["check-data"])
     assert result.exit_code == 0, result.output
-    assert "3 cases (1 dev, 1 test, 1 hard, 0 stress, 0 agents)" in result.output
+    assert "3 cases (1 dev, 1 test, 1 hard, 0 stress, 0 agents, 0 train)" in result.output
 
 
 def test_eval_hard_split_records_its_dataset_file(dataset: Path, tmp_path: Path) -> None:

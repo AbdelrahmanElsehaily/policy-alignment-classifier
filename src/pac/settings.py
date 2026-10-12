@@ -52,6 +52,8 @@ class Settings(BaseSettings):
     hard_cases_path: Path = REPO_ROOT / "data" / "eval" / "hard.jsonl"
     stress_cases_path: Path = REPO_ROOT / "data" / "eval" / "stress.jsonl"
     agents_cases_path: Path = REPO_ROOT / "data" / "eval" / "agents.jsonl"
+    # Generated cases for prompt optimisation only, never for reporting.
+    train_cases_path: Path = REPO_ROOT / "data" / "train" / "train_cases.jsonl"
     examples_path: Path = REPO_ROOT / "data" / "ui" / "demo_examples.json"
     # The live conversation's simulated agent: its instructions, and an optional different
     # model to play it (same backend). Unset, the classifier's model plays both roles.
@@ -77,6 +79,9 @@ class Settings(BaseSettings):
 
     timeout_s: float = 60.0
     max_output_tokens: int = 1024
+    # Sampling temperature for the classifier. Unset leaves the provider's default (MiniMax
+    # samples; Ollama is pinned to 0). Set it, e.g. PAC_TEMPERATURE=0, for repeatable runs.
+    temperature: float | None = None
     concurrency: int = 4
 
     @field_validator(
