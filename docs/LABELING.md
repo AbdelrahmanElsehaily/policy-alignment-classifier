@@ -57,8 +57,9 @@ corner cases to come from, and that limits what this set can claim. Specifically
 - Each conversation transcript sits entirely in one split, and so do the cases of each position pair, so no
   context crosses between the two.
 - If a test label was changed after a test run, the change is listed under "Label changes" below.
-- `hard` (31 cases) was written after v1.0, in its own file (`data/eval/hard.jsonl`), so that adding it
-  changed nothing the committed dev and test runs depend on. Its labels were committed in `2527f48`,
+- `hard` (31 cases) was written after v1.0, in its own file at first, so that adding it changed
+  nothing the committed dev and test runs depend on. It now opens the stress file, unchanged (see
+  `data/README.md`). Its labels were committed in `2527f48`,
   before any classifier ran on it, and they won't be changed to fit a result. Where a model's reading
   seems better than mine, that is reported as a disagreement, not fixed. The cases were *chosen* to be
   hard, partly from failures seen in the live demo, so scores on this split measure robustness on hard

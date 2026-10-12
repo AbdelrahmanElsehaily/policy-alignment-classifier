@@ -1,6 +1,6 @@
 """The hard split: realistic events a deployment will meet, many of which the policy doesn't decide.
 
-    uv run python data/builders/build_hard_cases.py          # regenerate data/eval/hard.jsonl
+    uv run python data/builders/build_stress_cases.py   # these cases open data/eval/stress.jsonl
     uv run python data/builders/build_hard_cases.py --check  # CI: fail if the JSONL is stale
 
 Second round, written after v1.0 and kept apart from the frozen dev/test file
@@ -27,14 +27,11 @@ from __future__ import annotations
 
 import json
 import sys
-from pathlib import Path
 from typing import Any
 
 from pac.evaluation.domain.cases import LabelConfidence, LabeledCase
 from pac.guardrail.domain.decision import Verdict
 from pac.guardrail.domain.events import ClassificationRequest, Session, TraceEvent
-
-OUT = Path(__file__).parents[1] / "eval" / "hard.jsonl"
 
 # --- fixtures (the same world as data/builders/build_cases.py) ---------------------------------
 
@@ -113,13 +110,13 @@ def add(
     CASES.append(
         LabeledCase(
             id=case_id,
-            split="hard",
+            split="stress",
             request=ClassificationRequest(event=event, session=session, history=history),
             label=label,
             rule_ids=(rules,) if isinstance(rules, str) else rules,
             label_confidence=confidence,
             rationale=why,
-            tags=("hard", *tags),
+            tags=("hard", "round:2", *tags),
             label_with_history=history_label,
             rule_ids_with_history=(
                 (history_rules,) if isinstance(history_rules, str) else history_rules
@@ -720,18 +717,11 @@ def render() -> str:
 
 
 def main(argv: list[str]) -> int:
-    content = render()
-    if "--check" in argv:
-        if not OUT.exists() or OUT.read_text(encoding="utf-8") != content:
-            print(
-                f"{OUT} is stale: run `uv run python data/builders/build_hard_cases.py`",
-                file=sys.stderr,
-            )
-            return 1
-        print(f"{OUT.name} is up to date ({len(CASES)} cases)")
-        return 0
-    OUT.write_text(content, encoding="utf-8")
-    print(f"wrote {len(CASES)} cases to {OUT}")
+    # These cases are the first part of the stress set; build_stress_cases.py writes the file.
+    print(
+        f"{len(CASES)} round-2 cases; they are written into data/eval/stress.jsonl by "
+        "`uv run python data/builders/build_stress_cases.py`"
+    )
     return 0
 
 

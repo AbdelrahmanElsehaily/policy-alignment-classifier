@@ -32,7 +32,6 @@ pytestmark = pytest.mark.integration
 SETTINGS = Settings(
     policy_path=REPO_ROOT / "policy" / "policy_v0.md",
     cases_path=REPO_ROOT / "data" / "eval" / "dev_test.jsonl",
-    hard_cases_path=REPO_ROOT / "data" / "eval" / "hard.jsonl",
     stress_cases_path=REPO_ROOT / "data" / "eval" / "stress.jsonl",
     cache_dir=REPO_ROOT / "cache",
     results_dir=REPO_ROOT / "results",
@@ -47,7 +46,9 @@ def _classifier_for(config: RunConfig) -> EventClassifier:
     policy = load_policy(SETTINGS.policy_path)
     assert policy.sha256 == config.policy_sha256, "policy changed since this run was recorded"
     stem = config.prompt_version.split("@")[0]
-    prompt = load_prompt(REPO_ROOT / "prompts" / f"{stem}.md", policy)
+    prompt = load_prompt(
+        REPO_ROOT / "prompts" / f"{stem}.md", policy, temperature=config.temperature
+    )
     assert prompt.version == config.prompt_version, f"{stem}.md changed since this run"
     replay = CachingBackend(SETTINGS.cache_dir, inner=None, model=config.classifier)
     return LLMClassifier(replay, policy, prompt)

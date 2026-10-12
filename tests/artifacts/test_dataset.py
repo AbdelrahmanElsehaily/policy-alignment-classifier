@@ -79,25 +79,24 @@ def test_contested_labels_are_tagged_corner_case() -> None:
     assert not untagged
 
 
-# --- the hard split (data/eval/hard.jsonl) ---------------------------------------------------
+# --- the round-2 hard cases, which open the stress set (data/eval/stress.jsonl) ----------------
 
 
 def _hard() -> list[LabeledCase]:
-    return load_cases(Settings().hard_cases_path)
+    return [c for c in load_cases(Settings().stress_cases_path) if "round:2" in c.tags]
 
 
-def test_hard_split_valid_and_in_its_own_file(policy: Policy) -> None:
+def test_hard_cases_valid_and_part_of_the_stress_set(policy: Policy) -> None:
     hard = _hard()
     check_against_policy(hard, policy)
     assert len(hard) >= 30
-    assert {c.split for c in hard} == {"hard"}
+    assert {c.split for c in hard} == {"stress"}
     assert all("hard" in c.tags for c in hard)
-    assert not any(c.split == "hard" for c in load_cases(Settings().cases_path))
 
 
-def test_hard_jsonl_matches_builder() -> None:
+def test_stress_jsonl_matches_builder() -> None:
     result = subprocess.run(
-        [sys.executable, str(REPO_ROOT / "data" / "builders" / "build_hard_cases.py"), "--check"],
+        [sys.executable, str(REPO_ROOT / "data" / "builders" / "build_stress_cases.py"), "--check"],
         capture_output=True,
         text=True,
         check=False,

@@ -2,11 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import agents from "../../data/eval/agents.jsonl?raw";
 import cases from "../../data/eval/dev_test.jsonl?raw";
-import titles from "../../data/ui/case_titles.json";
-import hard from "../../data/eval/hard.jsonl?raw";
+import titles from "./data/case_titles.json";
 import stress from "../../data/eval/stress.jsonl?raw";
 
-const ids = [cases, hard, stress, agents].flatMap((jsonl) =>
+const ids = [cases, stress, agents].flatMap((jsonl) =>
   jsonl
     .split("\n")
     .filter(Boolean)

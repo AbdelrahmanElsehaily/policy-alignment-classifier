@@ -48,7 +48,7 @@ def dataset(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     ]
     hard = LabeledCase(
         id="hard-imei",
-        split="hard",
+        split="stress",
         request=ClassificationRequest(
             event=TraceEvent(kind="user_input", content="My IMEI is 356938035643809")
         ),
@@ -58,11 +58,11 @@ def dataset(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     )
     path = tmp_path / "cases.jsonl"
     path.write_text("".join(c.model_dump_json() + "\n" for c in cases))
-    (tmp_path / "hard_cases.jsonl").write_text(hard.model_dump_json() + "\n")
+    (tmp_path / "stress.jsonl").write_text(hard.model_dump_json() + "\n")
     monkeypatch.setenv("PAC_CASES_PATH", str(path))
-    monkeypatch.setenv("PAC_HARD_CASES_PATH", str(tmp_path / "hard_cases.jsonl"))
-    monkeypatch.setenv("PAC_STRESS_CASES_PATH", str(tmp_path / "no-stress.jsonl"))
+    monkeypatch.setenv("PAC_STRESS_CASES_PATH", str(tmp_path / "stress.jsonl"))
     monkeypatch.setenv("PAC_AGENTS_CASES_PATH", str(tmp_path / "agents.jsonl"))
+    monkeypatch.setenv("PAC_TRAIN_CASES_PATH", str(tmp_path / "no-train.jsonl"))
     monkeypatch.setenv("PAC_RESULTS_DIR", str(tmp_path / "results"))
     monkeypatch.setenv("PAC_CACHE_DIR", str(tmp_path / "cache"))
     return path
@@ -71,19 +71,19 @@ def dataset(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
 def test_check_data(dataset: Path) -> None:
     result = runner.invoke(app, ["check-data"])
     assert result.exit_code == 0, result.output
-    assert "3 cases (1 dev, 1 test, 1 hard, 0 stress, 0 agents)" in result.output
+    assert "3 cases (1 dev, 1 test, 1 stress, 0 agents, 0 train)" in result.output
 
 
-def test_eval_hard_split_records_its_dataset_file(dataset: Path, tmp_path: Path) -> None:
-    out = tmp_path / "hard-run"
+def test_eval_stress_split_records_its_dataset_file(dataset: Path, tmp_path: Path) -> None:
+    out = tmp_path / "stress-run"
     result = runner.invoke(
-        app, ["eval", "--split", "hard", "--classifier", "baseline", "--out-dir", str(out)]
+        app, ["eval", "--split", "stress", "--classifier", "baseline", "--out-dir", str(out)]
     )
     assert result.exit_code == 0, result.output
     config = json.loads((out / "config.json").read_text())
-    assert config["split"] == "hard"
+    assert config["split"] == "stress"
     assert config["n_cases"] == 1
-    assert config["dataset"] == "hard_cases.jsonl"
+    assert config["dataset"] == "stress.jsonl"
 
 
 def test_check_data_reports_bad_rule(dataset: Path) -> None:

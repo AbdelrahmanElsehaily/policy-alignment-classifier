@@ -12,8 +12,14 @@ def load_policy(path: Path) -> Policy:
     return Policy.from_text(path.read_text(encoding="utf-8"))
 
 
-def load_prompt(path: Path, policy: Policy, *, max_tokens: int = 1024) -> PromptTemplate:
+def load_prompt(
+    path: Path, policy: Policy, *, max_tokens: int = 1024, temperature: float | None = None
+) -> PromptTemplate:
     """Load a prompt template; its file stem names the version (``classifier_v2@<hash>``)."""
     return PromptTemplate.from_text(
-        path.read_text(encoding="utf-8"), name=path.stem, policy=policy, max_tokens=max_tokens
+        path.read_text(encoding="utf-8"),
+        name=path.stem,
+        policy=policy,
+        max_tokens=max_tokens,
+        temperature=temperature,
     )

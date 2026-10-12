@@ -33,6 +33,10 @@ dev = [
     "respx>=0.23.1",
     "ruff>=0.17.0",
 ]
+optimize = [
+    "dspy>=3.4",
+    "optuna>=4",
+]
 
 [tool.ruff]
 line-length = 100
@@ -56,6 +60,13 @@ plugins = ["pydantic.mypy"]
 [[tool.mypy.overrides]]
 module = ["respx.*"]
 ignore_missing_imports = true
+
+# The optional `optimize` group (scripts/optimize_prompt.py only). Skipped whether or not it is
+# installed, so `mypy` gives the same answer in CI (without it) and locally (with it).
+[[tool.mypy.overrides]]
+module = ["dspy", "dspy.*", "litellm", "litellm.*"]
+ignore_missing_imports = true
+follow_imports = "skip"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

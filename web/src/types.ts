@@ -53,7 +53,7 @@ export interface Classification {
 
 export interface LabeledCase {
   id: string;
-  split: "dev" | "test" | "hard" | "stress";
+  split: "dev" | "test" | "hard" | "stress" | "agents";
   request: ClassificationRequest;
   label: Verdict;
   rule_ids: string[];

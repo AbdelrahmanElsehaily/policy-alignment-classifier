@@ -22,15 +22,15 @@ export const SPLITS: Record<string, SplitInfo> = {
     comparable: "Optimistic: the prompt was shaped by these cases.",
   },
   hard: {
-    title: "Hard",
+    title: "Hard (round 2)",
     about:
-      "Round 2: hand-written events the policy mostly doesn't decide (payment timeouts, foreign currency, gift cards, planted keys, injected instructions, Arabic).",
+      "Runs from before the merge: the 31 hand-written round-2 events, now the first part of the Stress set (payment timeouts, foreign currency, gift cards, planted keys, injected instructions, Arabic).",
     comparable: "Chosen to be hard, so lower than Test by design. Not comparable with Test.",
   },
   stress: {
     title: "Stress",
     about:
-      "Round 3: 16 recorded natural conversations (a simulated customer talking to the agent), 5 scripted conversations, and varied single events for each corner case.",
+      "386 events built after v1: the 31 hand-written round-2 events, 16 recorded natural conversations (a simulated customer talking to the agent), 5 scripted conversations, and varied single events for each corner case. Runs from before the merge cover the 355 round-3 events.",
     comparable:
       "Chosen to be hard and mostly natural traffic. Related cases share a template, so the honest range is the template range.",
   },

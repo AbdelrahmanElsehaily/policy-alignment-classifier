@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 from types import SimpleNamespace
@@ -32,6 +33,19 @@ def test_cache_key_is_stable_and_sensitive() -> None:
     assert REQUEST.cache_key("m") == REQUEST.cache_key("m")
     assert REQUEST.cache_key("m") != REQUEST.cache_key("other")
     assert REQUEST.cache_key("m") != REQUEST.model_copy(update={"system": "x"}).cache_key("m")
+
+
+def test_unset_temperature_keeps_the_recorded_keys() -> None:
+    # The key recordings were made under, before requests carried a temperature.
+    legacy = json.dumps(
+        {"model": "m", **REQUEST.model_dump(exclude={"temperature"})},
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    assert REQUEST.cache_key("m") == hashlib.sha256(legacy.encode()).hexdigest()
+    pinned = REQUEST.model_copy(update={"temperature": 0.0})
+    assert pinned.cache_key("m") != REQUEST.cache_key("m")
+    assert pinned.cache_key("m") != pinned.model_copy(update={"temperature": 0.5}).cache_key("m")
 
 
 # --- caching backend -------------------------------------------------------------------------
@@ -232,9 +246,19 @@ async def test_openai_compatible_request_shape_and_usage() -> None:
     assert body["thinking"] == {"type": "disabled"}
     assert body["reasoning_split"] is True
     assert body["max_completion_tokens"] == REQUEST.max_tokens
+    assert "temperature" not in body  # unset: the provider's default
     assert completion.text == '{"a": 1}'
     assert completion.usage.cache_read_input_tokens == 1200
     assert completion.usage.input_tokens == 300  # 1500 prompt tokens minus 1200 cached
+
+
+@respx.mock
+async def test_openai_compatible_sends_a_set_temperature() -> None:
+    route = respx.post("http://minimax.test/v1/chat/completions").respond(
+        json={"choices": [{"message": {"content": "{}"}, "finish_reason": "stop"}]}
+    )
+    await _minimax().complete(REQUEST.model_copy(update={"temperature": 0.0}))
+    assert json.loads(route.calls[0].request.content)["temperature"] == 0.0
 
 
 @respx.mock

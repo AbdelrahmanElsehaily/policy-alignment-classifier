@@ -1,0 +1,11 @@
+{
+ "by_phase": {
+  "gepa": 388,
+  "gepa-reflection": 5,
+  "train-eval": 425
+ },
+ "failed": 86,
+ "model": "MiniMax-M3",
+ "routed": 5,
+ "sent": 813
+}
