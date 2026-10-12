@@ -24,3 +24,7 @@ results/scratch/
 
 # Local tooling
 .claude/
+data/synthetic/*.log
+data/synthetic/*.lock
+data/synthetic/*.tmp
+data/synthetic/llm_cache/

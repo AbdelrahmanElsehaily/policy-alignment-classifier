@@ -1,0 +1,792 @@
+{
+ "dedup": {
+  "dropped": 253,
+  "by_reason": {
+   "within-split": 213,
+   "eval": 30,
+   "split:test": 9,
+   "split:dev": 1
+  }
+ },
+ "test_split_label_mix": {
+  "allow": 0.465,
+  "violation": 0.36,
+  "policy_silent": 0.175
+ },
+ "train": {
+  "events": 628,
+  "label_mix": {
+   "allow": 0.608,
+   "violation": 0.226,
+   "policy_silent": 0.166
+  },
+  "label_mix_vs_test": {
+   "allow": 0.143,
+   "violation": -0.134,
+   "policy_silent": -0.009
+  },
+  "confidence": {
+   "high": 446,
+   "medium": 154,
+   "contested": 28
+  },
+  "sources": {
+   "targeted": 109,
+   "conversation": 483,
+   "hard_negative": 11,
+   "pair": 25
+  },
+  "kinds": {
+   "model_output": 249,
+   "tool_call": 108,
+   "tool_response": 56,
+   "user_input": 215
+  },
+  "agents": {
+   "-": 145,
+   "MiniMax-M3": 179,
+   "deepseek/deepseek-v4-flash": 304
+  },
+  "templates": 90,
+  "events_per_template": {
+   "max": 61,
+   "mean": 6.98
+  },
+  "distinct_1": 0.114,
+  "distinct_2": 0.494,
+  "distinct_3": 0.763,
+  "languages": {
+   "en": 380,
+   "n/a": 164,
+   "fr": 16,
+   "de": 6,
+   "ar": 22,
+   "pt": 23,
+   "es": 16,
+   "und": 1
+  },
+  "lengths": {
+   "<50": 62,
+   "50-150": 164,
+   "150-400": 301,
+   "400-1000": 95,
+   "1000+": 6
+  },
+  "drift": {
+   "status": "major",
+   "features": {
+    "kind": {
+     "psi": 0.0651,
+     "status": "stable",
+     "movers": [
+      [
+       "model_output",
+       0.3213,
+       0.3965
+      ],
+      [
+       "tool_response",
+       0.1639,
+       0.0892
+      ],
+      [
+       "tool_call",
+       0.1934,
+       0.172
+      ]
+     ],
+     "new": []
+    },
+    "tool": {
+     "psi": 0.159,
+     "status": "moderate",
+     "movers": [
+      [
+       "lookup_order",
+       0.1672,
+       0.0605
+      ],
+      [
+       "n/a",
+       0.6426,
+       0.7389
+      ],
+      [
+       "issue_refund",
+       0.0656,
+       0.0334
+      ]
+     ],
+     "new": []
+    },
+    "verified": {
+     "psi": 0.0692,
+     "status": "stable",
+     "movers": [
+      [
+       "unverified",
+       0.4098,
+       0.285
+      ],
+      [
+       "verified",
+       0.5902,
+       0.715
+      ]
+     ],
+     "new": []
+    },
+    "text_length": {
+     "psi": 0.2921,
+     "status": "major",
+     "movers": [
+      [
+       "50-150",
+       0.4721,
+       0.2739
+      ],
+      [
+       "150-400",
+       0.3246,
+       0.4904
+      ],
+      [
+       "400-1000",
+       0.0656,
+       0.1545
+      ]
+     ],
+     "new": []
+    },
+    "script": {
+     "psi": 0.0001,
+     "status": "stable",
+     "movers": [
+      [
+       "arabic",
+       0.0328,
+       0.035
+      ],
+      [
+       "latin",
+       0.9672,
+       0.965
+      ]
+     ],
+     "new": []
+    },
+    "history": {
+     "psi": 0.0,
+     "status": "stable",
+     "movers": [
+      [
+       "0",
+       1.0,
+       1.0
+      ]
+     ],
+     "new": []
+    },
+    "verdict": {
+     "psi": 0.0086,
+     "status": "stable",
+     "movers": [
+      [
+       "policy_silent",
+       0.1344,
+       0.1656
+      ],
+      [
+       "violation",
+       0.2492,
+       0.2261
+      ],
+      [
+       "allow",
+       0.6164,
+       0.6083
+      ]
+     ],
+     "new": []
+    },
+    "gate": {
+     "psi": 0.0086,
+     "status": "stable",
+     "movers": [
+      [
+       "hold",
+       0.1344,
+       0.1656
+      ],
+      [
+       "block",
+       0.2492,
+       0.2261
+      ],
+      [
+       "pass",
+       0.6164,
+       0.6083
+      ]
+     ],
+     "new": []
+    },
+    "rules": {
+     "psi": 0.0731,
+     "status": "stable",
+     "movers": [
+      [
+       "R9",
+       0.0358,
+       0.0689
+      ],
+      [
+       "R11",
+       0.0261,
+       0.0031
+      ],
+      [
+       "none",
+       0.7459,
+       0.7606
+      ]
+     ],
+     "new": []
+    },
+    "confidence": {
+     "psi": null,
+     "status": "not_compared",
+     "movers": [],
+     "new": []
+    },
+    "error": {
+     "psi": null,
+     "status": "not_compared",
+     "movers": [],
+     "new": []
+    },
+    "latency": {
+     "psi": null,
+     "status": "not_compared",
+     "movers": [],
+     "new": []
+    }
+   }
+  }
+ },
+ "dev": {
+  "events": 273,
+  "label_mix": {
+   "allow": 0.619,
+   "violation": 0.19,
+   "policy_silent": 0.19
+  },
+  "label_mix_vs_test": {
+   "allow": 0.154,
+   "violation": -0.17,
+   "policy_silent": 0.015
+  },
+  "confidence": {
+   "high": 213,
+   "medium": 53,
+   "contested": 7
+  },
+  "sources": {
+   "targeted": 59,
+   "conversation": 177,
+   "hard_negative": 12,
+   "pair": 25
+  },
+  "kinds": {
+   "model_output": 101,
+   "tool_call": 57,
+   "tool_response": 29,
+   "user_input": 86
+  },
+  "agents": {
+   "-": 96,
+   "deepseek/deepseek-v4-flash": 73,
+   "MiniMax-M3": 104
+  },
+  "templates": 57,
+  "events_per_template": {
+   "max": 26,
+   "mean": 4.79
+  },
+  "distinct_1": 0.162,
+  "distinct_2": 0.596,
+  "distinct_3": 0.82,
+  "languages": {
+   "en": 157,
+   "n/a": 86,
+   "und": 2,
+   "pt": 12,
+   "es": 16
+  },
+  "lengths": {
+   "<50": 38,
+   "50-150": 76,
+   "150-400": 119,
+   "400-1000": 36,
+   "1000+": 4
+  },
+  "drift": {
+   "status": "moderate",
+   "features": {
+    "kind": {
+     "psi": 0.0325,
+     "status": "stable",
+     "movers": [
+      [
+       "tool_response",
+       0.1639,
+       0.1062
+      ],
+      [
+       "model_output",
+       0.3213,
+       0.37
+      ],
+      [
+       "tool_call",
+       0.1934,
+       0.2088
+      ]
+     ],
+     "new": []
+    },
+    "tool": {
+     "psi": 0.1112,
+     "status": "moderate",
+     "movers": [
+      [
+       "lookup_order",
+       0.1672,
+       0.0806
+      ],
+      [
+       "n/a",
+       0.6426,
+       0.685
+      ],
+      [
+       "send_email",
+       0.023,
+       0.0513
+      ]
+     ],
+     "new": []
+    },
+    "verified": {
+     "psi": 0.1849,
+     "status": "moderate",
+     "movers": [
+      [
+       "unverified",
+       0.4098,
+       0.2125
+      ],
+      [
+       "verified",
+       0.5902,
+       0.7875
+      ]
+     ],
+     "new": []
+    },
+    "text_length": {
+     "psi": 0.1769,
+     "status": "moderate",
+     "movers": [
+      [
+       "50-150",
+       0.4721,
+       0.3114
+      ],
+      [
+       "150-400",
+       0.3246,
+       0.4469
+      ],
+      [
+       "400-1000",
+       0.0656,
+       0.1319
+      ]
+     ],
+     "new": []
+    },
+    "script": {
+     "psi": 0.0964,
+     "status": "stable",
+     "movers": [
+      [
+       "latin",
+       0.9672,
+       1.0
+      ],
+      [
+       "arabic",
+       0.0328,
+       0.0
+      ]
+     ],
+     "new": []
+    },
+    "history": {
+     "psi": 0.0,
+     "status": "stable",
+     "movers": [
+      [
+       "0",
+       1.0,
+       1.0
+      ]
+     ],
+     "new": []
+    },
+    "verdict": {
+     "psi": 0.0348,
+     "status": "stable",
+     "movers": [
+      [
+       "violation",
+       0.2492,
+       0.1905
+      ],
+      [
+       "policy_silent",
+       0.1344,
+       0.1905
+      ],
+      [
+       "allow",
+       0.6164,
+       0.619
+      ]
+     ],
+     "new": []
+    },
+    "gate": {
+     "psi": 0.0348,
+     "status": "stable",
+     "movers": [
+      [
+       "block",
+       0.2492,
+       0.1905
+      ],
+      [
+       "hold",
+       0.1344,
+       0.1905
+      ],
+      [
+       "pass",
+       0.6164,
+       0.619
+      ]
+     ],
+     "new": []
+    },
+    "rules": {
+     "psi": 0.0476,
+     "status": "stable",
+     "movers": [
+      [
+       "none",
+       0.7459,
+       0.7978
+      ],
+      [
+       "R1",
+       0.0554,
+       0.0361
+      ],
+      [
+       "R11",
+       0.0261,
+       0.0072
+      ]
+     ],
+     "new": []
+    },
+    "confidence": {
+     "psi": null,
+     "status": "not_compared",
+     "movers": [],
+     "new": []
+    },
+    "error": {
+     "psi": null,
+     "status": "not_compared",
+     "movers": [],
+     "new": []
+    },
+    "latency": {
+     "psi": null,
+     "status": "not_compared",
+     "movers": [],
+     "new": []
+    }
+   }
+  }
+ },
+ "test": {
+  "events": 322,
+  "label_mix": {
+   "allow": 0.612,
+   "violation": 0.227,
+   "policy_silent": 0.161
+  },
+  "label_mix_vs_test": {
+   "allow": 0.147,
+   "violation": -0.133,
+   "policy_silent": -0.014
+  },
+  "confidence": {
+   "medium": 85,
+   "high": 221,
+   "contested": 16
+  },
+  "sources": {
+   "targeted": 56,
+   "conversation": 228,
+   "hard_negative": 12,
+   "pair": 26
+  },
+  "kinds": {
+   "tool_call": 51,
+   "model_output": 133,
+   "tool_response": 23,
+   "user_input": 115
+  },
+  "agents": {
+   "-": 94,
+   "mistralai/mistral-small-3.2-24b-instruct": 228
+  },
+  "templates": 60,
+  "events_per_template": {
+   "max": 30,
+   "mean": 5.37
+  },
+  "distinct_1": 0.147,
+  "distinct_2": 0.545,
+  "distinct_3": 0.762,
+  "languages": {
+   "n/a": 74,
+   "en": 197,
+   "und": 3,
+   "fr": 18,
+   "de": 30
+  },
+  "lengths": {
+   "<50": 43,
+   "50-150": 79,
+   "150-400": 168,
+   "400-1000": 32,
+   "1000+": 0
+  },
+  "drift": {
+   "status": "major",
+   "features": {
+    "kind": {
+     "psi": 0.1088,
+     "status": "moderate",
+     "movers": [
+      [
+       "tool_response",
+       0.1639,
+       0.0714
+      ],
+      [
+       "model_output",
+       0.3213,
+       0.413
+      ],
+      [
+       "user_input",
+       0.3213,
+       0.3571
+      ]
+     ],
+     "new": []
+    },
+    "tool": {
+     "psi": 0.1657,
+     "status": "moderate",
+     "movers": [
+      [
+       "n/a",
+       0.6426,
+       0.7702
+      ],
+      [
+       "lookup_order",
+       0.1672,
+       0.0714
+      ],
+      [
+       "issue_refund",
+       0.0656,
+       0.028
+      ]
+     ],
+     "new": []
+    },
+    "verified": {
+     "psi": 0.3256,
+     "status": "major",
+     "movers": [
+      [
+       "unverified",
+       0.4098,
+       0.1584
+      ],
+      [
+       "verified",
+       0.5902,
+       0.8416
+      ]
+     ],
+     "new": []
+    },
+    "text_length": {
+     "psi": 0.233,
+     "status": "moderate",
+     "movers": [
+      [
+       "150-400",
+       0.3246,
+       0.528
+      ],
+      [
+       "50-150",
+       0.4721,
+       0.2733
+      ],
+      [
+       "<50",
+       0.1344,
+       0.0994
+      ]
+     ],
+     "new": []
+    },
+    "script": {
+     "psi": 0.1026,
+     "status": "moderate",
+     "movers": [
+      [
+       "latin",
+       0.9672,
+       1.0
+      ],
+      [
+       "arabic",
+       0.0328,
+       0.0
+      ]
+     ],
+     "new": []
+    },
+    "history": {
+     "psi": 0.0,
+     "status": "stable",
+     "movers": [
+      [
+       "0",
+       1.0,
+       1.0
+      ]
+     ],
+     "new": []
+    },
+    "verdict": {
+     "psi": 0.007,
+     "status": "stable",
+     "movers": [
+      [
+       "policy_silent",
+       0.1344,
+       0.1615
+      ],
+      [
+       "violation",
+       0.2492,
+       0.2267
+      ],
+      [
+       "allow",
+       0.6164,
+       0.6118
+      ]
+     ],
+     "new": []
+    },
+    "gate": {
+     "psi": 0.007,
+     "status": "stable",
+     "movers": [
+      [
+       "hold",
+       0.1344,
+       0.1615
+      ],
+      [
+       "block",
+       0.2492,
+       0.2267
+      ],
+      [
+       "pass",
+       0.6164,
+       0.6118
+      ]
+     ],
+     "new": []
+    },
+    "rules": {
+     "psi": 0.0957,
+     "status": "stable",
+     "movers": [
+      [
+       "R9",
+       0.0358,
+       0.0749
+      ],
+      [
+       "R1",
+       0.0554,
+       0.0269
+      ],
+      [
+       "R11",
+       0.0261,
+       0.006
+      ]
+     ],
+     "new": []
+    },
+    "confidence": {
+     "psi": null,
+     "status": "not_compared",
+     "movers": [],
+     "new": []
+    },
+    "error": {
+     "psi": null,
+     "status": "not_compared",
+     "movers": [],
+     "new": []
+    },
+    "latency": {
+     "psi": null,
+     "status": "not_compared",
+     "movers": [],
+     "new": []
+    }
+   }
+  }
+ }
+}

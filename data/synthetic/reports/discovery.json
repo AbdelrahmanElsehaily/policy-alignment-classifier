@@ -1,0 +1,107 @@
+{
+ "overall": {
+  "n": 1223,
+  "run1_agreement": 0.818,
+  "wrong_twice": 166,
+  "violations_passed_twice": 18,
+  "jury_violations": 267
+ },
+ "by_split": {
+  "train": {
+   "n": 628,
+   "run1_agreement": 0.822,
+   "wrong_twice": 80,
+   "violations_passed_twice": 8,
+   "jury_violations": 142
+  },
+  "dev": {
+   "n": 273,
+   "run1_agreement": 0.806,
+   "wrong_twice": 37,
+   "violations_passed_twice": 5,
+   "jury_violations": 52
+  },
+  "test": {
+   "n": 322,
+   "run1_agreement": 0.82,
+   "wrong_twice": 49,
+   "violations_passed_twice": 5,
+   "jury_violations": 73
+  }
+ },
+ "by_agent_or_source": {
+  "MiniMax-M3": {
+   "n": 283,
+   "run1_agreement": 0.802,
+   "wrong_twice": 39,
+   "violations_passed_twice": 5,
+   "jury_violations": 35
+  },
+  "deepseek/deepseek-v4-flash": {
+   "n": 377,
+   "run1_agreement": 0.833,
+   "wrong_twice": 45,
+   "violations_passed_twice": 7,
+   "jury_violations": 75
+  },
+  "mistralai/mistral-small-3.2-24b-instruct": {
+   "n": 228,
+   "run1_agreement": 0.829,
+   "wrong_twice": 34,
+   "violations_passed_twice": 5,
+   "jury_violations": 40
+  },
+  "single:hard_negative": {
+   "n": 35,
+   "run1_agreement": 0.771,
+   "wrong_twice": 4,
+   "violations_passed_twice": 0,
+   "jury_violations": 0
+  },
+  "single:pair": {
+   "n": 76,
+   "run1_agreement": 0.882,
+   "wrong_twice": 7,
+   "violations_passed_twice": 0,
+   "jury_violations": 37
+  },
+  "single:targeted": {
+   "n": 224,
+   "run1_agreement": 0.786,
+   "wrong_twice": 37,
+   "violations_passed_twice": 1,
+   "jury_violations": 80
+  }
+ },
+ "by_confidence": {
+  "high": {
+   "n": 880,
+   "run1_agreement": 0.923,
+   "wrong_twice": 43,
+   "violations_passed_twice": 3,
+   "jury_violations": 195
+  },
+  "medium": {
+   "n": 292,
+   "run1_agreement": 0.572,
+   "wrong_twice": 95,
+   "violations_passed_twice": 15,
+   "jury_violations": 72
+  },
+  "contested": {
+   "n": 51,
+   "run1_agreement": 0.412,
+   "wrong_twice": 28,
+   "violations_passed_twice": 0,
+   "jury_violations": 0
+  }
+ },
+ "review_queue": {
+  "rows": 386,
+  "reasons": {
+   "jury-medium": 292,
+   "jury-vs-classifier": 166,
+   "jury-contested": 51
+  }
+ }
+}

@@ -88,7 +88,7 @@ type = "layers"
 layers = [
     "pac.interfaces",
     "pac.bootstrap",
-    "pac.evaluation | pac.simulation | pac.monitoring",
+    "pac.evaluation | pac.simulation | pac.monitoring | pac.synthesis",
     "pac.guardrail",
 ]
 
@@ -144,6 +144,25 @@ forbidden_modules = [
 ]
 
 [[tool.importlinter.contracts]]
+name = "Synthesis context is layered: infrastructure > application > domain"
+type = "layers"
+layers = [
+    "pac.synthesis.infrastructure",
+    "pac.synthesis.application",
+    "pac.synthesis.domain",
+]
+
+[[tool.importlinter.contracts]]
+name = "Synthesis sees the guardrail's domain model and LLM port, never the classifier"
+type = "forbidden"
+source_modules = ["pac.synthesis"]
+forbidden_modules = [
+    "pac.guardrail.infrastructure",
+    "pac.guardrail.application.llm_classifier",
+    "pac.guardrail.application.prompting",
+]
+
+[[tool.importlinter.contracts]]
 name = "Evaluation sees only the guardrail's published domain model"
 type = "forbidden"
 source_modules = ["pac.evaluation"]
@@ -161,5 +180,7 @@ source_modules = [
     "pac.simulation.application",
     "pac.monitoring.domain",
     "pac.monitoring.application",
+    "pac.synthesis.domain",
+    "pac.synthesis.application",
 ]
 forbidden_modules = ["anthropic", "httpx", "fastapi", "typer", "uvicorn", "pac.settings"]

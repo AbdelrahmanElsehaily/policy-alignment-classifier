@@ -1,0 +1,1773 @@
+[
+ {
+  "id": "syn-test-003-gift-card-code-e09",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-test-003-gift-card-code-e03"
+ },
+ {
+  "id": "syn-test-004-wants-human-e01",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-test-002-refund-outside-window-e03"
+ },
+ {
+  "id": "syn-test-004-wants-human-e02",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-test-002-refund-outside-window-e04"
+ },
+ {
+  "id": "syn-test-004-wants-human-tools-e00",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-test-004-wants-human-e00"
+ },
+ {
+  "id": "syn-test-004-wants-human-tools-e01",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-test-002-refund-outside-window-e03"
+ },
+ {
+  "id": "syn-test-004-wants-human-tools-e02",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-test-002-refund-outside-window-e04"
+ },
+ {
+  "id": "syn-test-004-wants-human-tools-e07",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 0.676,
+  "with": "syn-test-004-wants-human-tools-e05"
+ },
+ {
+  "id": "syn-test-005-warranty-defect-e07",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-test-005-warranty-defect-e03"
+ },
+ {
+  "id": "syn-test-005-warranty-defect-e08",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 0.732,
+  "with": "syn-test-003-gift-card-code-e10"
+ },
+ {
+  "id": "syn-test-005-warranty-defect-tools-e00",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-test-005-warranty-defect-e00"
+ },
+ {
+  "id": "syn-test-005-warranty-defect-tools-e01",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-test-005-warranty-defect-e03"
+ },
+ {
+  "id": "syn-test-005-warranty-defect-tools-e02",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-test-005-warranty-defect-e04"
+ },
+ {
+  "id": "syn-test-005-warranty-defect-tools-e05",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-test-005-warranty-defect-e03"
+ },
+ {
+  "id": "syn-test-005-warranty-defect-tools-e06",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 0.732,
+  "with": "syn-test-003-gift-card-code-e10"
+ },
+ {
+  "id": "syn-test-006-order-notes-tools-e00",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-test-006-order-notes-e00"
+ },
+ {
+  "id": "syn-test-006-order-notes-tools-e03",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-test-006-order-notes-e03"
+ },
+ {
+  "id": "syn-test-006-order-notes-tools-e04",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-test-006-order-notes-e04"
+ },
+ {
+  "id": "syn-test-006-order-notes-tools-e11",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 0.7,
+  "with": "syn-test-006-order-notes-tools-e09"
+ },
+ {
+  "id": "syn-test-008-cancel-processing-e04",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-test-003-gift-card-code-e04"
+ },
+ {
+  "id": "syn-test-008-cancel-processing-e07",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-test-008-cancel-processing-e03"
+ },
+ {
+  "id": "syn-test-009-price-match-e03",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-test-007-email-elsewhere-e03"
+ },
+ {
+  "id": "syn-test-009-price-match-e04",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-test-007-email-elsewhere-e04"
+ },
+ {
+  "id": "syn-test-009-price-match-e12",
+  "split": "test",
+  "why": "eval",
+  "overlap": 1.0,
+  "with": "a-minimax-missing-cable-13"
+ },
+ {
+  "id": "syn-test-010-double-charge-e04",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 0.765,
+  "with": "syn-test-007-email-elsewhere-e04"
+ },
+ {
+  "id": "syn-test-010-double-charge-e16",
+  "split": "test",
+  "why": "eval",
+  "overlap": 1.0,
+  "with": "s-recorded-059"
+ },
+ {
+  "id": "syn-test-012-safety-question-e07",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "seed-test-r1-minimax-00"
+ },
+ {
+  "id": "syn-test-012-safety-question-e08",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-test-005-warranty-defect-e04"
+ },
+ {
+  "id": "syn-test-012-safety-question-e11",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "seed-test-r1-minimax-00"
+ },
+ {
+  "id": "syn-test-012-safety-question-e12",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 0.765,
+  "with": "syn-test-002-refund-outside-window-e04"
+ },
+ {
+  "id": "syn-test-012-safety-question-tools-e00",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-test-012-safety-question-e00"
+ },
+ {
+  "id": "syn-test-012-safety-question-tools-e01",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 0.805,
+  "with": "syn-test-012-safety-question-e01"
+ },
+ {
+  "id": "syn-test-012-safety-question-tools-e03",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "seed-test-r1-minimax-00"
+ },
+ {
+  "id": "syn-test-012-safety-question-tools-e04",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-test-005-warranty-defect-e04"
+ },
+ {
+  "id": "syn-test-013-late-compensation-e03",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-test-011-cancel-shipped-e03"
+ },
+ {
+  "id": "syn-test-013-late-compensation-e04",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-test-003-gift-card-code-e04"
+ },
+ {
+  "id": "syn-test-013-late-compensation-tools-e00",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-test-013-late-compensation-e00"
+ },
+ {
+  "id": "syn-test-013-late-compensation-tools-e03",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-test-011-cancel-shipped-e03"
+ },
+ {
+  "id": "syn-test-013-late-compensation-tools-e04",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-test-003-gift-card-code-e04"
+ },
+ {
+  "id": "syn-test-fill-000",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-test-011-cancel-shipped-e03"
+ },
+ {
+  "id": "syn-test-fill-004",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-test-007-email-elsewhere-e03"
+ },
+ {
+  "id": "syn-test-hn-039",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 0.882,
+  "with": "syn-test-007-email-elsewhere-e04"
+ },
+ {
+  "id": "syn-test-hn-040",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-test-002-refund-outside-window-e04"
+ },
+ {
+  "id": "syn-test-hn-042",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-test-007-email-elsewhere-e03"
+ },
+ {
+  "id": "syn-test-pair-006",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-test-007-email-elsewhere-e03"
+ },
+ {
+  "id": "syn-test-pair-007",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-test-007-email-elsewhere-e03"
+ },
+ {
+  "id": "syn-test-pair-008",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-test-007-email-elsewhere-e03"
+ },
+ {
+  "id": "syn-test-pair-009",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-test-007-email-elsewhere-e03"
+ },
+ {
+  "id": "syn-test-pair-010",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-test-007-email-elsewhere-e03"
+ },
+ {
+  "id": "syn-test-pair-016",
+  "split": "test",
+  "why": "within-split",
+  "overlap": 0.667,
+  "with": "syn-test-007-email-elsewhere-e04"
+ },
+ {
+  "id": "syn-dev-001-refund-over-cap-e08",
+  "split": "dev",
+  "why": "eval",
+  "overlap": 1.0,
+  "with": "s-recorded-059"
+ },
+ {
+  "id": "syn-dev-002-cancel-processing-e03",
+  "split": "dev",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "seed-dev-r6-anthropic-claude-01"
+ },
+ {
+  "id": "syn-dev-002-cancel-processing-e07",
+  "split": "dev",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "seed-dev-r6-anthropic-claude-01"
+ },
+ {
+  "id": "syn-dev-002-cancel-processing-e19",
+  "split": "dev",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "seed-dev-r6-anthropic-claude-01"
+ },
+ {
+  "id": "syn-dev-002-cancel-processing-e20",
+  "split": "dev",
+  "why": "within-split",
+  "overlap": 0.818,
+  "with": "syn-dev-002-cancel-processing-e04"
+ },
+ {
+  "id": "syn-dev-003-partial-cancel-e07",
+  "split": "dev",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-dev-003-partial-cancel-e01"
+ },
+ {
+  "id": "syn-dev-005-troubleshoot-e04",
+  "split": "dev",
+  "why": "split:test",
+  "overlap": 1.0,
+  "with": "syn-test-005-warranty-defect-e04"
+ },
+ {
+  "id": "syn-dev-005-troubleshoot-e12",
+  "split": "dev",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-dev-005-troubleshoot-e08"
+ },
+ {
+  "id": "syn-dev-005-troubleshoot-e13",
+  "split": "dev",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-dev-005-troubleshoot-e03"
+ },
+ {
+  "id": "syn-dev-005-troubleshoot-e14",
+  "split": "dev",
+  "why": "within-split",
+  "overlap": 0.604,
+  "with": "syn-dev-004-order-notes-e04"
+ },
+ {
+  "id": "syn-dev-005-troubleshoot-e24",
+  "split": "dev",
+  "why": "eval",
+  "overlap": 1.0,
+  "with": "s-recorded-059"
+ },
+ {
+  "id": "syn-dev-006-wants-human-e04",
+  "split": "dev",
+  "why": "eval",
+  "overlap": 1.0,
+  "with": "s-recorded-059"
+ },
+ {
+  "id": "syn-dev-006-wants-human-e22",
+  "split": "dev",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-dev-001-refund-over-cap-e20"
+ },
+ {
+  "id": "syn-dev-006-wants-human-tools-e00",
+  "split": "dev",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-dev-006-wants-human-e00"
+ },
+ {
+  "id": "syn-dev-007-late-compensation-e02",
+  "split": "dev",
+  "why": "within-split",
+  "overlap": 0.605,
+  "with": "syn-dev-002-cancel-processing-e04"
+ },
+ {
+  "id": "syn-dev-007-late-compensation-e09",
+  "split": "dev",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-dev-007-late-compensation-e01"
+ },
+ {
+  "id": "syn-dev-007-late-compensation-e10",
+  "split": "dev",
+  "why": "within-split",
+  "overlap": 0.605,
+  "with": "syn-dev-002-cancel-processing-e04"
+ },
+ {
+  "id": "syn-dev-007-late-compensation-e14",
+  "split": "dev",
+  "why": "eval",
+  "overlap": 1.0,
+  "with": "a-minimax-missing-cable-13"
+ },
+ {
+  "id": "syn-dev-007-late-compensation-e16",
+  "split": "dev",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-dev-001-refund-over-cap-e20"
+ },
+ {
+  "id": "syn-dev-007-late-compensation-tools-e00",
+  "split": "dev",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-dev-007-late-compensation-e00"
+ },
+ {
+  "id": "syn-dev-007-late-compensation-tools-e01",
+  "split": "dev",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-dev-007-late-compensation-e01"
+ },
+ {
+  "id": "syn-dev-007-late-compensation-tools-e02",
+  "split": "dev",
+  "why": "within-split",
+  "overlap": 0.605,
+  "with": "syn-dev-002-cancel-processing-e04"
+ },
+ {
+  "id": "syn-dev-007-late-compensation-tools-e05",
+  "split": "dev",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-dev-006-wants-human-e15"
+ },
+ {
+  "id": "syn-dev-007-late-compensation-tools-e06",
+  "split": "dev",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-dev-006-wants-human-e16"
+ },
+ {
+  "id": "syn-dev-008-refund-outside-window-e03",
+  "split": "dev",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-dev-007-late-compensation-e01"
+ },
+ {
+  "id": "syn-dev-008-refund-outside-window-e07",
+  "split": "dev",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-dev-006-wants-human-e09"
+ },
+ {
+  "id": "syn-dev-008-refund-outside-window-e08",
+  "split": "dev",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-dev-006-wants-human-e10"
+ },
+ {
+  "id": "syn-dev-008-refund-outside-window-tools-e00",
+  "split": "dev",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-dev-008-refund-outside-window-e00"
+ },
+ {
+  "id": "syn-dev-008-refund-outside-window-tools-e07",
+  "split": "dev",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-dev-006-wants-human-e09"
+ },
+ {
+  "id": "syn-dev-008-refund-outside-window-tools-e08",
+  "split": "dev",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-dev-006-wants-human-e10"
+ },
+ {
+  "id": "syn-dev-009-cancel-shipped-e01",
+  "split": "dev",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-dev-007-late-compensation-e01"
+ },
+ {
+  "id": "syn-dev-009-cancel-shipped-e02",
+  "split": "dev",
+  "why": "within-split",
+  "overlap": 0.605,
+  "with": "syn-dev-002-cancel-processing-e04"
+ },
+ {
+  "id": "syn-dev-009-cancel-shipped-e05",
+  "split": "dev",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-dev-007-late-compensation-e01"
+ },
+ {
+  "id": "syn-dev-009-cancel-shipped-e06",
+  "split": "dev",
+  "why": "within-split",
+  "overlap": 0.605,
+  "with": "syn-dev-002-cancel-processing-e04"
+ },
+ {
+  "id": "syn-dev-010-foreign-refund-e04",
+  "split": "dev",
+  "why": "within-split",
+  "overlap": 0.824,
+  "with": "syn-dev-006-wants-human-e10"
+ },
+ {
+  "id": "syn-dev-010-foreign-refund-e12",
+  "split": "dev",
+  "why": "eval",
+  "overlap": 1.0,
+  "with": "h-retry-refund-after-timeout"
+ },
+ {
+  "id": "syn-dev-fill-000",
+  "split": "dev",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-dev-006-wants-human-e09"
+ },
+ {
+  "id": "syn-dev-fill-007",
+  "split": "dev",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-dev-005-troubleshoot-e03"
+ },
+ {
+  "id": "syn-dev-fill-013",
+  "split": "dev",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "seed-dev-r6-anthropic-claude-01"
+ },
+ {
+  "id": "syn-dev-hn-040",
+  "split": "dev",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-dev-006-wants-human-e10"
+ },
+ {
+  "id": "syn-dev-hn-042",
+  "split": "dev",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-dev-005-troubleshoot-e03"
+ },
+ {
+  "id": "syn-dev-hn-043",
+  "split": "dev",
+  "why": "split:test",
+  "overlap": 1.0,
+  "with": "syn-test-hn-043"
+ },
+ {
+  "id": "syn-dev-pair-006",
+  "split": "dev",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-dev-005-troubleshoot-e03"
+ },
+ {
+  "id": "syn-dev-pair-007",
+  "split": "dev",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-dev-005-troubleshoot-e03"
+ },
+ {
+  "id": "syn-dev-pair-008",
+  "split": "dev",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-dev-005-troubleshoot-e03"
+ },
+ {
+  "id": "syn-dev-pair-009",
+  "split": "dev",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-dev-005-troubleshoot-e03"
+ },
+ {
+  "id": "syn-dev-pair-010",
+  "split": "dev",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-dev-005-troubleshoot-e03"
+ },
+ {
+  "id": "syn-dev-pair-015",
+  "split": "dev",
+  "why": "split:test",
+  "overlap": 1.0,
+  "with": "syn-test-pair-015"
+ },
+ {
+  "id": "syn-dev-pair-016",
+  "split": "dev",
+  "why": "within-split",
+  "overlap": 0.641,
+  "with": "syn-dev-006-wants-human-e10"
+ },
+ {
+  "id": "syn-train-000-refund-in-window-e12",
+  "split": "train",
+  "why": "eval",
+  "overlap": 1.0,
+  "with": "s-recorded-021"
+ },
+ {
+  "id": "syn-train-001-refund-over-cap-e01",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "seed-train-r6-anthropic-claude-00"
+ },
+ {
+  "id": "syn-train-001-refund-over-cap-e08",
+  "split": "train",
+  "why": "eval",
+  "overlap": 1.0,
+  "with": "s-recorded-021"
+ },
+ {
+  "id": "syn-train-002-refund-outside-window-e03",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "seed-train-r1-anthropic-claude-01"
+ },
+ {
+  "id": "syn-train-002-refund-outside-window-e10",
+  "split": "train",
+  "why": "eval",
+  "overlap": 1.0,
+  "with": "s-recorded-059"
+ },
+ {
+  "id": "syn-train-003-warranty-defect-e10",
+  "split": "train",
+  "why": "eval",
+  "overlap": 1.0,
+  "with": "a-minimax-missing-cable-13"
+ },
+ {
+  "id": "syn-train-003-warranty-defect-tools-e00",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-003-warranty-defect-e00"
+ },
+ {
+  "id": "syn-train-003-warranty-defect-tools-e01",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-003-warranty-defect-e01"
+ },
+ {
+  "id": "syn-train-003-warranty-defect-tools-e02",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-003-warranty-defect-e02"
+ },
+ {
+  "id": "syn-train-003-warranty-defect-tools-e03",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-003-warranty-defect-e03"
+ },
+ {
+  "id": "syn-train-003-warranty-defect-tools-e04",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-003-warranty-defect-e04"
+ },
+ {
+  "id": "syn-train-003-warranty-defect-tools-e11",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "seed-train-r8-anthropic-claude-02"
+ },
+ {
+  "id": "syn-train-003-warranty-defect-tools-e18",
+  "split": "train",
+  "why": "eval",
+  "overlap": 1.0,
+  "with": "a-minimax-missing-cable-13"
+ },
+ {
+  "id": "syn-train-004-cancel-processing-e04",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 0.714,
+  "with": "syn-train-000-refund-in-window-e06"
+ },
+ {
+  "id": "syn-train-004-cancel-processing-e05",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-004-cancel-processing-e03"
+ },
+ {
+  "id": "syn-train-004-cancel-processing-e11",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-004-cancel-processing-e03"
+ },
+ {
+  "id": "syn-train-004-cancel-processing-e12",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 0.714,
+  "with": "syn-train-000-refund-in-window-e06"
+ },
+ {
+  "id": "syn-train-004-cancel-processing-e16",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-001-refund-over-cap-e12"
+ },
+ {
+  "id": "syn-train-004-cancel-processing-tools-e00",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-004-cancel-processing-e00"
+ },
+ {
+  "id": "syn-train-004-cancel-processing-tools-e03",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-004-cancel-processing-e03"
+ },
+ {
+  "id": "syn-train-004-cancel-processing-tools-e04",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 0.714,
+  "with": "syn-train-000-refund-in-window-e06"
+ },
+ {
+  "id": "syn-train-004-cancel-processing-tools-e05",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-004-cancel-processing-e03"
+ },
+ {
+  "id": "syn-train-004-cancel-processing-tools-e06",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-004-cancel-processing-e06"
+ },
+ {
+  "id": "syn-train-005-cancel-shipped-e02",
+  "split": "train",
+  "why": "eval",
+  "overlap": 1.0,
+  "with": "a-minimax-te-missing-cable-05"
+ },
+ {
+  "id": "syn-train-005-cancel-shipped-e07",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-005-cancel-shipped-e05"
+ },
+ {
+  "id": "syn-train-005-cancel-shipped-e08",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-005-cancel-shipped-e06"
+ },
+ {
+  "id": "syn-train-005-cancel-shipped-e12",
+  "split": "train",
+  "why": "eval",
+  "overlap": 1.0,
+  "with": "s-recorded-021"
+ },
+ {
+  "id": "syn-train-005-cancel-shipped-tools-e00",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-005-cancel-shipped-e00"
+ },
+ {
+  "id": "syn-train-005-cancel-shipped-tools-e01",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-005-cancel-shipped-e01"
+ },
+ {
+  "id": "syn-train-005-cancel-shipped-tools-e02",
+  "split": "train",
+  "why": "eval",
+  "overlap": 1.0,
+  "with": "a-minimax-te-missing-cable-05"
+ },
+ {
+  "id": "syn-train-005-cancel-shipped-tools-e03",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-005-cancel-shipped-e05"
+ },
+ {
+  "id": "syn-train-005-cancel-shipped-tools-e04",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-005-cancel-shipped-e06"
+ },
+ {
+  "id": "syn-train-005-cancel-shipped-tools-e07",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-005-cancel-shipped-e05"
+ },
+ {
+  "id": "syn-train-005-cancel-shipped-tools-e08",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-005-cancel-shipped-e06"
+ },
+ {
+  "id": "syn-train-005-cancel-shipped-tools-e11",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-005-cancel-shipped-e01"
+ },
+ {
+  "id": "syn-train-005-cancel-shipped-tools-e12",
+  "split": "train",
+  "why": "eval",
+  "overlap": 1.0,
+  "with": "a-minimax-te-missing-cable-05"
+ },
+ {
+  "id": "syn-train-005-cancel-shipped-tools-e16",
+  "split": "train",
+  "why": "eval",
+  "overlap": 1.0,
+  "with": "s-recorded-049"
+ },
+ {
+  "id": "syn-train-005-cancel-shipped-tools-e26",
+  "split": "train",
+  "why": "eval",
+  "overlap": 1.0,
+  "with": "s-recorded-059"
+ },
+ {
+  "id": "syn-train-006-address-change-e03",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "seed-train-r8-anthropic-claude-02"
+ },
+ {
+  "id": "syn-train-006-address-change-e04",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-003-warranty-defect-tools-e12"
+ },
+ {
+  "id": "syn-train-007-partial-cancel-e05",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-007-partial-cancel-e01"
+ },
+ {
+  "id": "syn-train-009-gift-card-code-e14",
+  "split": "train",
+  "why": "eval",
+  "overlap": 1.0,
+  "with": "s-recorded-059"
+ },
+ {
+  "id": "syn-train-011-price-match-e02",
+  "split": "train",
+  "why": "eval",
+  "overlap": 1.0,
+  "with": "a-minimax-te-missing-cable-05"
+ },
+ {
+  "id": "syn-train-011-price-match-e05",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-000-refund-in-window-e05"
+ },
+ {
+  "id": "syn-train-011-price-match-e06",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-000-refund-in-window-e06"
+ },
+ {
+  "id": "syn-train-011-price-match-tools-e00",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-011-price-match-e00"
+ },
+ {
+  "id": "syn-train-011-price-match-tools-e01",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-011-price-match-e01"
+ },
+ {
+  "id": "syn-train-011-price-match-tools-e02",
+  "split": "train",
+  "why": "eval",
+  "overlap": 1.0,
+  "with": "a-minimax-te-missing-cable-05"
+ },
+ {
+  "id": "syn-train-011-price-match-tools-e05",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-000-refund-in-window-e05"
+ },
+ {
+  "id": "syn-train-011-price-match-tools-e06",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-000-refund-in-window-e06"
+ },
+ {
+  "id": "syn-train-012-safety-question-e05",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "seed-train-r6-anthropic-claude-00"
+ },
+ {
+  "id": "syn-train-012-safety-question-e06",
+  "split": "train",
+  "why": "split:test",
+  "overlap": 1.0,
+  "with": "syn-test-005-warranty-defect-e04"
+ },
+ {
+  "id": "syn-train-012-safety-question-e11",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "seed-train-r6-anthropic-claude-00"
+ },
+ {
+  "id": "syn-train-012-safety-question-e12",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-001-refund-over-cap-e02"
+ },
+ {
+  "id": "syn-train-012-safety-question-e18",
+  "split": "train",
+  "why": "eval",
+  "overlap": 1.0,
+  "with": "s-recorded-021"
+ },
+ {
+  "id": "syn-train-012-safety-question-tools-e00",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-012-safety-question-e00"
+ },
+ {
+  "id": "syn-train-012-safety-question-tools-e01",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "seed-train-r6-anthropic-claude-00"
+ },
+ {
+  "id": "syn-train-012-safety-question-tools-e02",
+  "split": "train",
+  "why": "split:test",
+  "overlap": 1.0,
+  "with": "syn-test-005-warranty-defect-e04"
+ },
+ {
+  "id": "syn-train-012-safety-question-tools-e05",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "seed-train-r6-anthropic-claude-00"
+ },
+ {
+  "id": "syn-train-012-safety-question-tools-e06",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-001-refund-over-cap-e02"
+ },
+ {
+  "id": "syn-train-013-troubleshoot-e01",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-000-refund-in-window-e05"
+ },
+ {
+  "id": "syn-train-013-troubleshoot-e17",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-000-refund-in-window-e05"
+ },
+ {
+  "id": "syn-train-013-troubleshoot-e18",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-000-refund-in-window-e06"
+ },
+ {
+  "id": "syn-train-013-troubleshoot-tools-e00",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-013-troubleshoot-e00"
+ },
+ {
+  "id": "syn-train-013-troubleshoot-tools-e03",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-000-refund-in-window-e05"
+ },
+ {
+  "id": "syn-train-013-troubleshoot-tools-e04",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-013-troubleshoot-e02"
+ },
+ {
+  "id": "syn-train-013-troubleshoot-tools-e06",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-013-troubleshoot-e08"
+ },
+ {
+  "id": "syn-train-013-troubleshoot-tools-e09",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-000-refund-in-window-e05"
+ },
+ {
+  "id": "syn-train-013-troubleshoot-tools-e10",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-000-refund-in-window-e06"
+ },
+ {
+  "id": "syn-train-014-other-persons-order-e01",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-005-cancel-shipped-e05"
+ },
+ {
+  "id": "syn-train-014-other-persons-order-e02",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-005-cancel-shipped-e06"
+ },
+ {
+  "id": "syn-train-014-other-persons-order-e11",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-005-cancel-shipped-e05"
+ },
+ {
+  "id": "syn-train-014-other-persons-order-e12",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-005-cancel-shipped-e06"
+ },
+ {
+  "id": "syn-train-017-email-elsewhere-e01",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-000-refund-in-window-e05"
+ },
+ {
+  "id": "syn-train-017-email-elsewhere-e02",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-000-refund-in-window-e06"
+ },
+ {
+  "id": "syn-train-017-email-elsewhere-e13",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "seed-train-r8-anthropic-claude-02"
+ },
+ {
+  "id": "syn-train-017-email-elsewhere-e14",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-003-warranty-defect-tools-e12"
+ },
+ {
+  "id": "syn-train-017-email-elsewhere-e18",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-013-troubleshoot-e06"
+ },
+ {
+  "id": "syn-train-017-email-elsewhere-e21",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "seed-train-r6-anthropic-claude-00"
+ },
+ {
+  "id": "syn-train-017-email-elsewhere-e22",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-001-refund-over-cap-e02"
+ },
+ {
+  "id": "syn-train-017-email-elsewhere-e23",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-004-cancel-processing-e03"
+ },
+ {
+  "id": "syn-train-017-email-elsewhere-e24",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 0.714,
+  "with": "syn-train-000-refund-in-window-e06"
+ },
+ {
+  "id": "syn-train-017-email-elsewhere-e26",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 0.612,
+  "with": "syn-train-000-refund-in-window-e06"
+ },
+ {
+  "id": "syn-train-017-email-elsewhere-e30",
+  "split": "train",
+  "why": "split:dev",
+  "overlap": 1.0,
+  "with": "syn-dev-001-refund-over-cap-e20"
+ },
+ {
+  "id": "syn-train-018-double-charge-e04",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-013-troubleshoot-e02"
+ },
+ {
+  "id": "syn-train-018-double-charge-e10",
+  "split": "train",
+  "why": "eval",
+  "overlap": 1.0,
+  "with": "s-recorded-059"
+ },
+ {
+  "id": "syn-train-019-late-compensation-e01",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-005-cancel-shipped-e05"
+ },
+ {
+  "id": "syn-train-019-late-compensation-e02",
+  "split": "train",
+  "why": "split:test",
+  "overlap": 1.0,
+  "with": "syn-test-005-warranty-defect-e04"
+ },
+ {
+  "id": "syn-train-019-late-compensation-e06",
+  "split": "train",
+  "why": "eval",
+  "overlap": 1.0,
+  "with": "s-recorded-049"
+ },
+ {
+  "id": "syn-train-019-late-compensation-e09",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-005-cancel-shipped-e05"
+ },
+ {
+  "id": "syn-train-019-late-compensation-e10",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-005-cancel-shipped-e06"
+ },
+ {
+  "id": "syn-train-019-late-compensation-e18",
+  "split": "train",
+  "why": "eval",
+  "overlap": 1.0,
+  "with": "s-recorded-059"
+ },
+ {
+  "id": "syn-train-019-late-compensation-e20",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-005-cancel-shipped-e20"
+ },
+ {
+  "id": "syn-train-019-late-compensation-tools-e00",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-019-late-compensation-e00"
+ },
+ {
+  "id": "syn-train-019-late-compensation-tools-e01",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-005-cancel-shipped-e05"
+ },
+ {
+  "id": "syn-train-019-late-compensation-tools-e02",
+  "split": "train",
+  "why": "split:test",
+  "overlap": 1.0,
+  "with": "syn-test-005-warranty-defect-e04"
+ },
+ {
+  "id": "syn-train-019-late-compensation-tools-e05",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-005-cancel-shipped-e05"
+ },
+ {
+  "id": "syn-train-019-late-compensation-tools-e06",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-005-cancel-shipped-e06"
+ },
+ {
+  "id": "syn-train-019-late-compensation-tools-e10",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-019-late-compensation-e12"
+ },
+ {
+  "id": "syn-train-019-late-compensation-tools-e18",
+  "split": "train",
+  "why": "eval",
+  "overlap": 1.0,
+  "with": "s-recorded-059"
+ },
+ {
+  "id": "syn-train-020-refund-in-window-e04",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 0.765,
+  "with": "syn-train-000-refund-in-window-e06"
+ },
+ {
+  "id": "syn-train-020-refund-in-window-e06",
+  "split": "train",
+  "why": "eval",
+  "overlap": 1.0,
+  "with": "s-recorded-021"
+ },
+ {
+  "id": "syn-train-020-refund-in-window-tools-e00",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-020-refund-in-window-e00"
+ },
+ {
+  "id": "syn-train-020-refund-in-window-tools-e01",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-020-refund-in-window-e03"
+ },
+ {
+  "id": "syn-train-020-refund-in-window-tools-e02",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 0.765,
+  "with": "syn-train-000-refund-in-window-e06"
+ },
+ {
+  "id": "syn-train-021-refund-over-cap-e02",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 0.765,
+  "with": "syn-train-001-refund-over-cap-e02"
+ },
+ {
+  "id": "syn-train-021-refund-over-cap-e06",
+  "split": "train",
+  "why": "eval",
+  "overlap": 1.0,
+  "with": "s-recorded-021"
+ },
+ {
+  "id": "syn-train-021-refund-over-cap-e11",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-021-refund-over-cap-e01"
+ },
+ {
+  "id": "syn-train-021-refund-over-cap-e12",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 0.765,
+  "with": "syn-train-001-refund-over-cap-e02"
+ },
+ {
+  "id": "syn-train-021-refund-over-cap-tools-e00",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-021-refund-over-cap-e00"
+ },
+ {
+  "id": "syn-train-021-refund-over-cap-tools-e01",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-021-refund-over-cap-e01"
+ },
+ {
+  "id": "syn-train-021-refund-over-cap-tools-e02",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 0.765,
+  "with": "syn-train-001-refund-over-cap-e02"
+ },
+ {
+  "id": "syn-train-021-refund-over-cap-tools-e12",
+  "split": "train",
+  "why": "eval",
+  "overlap": 1.0,
+  "with": "s-recorded-021"
+ },
+ {
+  "id": "syn-train-021-refund-over-cap-tools-e21",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-021-refund-over-cap-e01"
+ },
+ {
+  "id": "syn-train-021-refund-over-cap-tools-e22",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 0.765,
+  "with": "syn-train-001-refund-over-cap-e02"
+ },
+ {
+  "id": "syn-train-021-refund-over-cap-tools-e24",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-021-refund-over-cap-tools-e08"
+ },
+ {
+  "id": "syn-train-022-refund-outside-window-e02",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 0.765,
+  "with": "syn-train-000-refund-in-window-e06"
+ },
+ {
+  "id": "syn-train-023-warranty-defect-e10",
+  "split": "train",
+  "why": "eval",
+  "overlap": 1.0,
+  "with": "a-minimax-missing-cable-13"
+ },
+ {
+  "id": "syn-train-024-cancel-processing-e03",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "seed-train-r6-anthropic-claude-01"
+ },
+ {
+  "id": "syn-train-024-cancel-processing-e04",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 0.605,
+  "with": "syn-train-000-refund-in-window-e06"
+ },
+ {
+  "id": "syn-train-024-cancel-processing-e07",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "seed-train-r6-anthropic-claude-01"
+ },
+ {
+  "id": "syn-train-025-cancel-shipped-e05",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-025-cancel-shipped-e01"
+ },
+ {
+  "id": "syn-train-025-cancel-shipped-e06",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-025-cancel-shipped-e02"
+ },
+ {
+  "id": "syn-train-fill-000",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-005-cancel-shipped-e05"
+ },
+ {
+  "id": "syn-train-fill-002",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-000-refund-in-window-e05"
+ },
+ {
+  "id": "syn-train-fill-021",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-000-refund-in-window-e05"
+ },
+ {
+  "id": "syn-train-fill-022",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "seed-train-r6-anthropic-claude-00"
+ },
+ {
+  "id": "syn-train-fill-026",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-007-partial-cancel-e01"
+ },
+ {
+  "id": "syn-train-fill-027",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-000-refund-in-window-e05"
+ },
+ {
+  "id": "syn-train-fill-030",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-005-cancel-shipped-e05"
+ },
+ {
+  "id": "syn-train-fill-031",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-000-refund-in-window-e05"
+ },
+ {
+  "id": "syn-train-fill-032",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-fill-003"
+ },
+ {
+  "id": "syn-train-fill-033",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-fill-004"
+ },
+ {
+  "id": "syn-train-fill-034",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-fill-005"
+ },
+ {
+  "id": "syn-train-fill-035",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-fill-006"
+ },
+ {
+  "id": "syn-train-fill-036",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-fill-007"
+ },
+ {
+  "id": "syn-train-fill-037",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-fill-008"
+ },
+ {
+  "id": "syn-train-fill-038",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-fill-009"
+ },
+ {
+  "id": "syn-train-fill-039",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-fill-010"
+ },
+ {
+  "id": "syn-train-fill-040",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-fill-011"
+ },
+ {
+  "id": "syn-train-fill-041",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-fill-012"
+ },
+ {
+  "id": "syn-train-fill-042",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-fill-013"
+ },
+ {
+  "id": "syn-train-fill-043",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-fill-016"
+ },
+ {
+  "id": "syn-train-fill-044",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-fill-017"
+ },
+ {
+  "id": "syn-train-hn-039",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 0.833,
+  "with": "syn-train-000-refund-in-window-e06"
+ },
+ {
+  "id": "syn-train-hn-040",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-002-refund-outside-window-e04"
+ },
+ {
+  "id": "syn-train-hn-042",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-000-refund-in-window-e05"
+ },
+ {
+  "id": "syn-train-hn-043",
+  "split": "train",
+  "why": "split:test",
+  "overlap": 1.0,
+  "with": "syn-test-hn-043"
+ },
+ {
+  "id": "syn-train-pair-006",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-000-refund-in-window-e05"
+ },
+ {
+  "id": "syn-train-pair-007",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-000-refund-in-window-e05"
+ },
+ {
+  "id": "syn-train-pair-008",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-000-refund-in-window-e05"
+ },
+ {
+  "id": "syn-train-pair-009",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-000-refund-in-window-e05"
+ },
+ {
+  "id": "syn-train-pair-010",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 1.0,
+  "with": "syn-train-000-refund-in-window-e05"
+ },
+ {
+  "id": "syn-train-pair-015",
+  "split": "train",
+  "why": "split:test",
+  "overlap": 1.0,
+  "with": "syn-test-pair-015"
+ },
+ {
+  "id": "syn-train-pair-016",
+  "split": "train",
+  "why": "within-split",
+  "overlap": 0.667,
+  "with": "syn-train-000-refund-in-window-e06"
+ }
+]

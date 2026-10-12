@@ -1,0 +1,31 @@
+{
+ "train": {
+  "eval_ids_in_split": [],
+  "other_split_ids_in_split": [],
+  "near_duplicates_of_eval": 0,
+  "templates_shared": [],
+  "agent_models": [
+   "MiniMax-M3",
+   "deepseek/deepseek-v4-flash"
+  ]
+ },
+ "dev": {
+  "eval_ids_in_split": [],
+  "other_split_ids_in_split": [],
+  "near_duplicates_of_eval": 0,
+  "templates_shared": [],
+  "agent_models": [
+   "MiniMax-M3",
+   "deepseek/deepseek-v4-flash"
+  ]
+ },
+ "test": {
+  "eval_ids_in_split": [],
+  "other_split_ids_in_split": [],
+  "near_duplicates_of_eval": 0,
+  "templates_shared": [],
+  "agent_models": [
+   "mistralai/mistral-small-3.2-24b-instruct"
+  ]
+ }
+}
